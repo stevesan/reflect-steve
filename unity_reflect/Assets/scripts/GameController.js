@@ -22,6 +22,7 @@ var helpText : GUIText;
 var levelNumber : GUIText;
 var titleText : GUIText;
 var level0Tute : GUIText;
+var level0TuteB : GUIText;
 var level1TuteA : GUIText;
 var level1TuteB : GUIText;
 var level4Tute : GUIText;
@@ -157,6 +158,7 @@ function OnGetMirror( mirror:Mirror )
 	if( gamestate == 'playing' ) {
 		numReflectionsAllowed++;
 		Destroy(mirror.gameObject);
+		helpText.GetComponent(PositionAnimation).Play();
 	}
 }
 
@@ -516,6 +518,7 @@ class ReflectEventDetails
 function Update()
 {
 	level0Tute.enabled = false;
+	level0TuteB.enabled = false;
 	level1TuteA.enabled = false;
 	level1TuteB.enabled = false;
 	level4Tute.enabled = false;
@@ -560,6 +563,7 @@ function Update()
 		SetFadeAmount( alpha );
 
 		level0Tute.enabled = (currLevId == 0);
+		level0TuteB.enabled = (currLevId == 0);
 		level1TuteA.enabled = currLevId == 1
 			&& (numReflectionsAllowed-numReflectionsDone > 0)
 			&& !isReflecting;
@@ -568,10 +572,11 @@ function Update()
 		level4Tute.enabled = currLevId == 4
 			&& isReflecting;
 
-		if( numReflectionsAllowed > 0 )
+		if( currLevId != 0 ) {
 			helpText.text = numReflectionsDone + ' / ' + numReflectionsAllowed;
-		else
+		} else {
 			helpText.text = "";
+		}
 
 		if( currLevPoly != null )
 		{
@@ -667,6 +672,7 @@ function Update()
 					// update state
 					player.GetComponent(PlayerControl).inputEnabled = true;
 					numReflectionsDone++;
+					helpText.GetComponent(PositionAnimation).Play();
 					isReflecting = false;
 
 					if( tracker != null )
