@@ -1,16 +1,13 @@
 
 TODO:
+- consider: making intro levels using non-abstract shapes, such as letters
 - i need to give each level a unique name, cuz i'll be modifying the level order.
-- pickup mirror fly-to-corner effect
-- figure out why level30 web build doesn't include the right part..
-- pickup mirror puzzles!
 - clamp cursor icon (hide pointer?) to screen
 - reflect effects: try some "looks" in photoshop..
 		current geo "behind" mirror (ie. in the reflected side) should be in dotted outline?
 - consider just offering various "moments of reflection" when each puzzle is solved! just like..quotes.
 - look at how Sworcery does its "worship mode". When in mirror mode, we should have a low hum noise in the BG, it should shimmer when the mouse moves, light should emit from the edge, etc.
 - for SJ: animate carrot/keys
-- when y velocity is negative, switch to "falling" anim with ears down
 - make carrot/keys juicy
 		light color changes when you get all keys? like a quick blink of blue?
 - make level geo double-sided for physics? why not?
