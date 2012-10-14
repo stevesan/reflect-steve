@@ -8,7 +8,7 @@ static var Singleton : GameController = null;
 var hostcam : Camera;
 var snapReflectAngle = true;
 var canMoveWhileReflecting = true;
-private var mirrorAngleSpeed = 2*Mathf.PI;
+private var mirrorAngleSpeed = 1.5*Mathf.PI;
 
 //----------------------------------------
 //  Components instances we use
@@ -82,7 +82,8 @@ var confirmReflectSnd : AudioClip;
 var keyGetSound : AudioClip;
 var goalLockedSound: AudioClip;
 var maxedReflectionsSnd: AudioClip;
-var rotateSnd : AudioClip;
+var rotateSnds : AudioClip[];
+private var rotateSndId:int;
 
 //----------------------------------------
 //  Particle FX
@@ -613,11 +614,13 @@ function Update()
 				//----------------------------------------
 				if( Input.GetButtonDown('RotateMirrorCW') ) {
 					goalMirrorAngle -= Mathf.PI/4;
-					AudioSource.PlayClipAtPoint( rotateSnd, hostcam.transform.position );
+					rotateSndId--; if(rotateSndId < 0) rotateSndId = rotateSnds.length-1;
+					AudioSource.PlayClipAtPoint( rotateSnds[rotateSndId], hostcam.transform.position );
 				}
 				else if( Input.GetButtonDown('RotateMirrorCCW') ) {
 					goalMirrorAngle += Mathf.PI/4;
-					AudioSource.PlayClipAtPoint( rotateSnd, hostcam.transform.position );
+					rotateSndId = (rotateSndId+1) % rotateSnds.length;
+					AudioSource.PlayClipAtPoint( rotateSnds[rotateSndId], hostcam.transform.position );
 				}
 
 				//----------------------------------------
