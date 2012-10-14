@@ -157,7 +157,6 @@ function OnGetMirror( mirror:Mirror )
 {
 	if( gamestate == 'playing' ) {
 		numReflectionsAllowed++;
-		Destroy(mirror.gameObject);
 		helpText.GetComponent(PositionAnimation).Play();
 	}
 }
