@@ -31,6 +31,7 @@ function Awake() {
 }
 
 function Start () {
+#if !UNITY_EDITOR
 	while(true) {
 		if( state == "needPlayerId" ) {
 			if( PlayerPrefs.HasKey("player_id") ) {
@@ -77,10 +78,12 @@ function Start () {
 			// no need to yield - don't care about response
 		}
 	}
+	#endif
 }
 
 function PostEvent( category:String, json:String )
 {
+#if !UNITY_EDITOR
 	if( state == "inSession" ) {
 		var request = new WWW(urlPrefix + "post_event?session_id="+sessionId
 			+ "&category=" + WWW.EscapeURL(category)
@@ -88,6 +91,7 @@ function PostEvent( category:String, json:String )
 			+ "&session_secs=" + Time.timeSinceLevelLoad );
 		// No need to yield - don't care about response
 	}
+	#endif
 }
 
 function Update () {

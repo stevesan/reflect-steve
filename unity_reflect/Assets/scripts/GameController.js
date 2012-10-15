@@ -82,8 +82,45 @@ var confirmReflectSnd : AudioClip;
 var keyGetSound : AudioClip;
 var goalLockedSound: AudioClip;
 var maxedReflectionsSnd: AudioClip;
-var rotateSnds : AudioClip[];
-private var rotateSndId:int;
+
+class RotationSounds
+{
+	var clips:AudioClip[];
+	private var sources:FadeableSource[];
+	
+	function Init()
+	{
+		sources = new FadeableSource[ clips.length ];
+		for( var i = 0; i < clips.length; i++ ) {
+			var obj = new GameObject();
+			var src = obj.AddComponent(AudioSource);
+			src.clip = clips[i];
+			sources[i] = new FadeableSource(src, 0.0, 0.01, 1.0);
+			sources[i].SetStopOnFadeOut(true);
+		}
+	}
+	
+	function Play(rads:float) {
+		rads -= Mathf.PI/2;	// we want the direction the mirror is "facing", not the line
+		var slice = Mathf.RoundToInt( rads/(Mathf.PI/4) );
+		while(slice < 0) slice += sources.length;
+		var srcId = slice % sources.length;
+		var pan = Mathf.Cos(rads);
+		sources[srcId].src.pan = pan;
+		
+		for( var i = 0; i < sources.length; i++ ) {
+			if( i == srcId ) {
+				sources[i].Play();
+				sources[i].FadeIn();
+			}
+			else {
+				sources[i].FadeOut();
+			}
+		}
+		
+	}
+}
+var rotationSounds = new RotationSounds();
 
 //----------------------------------------
 //  Particle FX
@@ -184,6 +221,8 @@ function UpdateGoalLocked()
 {
 	goal.GetComponent(Star).SetLocked( numKeysGot < numKeys );
 }
+
+function GetCurrentLevelId() { return currLevId; }
 
 function OnGetKey( keyObj:GameObject )
 {
@@ -427,6 +466,8 @@ function Awake()
 
 		origLightIntensity = mainLight.intensity;
 	}
+	
+	rotationSounds.Init();
 }
 
 function Start()
@@ -526,7 +567,7 @@ function Update()
 
 	if( gamestate == 'startscreen' ) {
 		// fading in
-		var alpha = Mathf.Clamp( (Time.time-fadeStart) / fadeInTime, 0.0, 1.0 );
+		var alpha = Mathf.Clamp( (Time.time-fadeStart) / 10.0, 0.0, 1.0 );
 		SetFadeAmount( alpha );
 
 		// clear the other text objects
@@ -555,6 +596,7 @@ function Update()
 		// and fade in, but game is playable now
 		fadeStart = Time.time;
 		gamestate = 'playing';
+		BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
 	}
 	else if( gamestate == 'playing' ) {
 		// fade in initially - just keep updating this
@@ -614,13 +656,11 @@ function Update()
 				//----------------------------------------
 				if( Input.GetButtonDown('RotateMirrorCW') ) {
 					goalMirrorAngle -= Mathf.PI/4;
-					rotateSndId--; if(rotateSndId < 0) rotateSndId = rotateSnds.length-1;
-					AudioSource.PlayClipAtPoint( rotateSnds[rotateSndId], hostcam.transform.position );
+					rotationSounds.Play(goalMirrorAngle);
 				}
 				else if( Input.GetButtonDown('RotateMirrorCCW') ) {
 					goalMirrorAngle += Mathf.PI/4;
-					rotateSndId = (rotateSndId+1) % rotateSnds.length;
-					AudioSource.PlayClipAtPoint( rotateSnds[rotateSndId], hostcam.transform.position );
+					rotationSounds.Play(goalMirrorAngle);
 				}
 
 				//----------------------------------------
@@ -676,6 +716,7 @@ function Update()
 					numReflectionsDone++;
 					helpText.GetComponent(PositionAnimation).Play();
 					isReflecting = false;
+					BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
 
 					if( tracker != null )
 					{
@@ -692,6 +733,7 @@ function Update()
 				{
 					AudioSource.PlayClipAtPoint( cancelReflectSnd, hostcam.transform.position );
 					isReflecting = false;
+					BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
 					player.GetComponent(PlayerControl).inputEnabled = true;
 					if( previewTriRender != null ) {
 						// hide new-geo host
@@ -719,6 +761,8 @@ function Update()
 						if( !canMoveWhileReflecting ) {
 							player.GetComponent(PlayerControl).inputEnabled = false;
 						}
+						
+						BroadcastMessage("OnEnterReflectMode", this, SendMessageOptions.DontRequireReceiver);
 					}
 				}
 			}

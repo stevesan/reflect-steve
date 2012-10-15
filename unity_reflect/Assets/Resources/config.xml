@@ -1,0 +1,66 @@
+<groups>
+    <group>
+        <clip normal="no_FX/group 1/group_01_sample_01_loop_noRepeat"
+        fx="FX/group 1/FX_group_01_sample_01_loop_noRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 1/group_01_sample_01_loop_noRepeat"
+        fx="FX/group 1/FX_group_01_sample_01_loop_noRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 1/group_01_sample_02_meas_10_noRepeat"
+        fx="FX/group 1/FX_group_01_sample_02_meas_10_noRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 2/group_02_sample_01_meas_4-2_noRepeat"
+        fx="FX/group 2/FX_group_02_sample_01_meas_4-2_noRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 2/group_02_sample_02_meas_4-2_noRepeat"
+        fx="FX/group 2/FX_group_02_sample_02_meas_4-2_noRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 2/group_02_sample_03_meas_4-2_noRepeat"
+        fx="FX/group 2/FX_group_02_sample_03_meas_4-2_noRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 2/group_02_sample_04_meas_4-2_noRepeat"
+        fx="FX/group 2/FX_group_02_sample_04_meas_4-2_noRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 3/group_03_sample_01_meas_4-2_yesRepeat"
+        fx="FX/group 3/FX_group_03_sample_01_meas_4-2_yesRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 3/group_03_sample_02_meas_4-2_yesRepeat"
+        fx="FX/group 3/FX_group_03_sample_02_meas_4-2_yesRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 4/group_04_sample_01_meas_4_yesRepeat"
+        fx="FX/group 4/FX_group_04_sample_01_4_yesRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 4/group_04_sample_02_meas_6_yesRepeat"
+        fx="FX/group 4/FX_group_04_sample_02_6_yesRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 4/group_04_sample_03_meas_6_yesRepeat"
+        fx="FX/group 4/FX_group_04_sample_03_6_yesRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 4/group_04_sample_04_meas_6_yesRepeat"
+        fx="FX/group 4/FX_group_04_sample_04_6_yesRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 5/group_05_sample_01_meas_6_yesRepeat"
+        fx="FX/group 5/FX_group_05_sample_01_6_yesRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 5/group_05_sample_02_meas_6_yesRepeat"
+        fx="FX/group 5/FX_group_05_sample_02_6_yesRepeat" />
+    </group>
+    <group>
+        <clip normal="no_FX/group 5/group_05_sample_03_meas_6_yesRepeat"
+        fx="FX/group 5/FX_group_05_sample_03_6_yesRepeat" />
+    </group>
+</groups>
