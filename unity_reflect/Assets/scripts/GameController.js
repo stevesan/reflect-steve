@@ -615,7 +615,7 @@ function Update()
 			&& isReflecting;
 
 		if( currLevId != 0 ) {
-			helpText.text = numReflectionsDone + ' / ' + numReflectionsAllowed;
+			helpText.text =  "x"+(numReflectionsAllowed-numReflectionsDone);
 		} else {
 			helpText.text = "";
 		}
@@ -749,6 +749,7 @@ function Update()
 					{
 						// no more allowed
 						AudioSource.PlayClipAtPoint( maxedReflectionsSnd, hostcam.transform.position );
+						helpText.GetComponent(PositionAnimation).Play();
 					}
 					else
 					{
