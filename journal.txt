@@ -1,5 +1,6 @@
 
 TODO:
+- consider negating colors on the reflecting side...could look cool, like a photo negative
 - consider: making intro levels using non-abstract shapes, such as letters
 - i need to give each level a unique name, cuz i'll be modifying the level order.
 - clamp cursor icon (hide pointer?) to screen

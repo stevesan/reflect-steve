@@ -681,7 +681,6 @@ function Update()
 				if( previewTriRender != null ) {
 					ProGeo.TriangulateSimplePolygon( newShape, previewTriRender.mesh, false );
 					SetNormalsAtCamera( previewTriRender.mesh );
-					previewTriRender.gameObject.GetComponent(Renderer).enabled = true;
 
 					// debug output all verts..
 					if( Input.GetButtonDown('DebugReset') && debugHost != null ) {
@@ -705,11 +704,6 @@ function Update()
 					// use new shape
 					currLevPoly = newShape;
 					OnCollidingGeometryChanged();
-
-					if( previewTriRender != null ) {
-						// hide preview
-						previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
-					}
 
 					// update state
 					player.GetComponent(PlayerControl).inputEnabled = true;
@@ -735,10 +729,6 @@ function Update()
 					isReflecting = false;
 					BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
 					player.GetComponent(PlayerControl).inputEnabled = true;
-					if( previewTriRender != null ) {
-						// hide new-geo host
-						previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
-					}
 				}
 			}
 			else {

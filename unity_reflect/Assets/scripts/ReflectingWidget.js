@@ -1,18 +1,33 @@
 #pragma strict
 
-var ctrl : GameController;
-var render : Renderer;
+var game : GameController;
+var gfx : GameObject;
+private var state = "hidden";
+
+function Awake()
+{
+	gfx.GetComponent(Renderer).enabled = false;
+}
+
+function OnEnterReflectMode(game:GameController)
+{
+	state = "shown";
+	gfx.GetComponent(Renderer).enabled = true;
+	gfx.GetComponent(FadeAnim).FadeIn();
+}
+
+function OnExitReflectMode(game:GameController)
+{
+	state = "hidden";
+	gfx.GetComponent(FadeAnim).FadeOut();
+}
 
 function Update()
 {
-	if( ctrl.GetIsReflecting() ) {
-		render.enabled = true;
+	if( state == "shown" ) {
 		var z = transform.position.z;
-		transform.position = ctrl.GetMirrorPos();
+		transform.position = game.GetMirrorPos();
 		transform.position.z = z;
-		transform.eulerAngles.z = Mathf.Rad2Deg * ctrl.GetMirrorAngle();
-	}
-	else {
-		render.enabled = false;
+		transform.eulerAngles.z = Mathf.Rad2Deg * game.GetMirrorAngle();
 	}
 }
