@@ -16,4 +16,14 @@ function OnExitReflectMode(game:GameController)
 {
 	this.GetComponent(FadeAnim).FadeOut();
 }
+/*
+function OnResetLevel(game:GameController)
+{
+	this.GetComponent(FadeAnim).FadeOut();
+}
 
+function OnLevelChanged(game:GameController)
+{
+	this.GetComponent(FadeAnim).FadeOut();
+}
+*/

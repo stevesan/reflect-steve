@@ -330,6 +330,7 @@ function SwitchLevel( id:int )
 	Debug.Log('switching to level '+id);
 	
 	// we'll be changing the geo, obviously, so make a copy
+	BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
 	isReflecting = false;
 	player.GetComponent(PlayerControl).inputEnabled = true;
 	numReflectionsDone = 0;
@@ -629,6 +630,8 @@ function Update()
 				AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
 				FadeToLevel( currLevId, true );
 				previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
+				
+				BroadcastMessage("OnResetLevel", this, SendMessageOptions.DontRequireReceiver);
 
 				if( tracker != null )
 					tracker.PostEvent( "resetLevel", ""+currLevId );
@@ -636,10 +639,12 @@ function Update()
 			else if( Input.GetButtonDown('NextLevel') ) {
 				FadeToLevel( (currLevId+1)%levels.Count, false );
 				previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
+				BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
 			}
 			else if( Input.GetButtonDown('PrevLevel') ) {
 				FadeToLevel( (levels.Count+currLevId-1)%levels.Count, false );
 				previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
+				BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
 			}
 			else if( isReflecting )
 			{
