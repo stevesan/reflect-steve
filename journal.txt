@@ -1,5 +1,7 @@
 
 TODO:
+- clear heroku events database. just use the django console
+- shimmer effect when mouse moves mirror widget, with sound
 - consider negating colors on the reflecting side...could look cool, like a photo negative
 - consider: making intro levels using non-abstract shapes, such as letters
 - i need to give each level a unique name, cuz i'll be modifying the level order.
@@ -7,15 +9,12 @@ TODO:
 - reflect effects: try some "looks" in photoshop..
 		current geo "behind" mirror (ie. in the reflected side) should be in dotted outline?
 - consider just offering various "moments of reflection" when each puzzle is solved! just like..quotes.
-- look at how Sworcery does its "worship mode". When in mirror mode, we should have a low hum noise in the BG, it should shimmer when the mouse moves, light should emit from the edge, etc.
 - for SJ: animate carrot/keys
 - make carrot/keys juicy
 		light color changes when you get all keys? like a quick blink of blue?
 - make level geo double-sided for physics? why not?
 - grid-snapping or mirror location to keep things less fidgety..
 	- although the visual grid bg helps already
-- make the level geo polygon have pretty outlines
-	can use new GL API of Unity! Err.. Can we?
 - level-select screen. Just show the level geometry and detect clicks on level areas! add number overlays
 
 MAYBE, LOW PRIO:

@@ -329,12 +329,12 @@ function SwitchLevel( id:int )
 {
 	Debug.Log('switching to level '+id);
 	
-	// we'll be changing the geo, obviously, so make a copy
 	BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
 	isReflecting = false;
 	player.GetComponent(PlayerControl).inputEnabled = true;
 	numReflectionsDone = 0;
 	currLevId = id;
+	PlayerPrefs.SetInt("currentLevelId", id);
 
 	currLevPoly = levels[id].geo.Duplicate();
 	OnCollidingGeometryChanged();
@@ -575,7 +575,7 @@ function Update()
 		levelNumber.text = '';
 
 		if( Input.GetButtonDown('ReflectToggle') || Input.GetButtonDown('NextLevel') ) {
-			FadeToLevel( 0, false );
+			FadeToLevel( PlayerPrefs.GetInt("currentLevelId", 0), false );
 			AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
 			Destroy(titleText);
 		}
