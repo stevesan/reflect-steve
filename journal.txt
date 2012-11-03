@@ -1,6 +1,11 @@
 
 TODO:
-- clear heroku events database. just use the django console
+- develop analytics viewer! ie. session stats, drilldown, etc.
+- cleanup moment 34 - don't allow them to "bump up" the bubble..
+    see the play through recordings for how ppl deal with that
+- cleanup moment 33 - don't allow the solution here:
+    http://imgur.com/a/KrVWk
+- moment 30...see how Jory solved that?
 - shimmer effect when mouse moves mirror widget, with sound
 - consider negating colors on the reflecting side...could look cool, like a photo negative
 - consider: making intro levels using non-abstract shapes, such as letters
