@@ -329,6 +329,51 @@ function OnCollidingGeometryChanged()
 	}
 }
 
+function CreateCOnveyors( conveyors:List.<Mesh2D> )
+{
+    // count how many triangles/vertices we'll probably need
+    var numTris = 0;
+    var numVerts = 0;
+    for( conv in conveyors ) {
+        numTris += 2*conv.GetNumEdges();
+        numVerts += 2*conv.GetNumVertices();
+    }
+    conveyorsBuffer.Allocate( numVerts, numTris );
+
+    // build all, appending them to the same mesh buffer
+    var lastTri = 0;
+    var lastVert = 0;
+    for( conv in conveyors ) {
+        // build V coords
+        var texVs = new float[ conv.pts.length ];
+        for( var i = 0; i < texVs.length; i++ )
+            texVs[i] = i*(2.0/(texVs.length-1));
+        ProGeo.Stroke2D( conv.pts, texVs, 0, conv.pts.length-1, false,
+                conveyorsStrokeWidth,
+                conveyorsBuffer, lastVert, lastTri );
+        lastTri += 2*conv.GetNumEdges();
+        lastVert += 2*conv.GetNumVertices();
+    }
+
+    conveyorsBuffer.CopyToMesh( conveyorsMesh.mesh );
+    conveyorsMesh.mesh.RecalculateBounds();
+    SetNormalsAtCamera( conveyorsMesh.mesh );
+
+    //----------------------------------------
+    // Create actual objects, once for each edge...this is for the better
+    //----------------------------------------
+    for( var iconv = 0; iconv < conveyors.Count; iconv++ ) {
+        var conv = conveyors[iconv];
+        for( var iedge = 0; iedge < conv.GetNumEdges(); iedge++ ) {
+            var p1 = conv.GetEdgeStart(iedge);
+            var p2 = conv.GetEdgeEnd(iedge);
+            var obj = new GameObject("conv " + iconv + " edge " + iedge);
+            var comp = obj.AddComponent(Conveyor);
+            comp.Initialize( p1, p2, conveyorsStrokeWidth/2 );
+        }
+    }
+}
+
 function SwitchLevel( id:int )
 {
 	Debug.Log('switching to level '+id);
@@ -368,33 +413,7 @@ function SwitchLevel( id:int )
 
     // draw conveyors
     if( levels[id].conveyors.Count > 0 ) {
-        // count how many triangles/vertices we'll probably need
-        var numTris = 0;
-        var numVerts = 0;
-        for( conv in levels[id].conveyors ) {
-            numTris += 2*conv.GetNumEdges();
-            numVerts += 2*conv.GetNumVertices();
-        }
-        conveyorsBuffer.Allocate( numVerts, numTris );
-
-        // build all, appending them to the same mesh buffer
-        var lastTri = 0;
-        var lastVert = 0;
-        for( conv in levels[id].conveyors ) {
-            // build V coords
-            var texVs = new float[ conv.pts.length ];
-            for( var i = 0; i < texVs.length; i++ )
-                texVs[i] = i*(1.0/(texVs.length-1));
-            ProGeo.Stroke2D( conv.pts, texVs, 0, conv.pts.length-1, false,
-                conveyorsStrokeWidth,
-                conveyorsBuffer, lastVert, lastTri );
-            lastTri += 2*conv.GetNumEdges();
-            lastVert += 2*conv.GetNumVertices();
-        }
-
-	    conveyorsBuffer.CopyToMesh( conveyorsMesh.mesh );
-	    conveyorsMesh.mesh.RecalculateBounds();
-        SetNormalsAtCamera( conveyorsMesh.mesh );
+        CreateCOnveyors( levels[id].conveyors );
     }
     else {
         conveyorsMesh.mesh.Clear();

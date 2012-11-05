@@ -26,7 +26,7 @@ private var maxMoveRelSpeed = 5;
 private var moveRelAccel = 999.0;
 
 // Relative to current player width (to prevent floatiness when we're very large).
-private var gravityRelMag = 40;	
+private var normalGravityMag = 40;	
 
 // 1.0 = we jump exactly as tall as we are
 private var jumpRelHeight = 1.2;
@@ -41,12 +41,13 @@ private var groundTestRelDist = 0.05;
 private var maxWalkRelAccel = 100.0;
 private var maxInAirRelAccel = 100.0;
 
+private var useGravityCount = 1;
+
 //----------------------------------------
 //  Debugging
 //----------------------------------------
 var debugInfiniteJump = false;
 var debugXSpeed = false;
-var debugNoGravity = false;
 var debugGroundSweep = false;
 var debugGroundSweepDist = false;
 var debugSecs = 0.1;
@@ -54,6 +55,7 @@ var debugColor = Color.red;
 var debugHoldJumping = false;
 var debugRightWall = false;
 var debugLeftWall = false;
+var debugNeverUseGravity = false;
 
 //----------------------------------------
 //  State for movement
@@ -97,11 +99,11 @@ function GetEdgeLength():float
 	return 1.0;
 }
 
-function AddJumpVelocity( relJumpHeight:float ) {	
+function AddJumpVelocity( relJumpHeight:float, gravityMag:float ) {	
 	//Debug.Log("jumping");
 	// We multiply by scale twice because the gravity value is also multiplied by scale..
 	var h = relJumpHeight * GetScale();
-	var aa = -1 * gravityRelMag * (scaleGravity ? GetScale() : 1.0 );
+	var aa = -1 * gravityMag;
 	var v = Mathf.Sqrt( -2*h*aa );
 	var accel = Vector3.up * v/Time.deltaTime;
 	//Debug.Log("goal velocity = " + v + " dt = " + Time.deltaTime + " accel = " + accel);
@@ -109,12 +111,15 @@ function AddJumpVelocity( relJumpHeight:float ) {
 	rigidbody.velocity += Vector3.up*v;
 }
 
+function IncUseGravity() { useGravityCount++; }
+function DecUseGravity() { useGravityCount--; }
+
 function ApplyGravity()
 {
-	if( debugNoGravity )
+	if( useGravityCount <= 0 || debugNeverUseGravity )
 		return;
 
-	rigidbody.AddForce( rigidbody.mass * Vector3(0,-1,0) * gravityRelMag * (scaleGravity ? GetScale():1.0) );
+	rigidbody.AddForce( rigidbody.mass * Vector3(0,-1,0) * normalGravityMag * (scaleGravity ? GetScale():1.0) );
 }
 
 function DoPerFrameIsGroundedQuery()
@@ -281,7 +286,7 @@ function FixedUpdate()
 	if( (inputEnabled ? Input.GetButton("Jump") : false) && (!jumpPressedPrevFrame||debugHoldJumping)) {
 		if( debugInfiniteJump || isGrounded )
 		{
-			AddJumpVelocity( jumpRelHeight );
+			AddJumpVelocity( jumpRelHeight, normalGravityMag );
 
 			for( obj in eventListeners )
 				obj.SendMessage ("DidJump", SendMessageOptions.DontRequireReceiver);

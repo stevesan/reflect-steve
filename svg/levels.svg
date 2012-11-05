@@ -99,9 +99,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6568544"
-     inkscape:cx="446.38468"
-     inkscape:cy="-882.00121"
+     inkscape:zoom="8.0000002"
+     inkscape:cx="509.44506"
+     inkscape:cy="-883.36164"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
@@ -2197,7 +2197,7 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path3312-7"
-       d="m 500,1060 50,0 0,20 -20,0 0,20 -30,0 z"
+       d="m 500,1060 50,0 0,20 -20,0 0,40 -30,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        sodipodi:nodetypes="ccccccc" />
     <rect
@@ -2211,29 +2211,15 @@
     <rect
        gameObjType="player"
        width="10"
-       y="1090"
+       y="1110"
        x="500"
        height="10"
        id="rect3316-0"
        style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline" />
     <path
-       style="fill:none;fill-opacity:1;stroke:#16a300;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow1Mend)"
-       d="m 525,1100 0,-15 -15,-15"
+       style="fill:none;stroke:#16a300;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow1Mend)"
+       d="m 505,1105 0,-25 20,0 0,-10"
        id="path3573"
-       inkscape:connector-curvature="0"
-       gameObjType="conveyor"
-       sodipodi:nodetypes="ccc" />
-    <path
-       style="fill:none;stroke:#16a300;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow1Mend);display:inline"
-       d="m 535,1075 -10,-10"
-       id="path3573-4"
-       inkscape:connector-curvature="0"
-       gameObjType="conveyor"
-       sodipodi:nodetypes="cc" />
-    <path
-       style="fill:none;stroke:#16a300;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow1Mend);display:inline"
-       d="m 520,1090 -5,0 0,-5 -10,-10"
-       id="path3573-4-4"
        inkscape:connector-curvature="0"
        gameObjType="conveyor"
        sodipodi:nodetypes="cccc" />
