@@ -7,7 +7,6 @@ static var Singleton : GameController = null;
 
 var hostcam : Camera;
 var snapReflectAngle = true;
-var canMoveWhileReflecting = true;
 private var mirrorAngleSpeed = 1.5*Mathf.PI;
 
 //----------------------------------------
@@ -147,6 +146,7 @@ private var levels : List.<LevelInfo> = null;
 private var currLevId : int = 0;	// current level
 private var goalLevId : int = 0;	// which level we're fading into
 private var currLevPoly : Mesh2D = null;	// current effective geometry
+private var currConveyors : List.<Mesh2D> = null;
 private var gamestate:String;
 
 //----------------------------------------
@@ -155,6 +155,41 @@ private var gamestate:String;
 private var numKeysGot = 0;
 private var numKeys = 0;
 private var objectInsts = new Array();
+
+class Conveyors
+{
+    private var objs : List.<GameObject>;
+
+    function DestroyAll()
+    {
+        for( obj in objs ) {
+            GameObject.Destroy(obj);
+        }
+    }
+
+    function Reset( conveyors:List.<Mesh2D>, capRadius:float )
+    {
+        DestroyAll();
+
+        objs = new List.<GameObject>();
+
+        //----------------------------------------
+        // Create actual objects, once for each edge...this is for the better
+        //----------------------------------------
+        for( var iconv = 0; iconv < conveyors.Count; iconv++ ) {
+            var conv = conveyors[iconv];
+            for( var iedge = 0; iedge < conv.GetNumEdges(); iedge++ ) {
+                var p1 = conv.GetEdgeStart(iedge);
+                var p2 = conv.GetEdgeEnd(iedge);
+                var obj = new GameObject("conv " + iconv + " edge " + iedge);
+                objs.Add(obj);
+                var comp = obj.AddComponent(Conveyor);
+                comp.Initialize( p1, p2, capRadius );
+            }
+        }
+    }
+}
+private var convsInst:Conveyors = null;
 
 //----------------------------------------
 //  Reflection UI state
@@ -329,14 +364,15 @@ function OnCollidingGeometryChanged()
 	}
 }
 
-function CreateCOnveyors( conveyors:List.<Mesh2D> )
+function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
 {
-    // count how many triangles/vertices we'll probably need
+    // just stroke out each edge individually for now..
+    // count how many triangles/vertices we'll need
     var numTris = 0;
     var numVerts = 0;
     for( conv in conveyors ) {
         numTris += 2*conv.GetNumEdges();
-        numVerts += 2*conv.GetNumVertices();
+        numVerts += 4*conv.GetNumEdges();
     }
     conveyorsBuffer.Allocate( numVerts, numTris );
 
@@ -344,43 +380,37 @@ function CreateCOnveyors( conveyors:List.<Mesh2D> )
     var lastTri = 0;
     var lastVert = 0;
     for( conv in conveyors ) {
-        // build V coords
-        var texVs = new float[ conv.pts.length ];
-        for( var i = 0; i < texVs.length; i++ )
-            texVs[i] = i*(2.0/(texVs.length-1));
-        ProGeo.Stroke2D( conv.pts, texVs, 0, conv.pts.length-1, false,
-                conveyorsStrokeWidth,
-                conveyorsBuffer, lastVert, lastTri );
-        lastTri += 2*conv.GetNumEdges();
-        lastVert += 2*conv.GetNumVertices();
+        var dist = 0.0;
+        for( var edge = 0; edge < conv.GetNumEdges(); edge++ ) {
+            var p1 = conv.GetEdgeStart(edge);
+            var p2 = conv.GetEdgeEnd(edge);
+            var edgeLen = Vector2.Distance( p1, p2 );
+            var texVs = [ dist, dist+edgeLen ];
+            var pts = [p1, p2];
+            ProGeo.Stroke2D( pts, texVs, 0, 1, false,
+                    conveyorsStrokeWidth,
+                    conveyorsBuffer, lastVert, lastTri );
+
+            lastTri += 2;
+            lastVert += 4;
+            dist += edgeLen;
+        }
     }
 
     conveyorsBuffer.CopyToMesh( conveyorsMesh.mesh );
     conveyorsMesh.mesh.RecalculateBounds();
     SetNormalsAtCamera( conveyorsMesh.mesh );
-
-    //----------------------------------------
-    // Create actual objects, once for each edge...this is for the better
-    //----------------------------------------
-    for( var iconv = 0; iconv < conveyors.Count; iconv++ ) {
-        var conv = conveyors[iconv];
-        for( var iedge = 0; iedge < conv.GetNumEdges(); iedge++ ) {
-            var p1 = conv.GetEdgeStart(iedge);
-            var p2 = conv.GetEdgeEnd(iedge);
-            var obj = new GameObject("conv " + iconv + " edge " + iedge);
-            var comp = obj.AddComponent(Conveyor);
-            comp.Initialize( p1, p2, conveyorsStrokeWidth/2 );
-        }
-    }
 }
+
 
 function SwitchLevel( id:int )
 {
 	Debug.Log('switching to level '+id);
 	
-	BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
-	isReflecting = false;
-	player.GetComponent(PlayerControl).inputEnabled = true;
+    if( isReflecting ) {
+	    isReflecting = false;
+	    BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
+    }
 	numReflectionsDone = 0;
 	currLevId = id;
 	PlayerPrefs.SetInt("currentLevelId", id);
@@ -411,13 +441,14 @@ function SwitchLevel( id:int )
 		rockOutlineMesh.mesh.Clear();
 	}
 
-    // draw conveyors
-    if( levels[id].conveyors.Count > 0 ) {
-        CreateCOnveyors( levels[id].conveyors );
+    // get conveyors
+    currConveyors = new List.<Mesh2D>();
+    for( conv in levels[id].conveyors ) {
+        currConveyors.Add( conv.Duplicate() );
     }
-    else {
-        conveyorsMesh.mesh.Clear();
-    }
+    conveyorsMesh.mesh.Clear();
+    UpdateConveyorVisuals( currConveyors );
+    convsInst.Reset( currConveyors, conveyorsStrokeWidth/2.0 );
 
 	// position the player
 	player.transform.position = levels[id].playerPos;
@@ -526,6 +557,7 @@ function Awake()
 	}
 	
 	rotationSounds.Init();
+    convsInst = new Conveyors();
 }
 
 function Start()
@@ -732,9 +764,14 @@ function Update()
 				UpdateReflectionLine();
 				newShape.Reflect( lineStart, lineEnd, false );
 
-				//Debug.Log('shape has '+newShape.GetNumVertices()+' verts, ' + newShape.GetNumEdges()+ ' edges');
-				//newShape.DebugDraw( Color.yellow, 0.0 );
-				//Debug.DrawLine( lineStart, lineEnd, Color.red, 0.0 );
+                // conveyors
+                var previewConvs = new List.<Mesh2D>();
+                for( conv in currConveyors ) {
+                    var preview = conv.Duplicate();
+                    preview.Reflect( lineStart, lineEnd, false, true );
+                    previewConvs.Add( preview );
+                }
+                UpdateConveyorVisuals( previewConvs );
 
 				if( debugDrawPolygonOutline ) {
 					newShape.DebugDraw( debugColor, debugSecs );
@@ -767,8 +804,15 @@ function Update()
 					currLevPoly = newShape;
 					OnCollidingGeometryChanged();
 
+                    // conveyors
+                    for( conv in currConveyors ) {
+                        // this time, we DO mirror orientation!
+                        conv.Reflect( lineStart, lineEnd, false, true );
+                    }
+                    UpdateConveyorVisuals( currConveyors );
+                    convsInst.Reset( currConveyors, conveyorsStrokeWidth/2.0 );
+
 					// update state
-					player.GetComponent(PlayerControl).inputEnabled = true;
 					numReflectionsDone++;
 					helpText.GetComponent(PositionAnimation).Play();
 					isReflecting = false;
@@ -790,7 +834,6 @@ function Update()
 					AudioSource.PlayClipAtPoint( cancelReflectSnd, hostcam.transform.position );
 					isReflecting = false;
 					BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
-					player.GetComponent(PlayerControl).inputEnabled = true;
 				}
 			}
 			else {
@@ -811,9 +854,6 @@ function Update()
 						isReflecting = true;
 						mirrorAngle = Mathf.PI / 2;
 						goalMirrorAngle = Mathf.PI / 2;
-						if( !canMoveWhileReflecting ) {
-							player.GetComponent(PlayerControl).inputEnabled = false;
-						}
 						
 						BroadcastMessage("OnEnterReflectMode", this, SendMessageOptions.DontRequireReceiver);
 					}
