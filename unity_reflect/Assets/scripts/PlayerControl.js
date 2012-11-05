@@ -77,10 +77,11 @@ function GetWalkingValue() {
 function Reset()
 {
 	rigidbody.velocity = Vector3(0,0,0);
+	rigidbody.useGravity = false;
+    useGravityCount = 1;
 }
 
 function Start () {
-	rigidbody.useGravity = false;
 }
 
 //----------------------------------------

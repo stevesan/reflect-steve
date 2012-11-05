@@ -1,5 +1,8 @@
 
 TODO:
+- make snow flake rotate smoothly, not randomly..
+- fix cancel-while-reflecting-conveyors problem
+- fix reflecting-conveyors-not resetting gravity state problem
 - develop analytics viewer! ie. session stats, drilldown, etc.
 - cleanup moment 34 - don't allow them to "bump up" the bubble..
     see the play through recordings for how ppl deal with that

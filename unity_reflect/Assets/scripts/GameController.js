@@ -385,7 +385,8 @@ function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
             var p1 = conv.GetEdgeStart(edge);
             var p2 = conv.GetEdgeEnd(edge);
             var edgeLen = Vector2.Distance( p1, p2 );
-            var texVs = [ dist, dist+edgeLen ];
+            var w = conveyorsStrokeWidth;
+            var texVs = [ dist/w, (dist+edgeLen)/w ];
             var pts = [p1, p2];
             ProGeo.Stroke2D( pts, texVs, 0, 1, false,
                     conveyorsStrokeWidth,
