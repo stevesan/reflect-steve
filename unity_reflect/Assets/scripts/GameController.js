@@ -51,8 +51,12 @@ var outlineWidth  = 0.5;
 private var outlineBuffer = new MeshBuffer();
 
 var rockOutlineMesh : MeshFilter;
-var rockOutlineWidth = 0.5;
+var rockStrokeWidth = 0.5;
 private var rockOutlineBuffer = new MeshBuffer();
+
+var conveyorsMesh : MeshFilter;
+var conveyorsStrokeWidth = 0.01;
+private var conveyorsBuffer = new MeshBuffer();
 
 //----------------------------------------
 //  Fading state
@@ -350,7 +354,7 @@ function SwitchLevel( id:int )
 		SetNormalsAtCamera( rockRender.mesh );
 
 		// update the outline
-		PolysToStroke( levels[id].rockGeo, 1.0, rockOutlineWidth, rockOutlineBuffer, rockOutlineMesh.mesh );
+		PolysToStroke( levels[id].rockGeo, 1.0, rockStrokeWidth, rockOutlineBuffer, rockOutlineMesh.mesh );
 		SetNormalsAtCamera( rockOutlineMesh.mesh );
 	}
 	else {
@@ -361,6 +365,40 @@ function SwitchLevel( id:int )
 		// outline
 		rockOutlineMesh.mesh.Clear();
 	}
+
+    // draw conveyors
+    if( levels[id].conveyors.Count > 0 ) {
+        // count how many triangles/vertices we'll probably need
+        var numTris = 0;
+        var numVerts = 0;
+        for( conv in levels[id].conveyors ) {
+            numTris += 2*conv.GetNumEdges();
+            numVerts += 2*conv.GetNumVertices();
+        }
+        conveyorsBuffer.Allocate( numVerts, numTris );
+
+        // build all, appending them to the same mesh buffer
+        var lastTri = 0;
+        var lastVert = 0;
+        for( conv in levels[id].conveyors ) {
+            // build V coords
+            var texVs = new float[ conv.pts.length ];
+            for( var i = 0; i < texVs.length; i++ )
+                texVs[i] = i*(1.0/(texVs.length-1));
+            ProGeo.Stroke2D( conv.pts, texVs, 0, conv.pts.length-1, false,
+                conveyorsStrokeWidth,
+                conveyorsBuffer, lastVert, lastTri );
+            lastTri += 2*conv.GetNumEdges();
+            lastVert += 2*conv.GetNumVertices();
+        }
+
+	    conveyorsBuffer.CopyToMesh( conveyorsMesh.mesh );
+	    conveyorsMesh.mesh.RecalculateBounds();
+        SetNormalsAtCamera( conveyorsMesh.mesh );
+    }
+    else {
+        conveyorsMesh.mesh.Clear();
+    }
 
 	// position the player
 	player.transform.position = levels[id].playerPos;
@@ -442,7 +480,7 @@ function SwitchLevel( id:int )
 
 	// put up correct status text
 	levelNumber.text = 'Moment '+(currLevId+1)+ '/'+levels.Count+
-	'          P - Reset'+
+	'          R - Reset'+
 	'          [ ] - Skip';
 
 	if( tracker != null )

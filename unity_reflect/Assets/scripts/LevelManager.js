@@ -24,6 +24,7 @@ class LevelInfo
 	var goalPos:Vector2;
 	var objects = new List.<LevelObject>();
 	var rockGeo = new Mesh2D();	// rocks - ie. colliders that are immune to reflection
+    var conveyors = new List.<Mesh2D>();
 
 	var areaCenter:Vector2;	// used to position the camera
 	var origAreaCenter:Vector2;	// used to order the levels based on their position in the SVG sheet
@@ -62,6 +63,40 @@ static function ParseRectCenter( parts:String[] ) : Vector2
 	return rect.center;
 }
 
+// Conveyors are un-closed line paths
+static function ReadConveyorToMesh2D( parts:String[], reader:StringReader ) : Mesh2D
+{
+	// read in SVG commands, and use the SVG builder
+	var numCmds = parseInt( parts[1] );
+
+	var builder = new SvgPathBuilder();
+	builder.BeginBuilding();
+	builder.ExecuteCommands( reader, 0.0, 1.0, Vector2(0,0), numCmds );
+	builder.EndBuilding();
+
+	// convert svg into polygon2D
+	var poly = new Mesh2D();
+
+	poly.pts = new Vector2[ builder.GetPoints().Count ];
+	for( var i = 0; i < poly.pts.length; i++ ) {
+		poly.pts[i] = builder.GetPoints()[i];
+	}
+	var npts = poly.pts.length;
+	poly.edgeA = new int[ npts-1 ];
+	poly.edgeB = new int[ npts-1 ];
+
+	// we actually build our edges in CCW direction
+	for( i = 0; i < poly.edgeA.length; i++ )
+	{
+	Utils.Assert( i < poly.edgeA.length );
+	Utils.Assert( i < poly.edgeB.length );
+		poly.edgeA[i] = i;
+		poly.edgeB[i] = i+1;
+	}
+
+	return poly;
+}
+
 static function ReadSvgToMesh2D( parts:String[], reader:StringReader ) : Mesh2D
 {
 	// read in SVG commands, and use the SVG builder
@@ -75,8 +110,7 @@ static function ReadSvgToMesh2D( parts:String[], reader:StringReader ) : Mesh2D
 	// convert svg into polygon2D
 	var poly = new Mesh2D();
 
-	// we can assume that all level paths are closed polygons
-	// so get all but the last point
+	// For closed polygons, get all but the last point
 	poly.pts = new Vector2[ builder.GetPoints().Count - 1 ];
 	for( var i = 0; i < poly.pts.length; i++ ) {
 		poly.pts[i] = builder.GetPoints()[i];
@@ -111,6 +145,7 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 	var objects = new List.<LevelObject>();
 	var geos = new List.<Mesh2D>();
 	var rockGeos = new List.<Mesh2D>();
+    var conveyors = new List.<Mesh2D>();
 
 	var line = reader.ReadLine();
 	while( line != null )
@@ -129,6 +164,8 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 			geos.Add( ReadSvgToMesh2D(parts, reader) );
 		else if( parts[0] == 'rockGeo' )
 			rockGeos.Add( ReadSvgToMesh2D(parts, reader) );
+		else if( parts[0] == 'conveyor' )
+			conveyors.Add( ReadConveyorToMesh2D(parts, reader) );
 		else {
 			// some other object type, like a key
 			var obj = new LevelObject();
@@ -201,6 +238,12 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 			}
 		}
 
+		for( geo in conveyors ) {
+			if( area.Contains( geo.pts[0] ) ) {
+				info.conveyors.Add( geo );
+			}
+		}
+
 		//----------------------------------------
 		//  Normalize everything so the player's size is 1.0
 		//----------------------------------------
@@ -209,6 +252,8 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 		info.areaCenter = info.origAreaCenter / playerWidth;
 		info.geo.ScalePoints( 1.0/playerWidth );
 		info.rockGeo.ScalePoints( 1.0/playerWidth );
+        for( geo in info.conveyors )
+		    geo.ScalePoints( 1.0/playerWidth );
 		for( var i = 0; i < info.objects.Count; i++ )
 			info.objects[i].pos /= playerWidth;
 

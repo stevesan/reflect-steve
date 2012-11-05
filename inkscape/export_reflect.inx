@@ -1,5 +1,5 @@
 <inkscape-extension>
-  <_name>Export for Reflection</_name>
+  <_name>Z Export for Reflection</_name>
   <id>stevenan.export_reflect</id>
   <dependency type="executable" location="extensions">export_reflect.py</dependency>
   <dependency type="executable" location="extensions">inkex.py</dependency>
