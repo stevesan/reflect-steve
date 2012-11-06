@@ -29,6 +29,7 @@ var level4Tute : GUIText;
 var player : GameObject;
 var goal : GameObject;
 var keyPrefab : GameObject;
+var keyFx : GameObject;
 var ballKeyPrefab : GameObject;
 var mirrorPrefab : GameObject = null;
 var background : GameObject;
@@ -82,7 +83,6 @@ var restartSnd : AudioClip;
 var startReflectSnd : AudioClip;
 var cancelReflectSnd : AudioClip;
 var confirmReflectSnd : AudioClip;
-var keyGetSound : AudioClip;
 var goalLockedSound: AudioClip;
 var maxedReflectionsSnd: AudioClip;
 
@@ -129,7 +129,6 @@ var rotationSounds = new RotationSounds();
 //  Particle FX
 //----------------------------------------
 var goalGetFx : ParticleSystem;
-var keyGetFx : ParticleSystem;
 
 //----------------------------------------
 //  Debug
@@ -263,16 +262,19 @@ function UpdateGoalLocked()
 
 function GetCurrentLevelId() { return currLevId; }
 
+private var lastKeyPos:Vector3;
+
+function GetLastKeyPos() { return lastKeyPos; }
+
 function OnGetKey( keyObj:GameObject )
 {
 	numKeysGot++;
-	Debug.Log('got '+numKeysGot+' keys');
-	Destroy(keyObj);
 	UpdateGoalLocked();
 
-	AudioSource.PlayClipAtPoint( keyGetSound, hostcam.transform.position );
-	keyGetFx.transform.position = keyObj.transform.position;
-	keyGetFx.Play();
+    keyFx.transform.position = keyObj.transform.position;
+    keyFx.SendMessage("Play");
+
+    Destroy(keyObj);
 
 	if( tracker != null )
 	{
@@ -282,6 +284,8 @@ function OnGetKey( keyObj:GameObject )
 		json.WriteObjectEnd();
 		tracker.PostEvent( "gotKey", json.GetString() );
 	}
+
+    GetComponent(Connectable).TriggerEvent("OnGetKey");
 }
 
 function PolysToStroke( polys:Mesh2D, vmax:float, width:float, buffer:MeshBuffer, mesh:Mesh )
@@ -411,6 +415,7 @@ function SwitchLevel( id:int )
     if( isReflecting ) {
 	    isReflecting = false;
 	    BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
+        GetComponent(Connectable).TriggerEvent("OnExitReflectMode");
     }
 	numReflectionsDone = 0;
 	currLevId = id;
@@ -818,6 +823,7 @@ function Update()
 					helpText.GetComponent(PositionAnimation).Play();
 					isReflecting = false;
 					BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
+                    GetComponent(Connectable).TriggerEvent("OnExitReflectMode");
 
 					if( tracker != null )
 					{
@@ -835,6 +841,7 @@ function Update()
 					AudioSource.PlayClipAtPoint( cancelReflectSnd, hostcam.transform.position );
 					isReflecting = false;
 					BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
+                    GetComponent(Connectable).TriggerEvent("OnExitReflectMode");
 				}
 			}
 			else {
@@ -849,7 +856,6 @@ function Update()
 					}
 					else
 					{
-						// start drag
 						AudioSource.PlayClipAtPoint( startReflectSnd, hostcam.transform.position );
 						lineStart = GetMouseXYWorldPos();
 						isReflecting = true;
@@ -857,6 +863,7 @@ function Update()
 						goalMirrorAngle = Mathf.PI / 2;
 						
 						BroadcastMessage("OnEnterReflectMode", this, SendMessageOptions.DontRequireReceiver);
+                        GetComponent(Connectable).TriggerEvent("OnEnterReflectMode");
 					}
 				}
 			}
