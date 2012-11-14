@@ -245,7 +245,7 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 		}
 
 		//----------------------------------------
-		//  Normalize everything so the player's size is 1.0
+		//  Normalize everything so the player's width is 1.0
 		//----------------------------------------
 		info.playerPos /= playerWidth;
 		info.goalPos /= playerWidth;

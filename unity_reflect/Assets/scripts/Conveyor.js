@@ -29,22 +29,13 @@ function Initialize( p1:Vector2, p2:Vector2, radius:float ) : void
     pushDir = delta/length;
 }
 
+private var touchingObjects:GameObject[] = new GameObject[10];
+
 function OnTriggerEnter(other : Collider) : void
 {
-    var rb = other.GetComponent(Rigidbody);
-    var player = other.GetComponent(PlayerControl);
-
-    if( player == null ) {
-        if( rb != null && player == null ) {
-            rb.useGravity = false;
-        }
-    }
-    else {
-        player.DecUseGravity();
-    }
-
-    if( rb != null )
-        rb.velocity = Vector3(0,0,0);
+	other.SendMessage("OnEnterConveyor", this, SendMessageOptions.DontRequireReceiver);
+	ArrayUtility.Add.<GameObject>(touchingObjects, other.gameObject);
+	Debug.Log("touched "+other.gameObject.name);
 }
 
 function OnTriggerStay(other : Collider) : void
@@ -62,15 +53,17 @@ function OnTriggerStay(other : Collider) : void
 
 function OnTriggerExit(other : Collider) : void
 {
-    var rb = other.GetComponent(Rigidbody);
-    var player = other.GetComponent(PlayerControl);
+	other.SendMessage("OnExitConveyor", this, SendMessageOptions.DontRequireReceiver);
+	ArrayUtility.Remove.<GameObject>(touchingObjects, other.gameObject);
+}
 
-    if( player == null ) {
-        if( rb != null )
-            rb.useGravity = true;
-    }
-    else
-        player.IncUseGravity();
+function OnDestroy()
+{
+	Debug.Log("called");
+	for( go in touchingObjects )
+		if( go != null ) {
+		go.SendMessage("OnExitConveyor", this, SendMessageOptions.DontRequireReceiver);
+		}
 }
 
 function Update () {

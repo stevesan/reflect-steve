@@ -1,14 +1,15 @@
 #pragma strict
 @script RequireComponent( Collider )
+@script RequireComponent( RigidbodyNeverSleep )
 
 var doPerFrameSphereCheck = false;	// If true, this will do a per-frame sphere-collision check to check for player-collision
+private var disableGravityCount = 0;
 
 function Start () {
 
 }
 
 function Update () {
-
 }
 
 function FixedUpdate() {
@@ -38,5 +39,18 @@ function OnTriggerEnter(other : Collider) : void
 	var player = other.GetComponent(PlayerControl);
 	if( player != null ) {
         GetComponent(Connectable).TriggerEvent('OnTouchedPlayer');
+	}
+}
+
+function OnEnterConveyor() {
+	if( rigidbody ) {
+		disableGravityCount++;
+		rigidbody.useGravity = disableGravityCount <= 0;
+	}
+}
+function OnExitConveyor() {
+	if( rigidbody ) {
+		disableGravityCount--;
+		rigidbody.useGravity = disableGravityCount <= 0;
 	}
 }

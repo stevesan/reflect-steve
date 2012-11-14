@@ -1,5 +1,9 @@
 
 TODO:
+- rewind on jumps
+- REMOVE PREVIEW
+- with grid snapping
+- make tutorial text follow your cursor
 - make snow flake rotate smoothly, not randomly..
 - fix cancel-while-reflecting-conveyors problem
 - fix reflecting-conveyors-not resetting gravity state problem

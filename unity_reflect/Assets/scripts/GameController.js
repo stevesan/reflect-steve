@@ -7,7 +7,11 @@ static var Singleton : GameController = null;
 
 var hostcam : Camera;
 var snapReflectAngle = true;
-private var mirrorAngleSpeed = 1.5*Mathf.PI;
+var snapReflectPosition = true;
+
+// Controls how fast the preview spins
+private var previewRotateSpeed = 1.5*Mathf.PI;
+private var previewTranslateSpeed = 10.0;
 
 //----------------------------------------
 //  Components instances we use
@@ -197,6 +201,7 @@ private var isReflecting = false;
 private var numReflectionsDone = 0;
 private var numReflectionsAllowed = 0;
 private var lineStart = Vector2(0,0);
+private var goalLineStart = Vector2(0,0);
 private var lineEnd = Vector2(0,0);
 private var mirrorAngle = 0.0;
 private var goalMirrorAngle = 0.0;
@@ -593,7 +598,7 @@ function GetMouseXYWorldPos() : Vector2
 
 function UpdateMirrorAngle() : void
 {
-	var maxDelta = mirrorAngleSpeed * Time.deltaTime;
+	var maxDelta = previewRotateSpeed * Time.deltaTime;
 	if( Mathf.Abs(goalMirrorAngle-mirrorAngle) < maxDelta ) {
 		mirrorAngle = goalMirrorAngle;
 	}
@@ -605,7 +610,23 @@ function UpdateMirrorAngle() : void
 
 function UpdateReflectionLine() : void
 {
-	lineStart = GetMouseXYWorldPos();
+	var mousePos = GetMouseXYWorldPos();
+	goalLineStart = mousePos;
+
+	if( snapReflectPosition ) 
+	{
+		goalLineStart.x = Mathf.Round(2.0*mousePos.x)/2.0;
+		goalLineStart.y = Mathf.Round(2.0*mousePos.y)/2.0;
+	}
+
+	// move the mirror to this position at some speed
+	var delta = goalLineStart - lineStart;
+	var dist = delta.magnitude;
+	var maxMoveDist = Time.deltaTime * previewTranslateSpeed;
+	if( dist < maxMoveDist )
+		lineStart = goalLineStart;
+	else
+		lineStart += maxMoveDist * delta/dist;
 
 	//if( goalMirrorAngle < 0 ) goalMirrorAngle += Mathf.PI;
 	//if( goalMirrorAngle >= Mathf.PI ) goalMirrorAngle -= Mathf.PI;
@@ -670,7 +691,7 @@ function Update()
 		levelNumber.text = '';
 
 		if( Input.GetButtonDown('ReflectToggle') || Input.GetButtonDown('NextLevel') ) {
-			FadeToLevel( PlayerPrefs.GetInt("currentLevelId", 0), false );
+			FadeToLevel( PlayerPrefs.GetInt("currentLevelId", 0), true );
 			AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
 			Destroy(titleText);
 		}
@@ -732,12 +753,12 @@ function Update()
 					tracker.PostEvent( "resetLevel", ""+currLevId );
 			}
 			else if( Input.GetButtonDown('NextLevel') ) {
-				FadeToLevel( (currLevId+1)%levels.Count, false );
+				FadeToLevel( (currLevId+1)%levels.Count, true );
 				previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
 				BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
 			}
 			else if( Input.GetButtonDown('PrevLevel') ) {
-				FadeToLevel( (levels.Count+currLevId-1)%levels.Count, false );
+				FadeToLevel( (levels.Count+currLevId-1)%levels.Count, true );
 				previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
 				BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
 			}
@@ -770,14 +791,14 @@ function Update()
 				UpdateReflectionLine();
 				newShape.Reflect( lineStart, lineEnd, false );
 
-                // conveyors
-                var previewConvs = new List.<Mesh2D>();
-                for( conv in currConveyors ) {
-                    var preview = conv.Duplicate();
-                    preview.Reflect( lineStart, lineEnd, false, true );
-                    previewConvs.Add( preview );
-                }
-                UpdateConveyorVisuals( previewConvs );
+				// conveyors
+				var previewConvs = new List.<Mesh2D>();
+				for( conv in currConveyors ) {
+						var preview = conv.Duplicate();
+						preview.Reflect( lineStart, lineEnd, false, true );
+						previewConvs.Add( preview );
+				}
+				UpdateConveyorVisuals( previewConvs );
 
 				if( debugDrawPolygonOutline ) {
 					newShape.DebugDraw( debugColor, debugSecs );
@@ -802,6 +823,7 @@ function Update()
 					// IMPORTANT: make sure we snap to the 45-degree increments.
 					// Otherwise, it's possible for us the commit the in-motion shape..
 					mirrorAngle = goalMirrorAngle;
+					lineStart = goalLineStart;
 					newShape = currLevPoly.Duplicate();
 					UpdateReflectionLine();
 					newShape.Reflect( lineStart, lineEnd, false );
@@ -810,13 +832,13 @@ function Update()
 					currLevPoly = newShape;
 					OnCollidingGeometryChanged();
 
-                    // conveyors
-                    for( conv in currConveyors ) {
-                        // this time, we DO mirror orientation!
-                        conv.Reflect( lineStart, lineEnd, false, true );
-                    }
-                    UpdateConveyorVisuals( currConveyors );
-                    convsInst.Reset( currConveyors, conveyorsStrokeWidth/2.0 );
+					// conveyors
+					for( conv in currConveyors ) {
+							// this time, we DO mirror orientation!
+							conv.Reflect( lineStart, lineEnd, false, true );
+					}
+					UpdateConveyorVisuals( currConveyors );
+					convsInst.Reset( currConveyors, conveyorsStrokeWidth/2.0 );
 
 					// update state
 					numReflectionsDone++;
@@ -858,6 +880,7 @@ function Update()
 					{
 						AudioSource.PlayClipAtPoint( startReflectSnd, hostcam.transform.position );
 						lineStart = GetMouseXYWorldPos();
+						goalLineStart = Vector2(0,0);
 						isReflecting = true;
 						mirrorAngle = Mathf.PI / 2;
 						goalMirrorAngle = Mathf.PI / 2;

@@ -41,7 +41,7 @@ private var groundTestRelDist = 0.05;
 private var maxWalkRelAccel = 100.0;
 private var maxInAirRelAccel = 100.0;
 
-private var useGravityCount = 1;
+private var disableGravityCount = 0;
 
 //----------------------------------------
 //  Debugging
@@ -78,7 +78,7 @@ function Reset()
 {
 	rigidbody.velocity = Vector3(0,0,0);
 	rigidbody.useGravity = false;
-    useGravityCount = 1;
+    disableGravityCount = 0;
 }
 
 function Start () {
@@ -112,12 +112,17 @@ function AddJumpVelocity( relJumpHeight:float, gravityMag:float ) {
 	rigidbody.velocity += Vector3.up*v;
 }
 
-function IncUseGravity() { useGravityCount++; }
-function DecUseGravity() { useGravityCount--; }
+function OnEnterConveyor( conv:Conveyor ) {
+	disableGravityCount++;
+	rigidbody.velocity = Vector3(0,0,0);
+}
+function OnExitConveyor( conv:Conveyor ) {
+	disableGravityCount--;
+}
 
 function ApplyGravity()
 {
-	if( useGravityCount <= 0 || debugNeverUseGravity )
+	if( disableGravityCount > 0 || debugNeverUseGravity )
 		return;
 
 	rigidbody.AddForce( rigidbody.mass * Vector3(0,-1,0) * normalGravityMag * (scaleGravity ? GetScale():1.0) );
