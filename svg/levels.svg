@@ -141,17 +141,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.0000001"
-     inkscape:cx="630.04857"
-     inkscape:cy="-1015.1791"
+     inkscape:zoom="8.0000002"
+     inkscape:cx="641.89055"
+     inkscape:cy="-1009.6164"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
-     inkscape:window-width="1276"
-     inkscape:window-height="756"
-     inkscape:window-x="4"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
      inkscape:snap-global="true"
      showguides="true"
      inkscape:guide-bbox="true">
@@ -173,7 +173,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -2560,7 +2560,7 @@
        gameObjType="mirror" />
     <path
        style="fill:#ae550b;fill-opacity:1;stroke:none"
-       d="m 605,1205 0,-25 5,0 0,20 10,0 0,-5 20,0 0,10 z"
+       d="m 605,1205 0,-25 5,0 0,20 10,0 0,-5 15,0 0,10 z"
        id="path4580"
        gameObjType="rockGeo"
        inkscape:connector-curvature="0"
@@ -2570,7 +2570,7 @@
        inkscape:connector-curvature="0"
        gameObjType="rockGeo"
        id="path4641"
-       d="m 695,1205 -35,0 0,-10 20,0 0,5 9.74998,0 0.25002,-20 5,0 z"
+       d="m 695,1205 -30,0 0,-10 15,0 0,5 9.74998,0 0.25002,-20 5,0 z"
        style="fill:#ae550b;fill-opacity:1;stroke:none" />
     <path
        sodipodi:nodetypes="cc"
