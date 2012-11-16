@@ -141,17 +141,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.0000001"
-     inkscape:cx="518.30701"
-     inkscape:cy="-861.34768"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="444.61965"
+     inkscape:cy="-911.1182"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
-     inkscape:window-width="1276"
-     inkscape:window-height="756"
-     inkscape:window-x="4"
-     inkscape:window-y="0"
-     inkscape:window-maximized="0"
+     inkscape:window-width="1920"
+     inkscape:window-height="1018"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
      inkscape:snap-global="true"
      showguides="true"
      inkscape:guide-bbox="true">
@@ -723,7 +723,7 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path3509"
-       d="m 370,715 80,0 0,45 -40,0 0,-30 -40,0 z"
+       d="m 370,720 80,0 0,40 -40,0 0,-30 -40,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        sodipodi:nodetypes="ccccccc" />
     <rect
@@ -1014,13 +1014,6 @@
        y="1070"
        width="10"
        gameObjType="player" />
-    <path
-       style="fill:#ae550b;fill-opacity:1;stroke:none"
-       d="m 200,1120 -60,0 0,-10 40,0 0,-10 10,0 0,-40 10,0 z"
-       id="path3701"
-       gameObjType="rockGeo"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccccccc" />
     <rect
        maxReflections="0"
        gameObjType="levelArea"
@@ -1051,38 +1044,13 @@
        gameObjType="levelGeo"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccccc" />
-    <rect
-       gameObjType="levelArea"
-       y="1040"
-       x="480"
-       height="99.999977"
-       width="100.00001"
-       id="rect3698"
-       style="fill:#000000;fill-opacity:1;stroke:none"
-       maxReflections="0" />
     <path
+       style="fill:#ae550b;fill-opacity:1;stroke:none"
+       d="m 190,1110 -10,0 0,-10 10,0 z"
+       id="path3330"
+       gameObjType="rockGeo"
        inkscape:connector-curvature="0"
-       gameObjType="levelGeo"
-       id="path3700"
-       d="m 500,1050 40,0 0,30 -20,0 0,20 -20,0 z"
-       style="fill:#ffffff;fill-opacity:1;stroke:none"
-       sodipodi:nodetypes="ccccccc" />
-    <rect
-       width="10"
-       y="1050"
-       x="520"
-       height="10"
-       id="rect3702"
-       style="fill:#ffff00;fill-opacity:1;stroke:none;display:inline"
-       gameObjType="goal" />
-    <rect
-       gameObjType="player"
-       width="10"
-       y="1070"
-       x="520"
-       height="10"
-       id="rect3704"
-       style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline" />
+       sodipodi:nodetypes="ccccc" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -1522,7 +1490,7 @@
        style="fill:#00ff00;fill-opacity:1;stroke:none" />
     <rect
        width="10"
-       y="710"
+       y="720"
        x="430"
        height="10"
        id="rect3515"
@@ -2387,72 +2355,10 @@
        d="m 300,1250 -20,0 0,-40 20,0 z"
        style="fill:#ae550b;fill-opacity:1;stroke:none" />
     <rect
-       style="fill:#000000;fill-opacity:1;stroke:none;display:inline"
-       id="rect3349"
-       width="99.999977"
-       height="99.999977"
-       x="360"
-       y="1160"
-       gameObjType="levelArea"
-       maxReflections="0" />
-    <path
-       sodipodi:nodetypes="ccccc"
-       style="fill:#ffffff;fill-opacity:1;stroke:none;display:inline"
-       d="m 365,1180 90,0 0,60 -90,0 z"
-       id="path3351"
-       gameObjType="levelGeo"
-       inkscape:connector-curvature="0" />
-    <rect
-       width="10"
-       y="1230"
-       x="370"
-       height="10"
-       id="rect3353"
-       style="fill:#ffff00;fill-opacity:1;stroke:none;display:inline"
-       gameObjType="goal" />
-    <rect
-       style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline"
-       id="rect3360"
-       height="10"
-       x="380"
-       y="1230"
-       width="10"
-       gameObjType="player" />
-    <path
-       sodipodi:nodetypes="cc"
-       gameObjType="conveyor"
-       inkscape:connector-curvature="0"
-       id="path3362"
-       d="m 395,1240 0,-50"
-       style="fill:none;stroke:#16a300;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow1Mend);display:inline" />
-    <rect
-       gameObjType="mirror"
-       style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
-       id="rect3367"
-       height="10"
-       x="380"
-       y="1215"
-       width="10" />
-    <rect
-       gameObjType="ballKey"
-       style="fill:#ff3b00;fill-opacity:1;stroke:none"
-       id="rect3370"
-       height="10"
-       x="445"
-       y="1220"
-       width="10" />
-    <path
-       style="fill:#ae550b;fill-opacity:1;stroke:none"
-       d="m 420,1250 -20,0 0,-40 20,0 z"
-       id="path3374"
-       gameObjType="rockGeo"
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccc" />
-    <rect
        maxReflections="0"
        gameObjType="levelArea"
        y="1160"
-       x="480"
+       x="360"
        height="99.999977"
        width="99.999977"
        id="rect3382"
@@ -2461,7 +2367,7 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path3384"
-       d="m 485,1180 90,0 0,60 -90,0 z"
+       d="m 365,1180 90,0 0,60 -90,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none;display:inline"
        sodipodi:nodetypes="ccccc" />
     <rect
@@ -2469,20 +2375,20 @@
        style="fill:#ffff00;fill-opacity:1;stroke:none;display:inline"
        id="rect3386"
        height="10"
-       x="490"
+       x="370"
        y="1230"
        width="10" />
     <rect
        gameObjType="player"
        width="10"
        y="1230"
-       x="500"
+       x="380"
        height="10"
        id="rect3388"
        style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline" />
     <path
        style="fill:none;stroke:#16a300;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow1Mend);display:inline"
-       d="m 515,1240 0,-50"
+       d="m 395,1240 0,-50"
        id="path3390"
        inkscape:connector-curvature="0"
        gameObjType="conveyor"
@@ -2490,7 +2396,7 @@
     <rect
        width="10"
        y="1215"
-       x="500"
+       x="380"
        height="10"
        id="rect3392"
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
@@ -2498,7 +2404,7 @@
     <rect
        width="10"
        y="1220"
-       x="565"
+       x="445"
        height="10"
        id="rect3394"
        style="fill:#ff3b00;fill-opacity:1;stroke:none"
@@ -2508,14 +2414,14 @@
        inkscape:connector-curvature="0"
        gameObjType="rockGeo"
        id="path3396"
-       d="m 540,1250 -20,0 0,-30 -10,0 0,-10 30,0 z"
+       d="m 420,1250 -20,0 0,-30 -10,0 0,-10 30,0 z"
        style="fill:#ae550b;fill-opacity:1;stroke:none" />
     <rect
        gameObjType="mirror"
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
        id="rect3398"
        height="10"
-       x="490"
+       x="370"
        y="1215"
        width="10" />
     <rect
@@ -2539,21 +2445,21 @@
        id="rect3988"
        width="109.99998"
        height="99.999977"
-       x="595"
+       x="475"
        y="1160"
        gameObjType="levelArea"
        maxReflections="0" />
     <path
        sodipodi:nodetypes="ccccc"
        style="fill:#ffffff;fill-opacity:1;stroke:none;display:inline"
-       d="m 605,1180 90,0 0,60 -90,0 z"
+       d="m 485,1180 90,0 0,60 -90,0 z"
        id="path3990"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
     <rect
        width="10"
        y="1230"
-       x="610"
+       x="490"
        height="10"
        id="rect3992"
        style="fill:#ffff00;fill-opacity:1;stroke:none;display:inline"
@@ -2562,7 +2468,7 @@
        style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline"
        id="rect3994"
        height="10"
-       x="620"
+       x="500"
        y="1230"
        width="10"
        gameObjType="player" />
@@ -2571,13 +2477,13 @@
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
        id="rect3998"
        height="10"
-       x="640"
+       x="520"
        y="1230"
        width="10" />
     <rect
        width="10"
        y="1230"
-       x="630"
+       x="510"
        height="10"
        id="rect4004"
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
@@ -2585,14 +2491,14 @@
     <rect
        width="10"
        y="1230"
-       x="650"
+       x="530"
        height="10"
        id="rect4443"
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
        gameObjType="mirror" />
     <path
        style="fill:#ae550b;fill-opacity:1;stroke:none"
-       d="m 605,1205 0,-25 5,0 0,20 10,0 0,-5 15,0 0,10 z"
+       d="m 485,1205 0,-25 5,0 0,20 10,0 0,-5 15,0 0,10 z"
        id="path4580"
        gameObjType="rockGeo"
        inkscape:connector-curvature="0"
@@ -2602,60 +2508,29 @@
        inkscape:connector-curvature="0"
        gameObjType="rockGeo"
        id="path4641"
-       d="m 695,1205 -30,0 0,-10 15,0 0,5 9.74998,0 0.25002,-20 5,0 z"
+       d="m 575,1205 -30,0 0,-10 15,0 0,5 9.74998,0 0.25002,-20 5,0 z"
        style="fill:#ae550b;fill-opacity:1;stroke:none" />
     <path
        sodipodi:nodetypes="cc"
        gameObjType="conveyor"
        inkscape:connector-curvature="0"
        id="path4833"
-       d="m 630,1210 40,0"
+       d="m 550,1210 -40,0"
        style="fill:none;stroke:#16a300;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow1Mend);display:inline" />
     <rect
        gameObjType="ballKey"
        style="fill:#ff3b00;fill-opacity:1;stroke:none"
        id="rect4913"
        height="10"
-       x="625"
+       x="505"
        y="1180"
        width="10" />
     <rect
        width="10"
        y="1180"
-       x="665"
+       x="545"
        height="10"
        id="rect4915"
-       style="fill:#ff3b00;fill-opacity:1;stroke:none"
-       gameObjType="ballKey" />
-    <rect
-       width="10"
-       y="1060"
-       x="530"
-       height="10"
-       id="rect3708"
-       style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
-       gameObjType="mirror" />
-    <rect
-       width="10"
-       y="1070"
-       x="530"
-       height="10"
-       id="rect3710"
-       style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
-       gameObjType="mirror" />
-    <path
-       sodipodi:nodetypes="ccccccc"
-       inkscape:connector-curvature="0"
-       gameObjType="rockGeo"
-       id="path3716"
-       d="m 560,1135 -40,0 0,-45 10,0 0,10 30,0 z"
-       style="fill:#ae550b;fill-opacity:1;stroke:none" />
-    <rect
-       width="10"
-       y="1090"
-       x="540"
-       height="10"
-       id="rect3718"
        style="fill:#ff3b00;fill-opacity:1;stroke:none"
        gameObjType="ballKey" />
   </g>

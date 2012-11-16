@@ -2,8 +2,8 @@
 
 private var pushDir:Vector2;
 
-private var paraSpeed = 2.0;
-private var perpSpeed = 1.0;
+private var paraSpeed = 3.0;
+private var perpSpeed = 1.5;
 
 function Start () {
 

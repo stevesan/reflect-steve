@@ -1,15 +1,10 @@
 
 TODO:
+- add more recognizable shapes for intro levels, like smiley faces??
 - make snow flake rotate smoothly, not randomly..
-- fix lev2 arrow reflection crash..
-	- add more recognizable shapes for intro levels, like smiley faces??
-- fix lev32 reflection crash..
-	- check all levels again with grid snap...fix some triang bugs/crashes
-- check if the bad solution to 33 still works..
-    http://imgur.com/a/KrVWk
-		double-siding makes ball-keys behavior weird...UGH
 - moment 30...see how Jory solved that?
 - REMOVE PREVIEW??
+    hmm i want to just make more complex levels i think...
 - make tutorial text follow your cursor!!
 	"Click 
 - develop analytics viewer! ie. session stats, drilldown, etc.
