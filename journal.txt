@@ -1,14 +1,13 @@
 
 TODO:
+- tweak grid-snapping of positions more..still don't like how it feels.
+- fix conveyor bug where it doesn't fully pick you up
 - add more recognizable shapes for intro levels, like smiley faces??
 - make snow flake rotate smoothly, not randomly..
-- moment 30...see how Jory solved that?
-- REMOVE PREVIEW??
-    hmm i want to just make more complex levels i think...
 - make tutorial text follow your cursor!!
 	"Click 
 - develop analytics viewer! ie. session stats, drilldown, etc.
-
+    - moment 30...see how Jory solved that?
 - consider negating colors on the reflecting side...could look cool, like a photo negative
 - i need to give each level a unique ID, cuz i'll be modifying the level order.
 - clamp cursor icon (hide pointer?) to screen
