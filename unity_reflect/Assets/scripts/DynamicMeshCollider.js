@@ -5,6 +5,12 @@
 // may change their mesh geometry
 //----------------------------------------
 
+function Awake()
+{
+	if( gameObject.GetComponent(MeshFilter) == null )
+		gameObject.AddComponent(MeshFilter);
+}
+
 function OnMeshChanged() : void {
 	// Destroy the meshcollider component so it gets properly
 	// re-updated, but remember it isn't

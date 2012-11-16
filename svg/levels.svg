@@ -141,17 +141,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="8.0000002"
-     inkscape:cx="641.89055"
-     inkscape:cy="-1009.6164"
+     inkscape:zoom="4.0000001"
+     inkscape:cx="518.30701"
+     inkscape:cy="-861.34768"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1018"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
+     inkscape:window-width="1276"
+     inkscape:window-height="756"
+     inkscape:window-x="4"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
      inkscape:snap-global="true"
      showguides="true"
      inkscape:guide-bbox="true">
@@ -173,7 +173,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -896,23 +896,23 @@
        style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline"
        id="rect3371"
        height="10"
-       x="20"
+       x="25"
        y="1055"
        width="10"
        gameObjType="player" />
     <path
        style="fill:#ae550b;fill-opacity:1;stroke:none"
-       d="m 50,1070 -45,0 0,-5 45,0 z"
+       d="m 50,1070 -30,0 0,-25 5,0 0,20 25,0 z"
        id="path3373"
        gameObjType="rockGeo"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccccc" />
+       sodipodi:nodetypes="ccccccc" />
     <path
-       sodipodi:nodetypes="ccccc"
+       sodipodi:nodetypes="ccccccc"
        inkscape:connector-curvature="0"
        gameObjType="rockGeo"
        id="path3377"
-       d="m 95,1070 -35,0 0,-5 35,0 z"
+       d="m 90,1070 -30,0 0,-5 25,0 0,-20 5,0 z"
        style="fill:#ae550b;fill-opacity:1;stroke:none" />
     <rect
        gameObjType="levelArea"
@@ -1051,6 +1051,38 @@
        gameObjType="levelGeo"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccccc" />
+    <rect
+       gameObjType="levelArea"
+       y="1040"
+       x="480"
+       height="99.999977"
+       width="100.00001"
+       id="rect3698"
+       style="fill:#000000;fill-opacity:1;stroke:none"
+       maxReflections="0" />
+    <path
+       inkscape:connector-curvature="0"
+       gameObjType="levelGeo"
+       id="path3700"
+       d="m 500,1050 40,0 0,30 -20,0 0,20 -20,0 z"
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       sodipodi:nodetypes="ccccccc" />
+    <rect
+       width="10"
+       y="1050"
+       x="520"
+       height="10"
+       id="rect3702"
+       style="fill:#ffff00;fill-opacity:1;stroke:none;display:inline"
+       gameObjType="goal" />
+    <rect
+       gameObjType="player"
+       width="10"
+       y="1070"
+       x="520"
+       height="10"
+       id="rect3704"
+       style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline" />
   </g>
   <g
      inkscape:groupmode="layer"
@@ -2593,6 +2625,37 @@
        x="665"
        height="10"
        id="rect4915"
+       style="fill:#ff3b00;fill-opacity:1;stroke:none"
+       gameObjType="ballKey" />
+    <rect
+       width="10"
+       y="1060"
+       x="530"
+       height="10"
+       id="rect3708"
+       style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
+       gameObjType="mirror" />
+    <rect
+       width="10"
+       y="1070"
+       x="530"
+       height="10"
+       id="rect3710"
+       style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
+       gameObjType="mirror" />
+    <path
+       sodipodi:nodetypes="ccccccc"
+       inkscape:connector-curvature="0"
+       gameObjType="rockGeo"
+       id="path3716"
+       d="m 560,1135 -40,0 0,-45 10,0 0,10 30,0 z"
+       style="fill:#ae550b;fill-opacity:1;stroke:none" />
+    <rect
+       width="10"
+       y="1090"
+       x="540"
+       height="10"
+       id="rect3718"
        style="fill:#ff3b00;fill-opacity:1;stroke:none"
        gameObjType="ballKey" />
   </g>

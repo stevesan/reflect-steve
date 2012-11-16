@@ -29,12 +29,12 @@ function Initialize( p1:Vector2, p2:Vector2, radius:float ) : void
     pushDir = delta/length;
 }
 
-private var touchingObjects:GameObject[] = new GameObject[10];
+private var touchingObjects = new HashSet.<GameObject>();
 
 function OnTriggerEnter(other : Collider) : void
 {
 	other.SendMessage("OnEnterConveyor", this, SendMessageOptions.DontRequireReceiver);
-	ArrayUtility.Add.<GameObject>(touchingObjects, other.gameObject);
+	touchingObjects.Add( other.gameObject );
 	Debug.Log("touched "+other.gameObject.name);
 }
 
@@ -54,7 +54,8 @@ function OnTriggerStay(other : Collider) : void
 function OnTriggerExit(other : Collider) : void
 {
 	other.SendMessage("OnExitConveyor", this, SendMessageOptions.DontRequireReceiver);
-	ArrayUtility.Remove.<GameObject>(touchingObjects, other.gameObject);
+	if( touchingObjects.Contains( other.gameObject ) )
+		touchingObjects.Remove( other.gameObject );
 }
 
 function OnDestroy()

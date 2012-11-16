@@ -1,36 +1,22 @@
 
 TODO:
-- rewind on jumps
-- REMOVE PREVIEW
-- with grid snapping
-- make tutorial text follow your cursor
 - make snow flake rotate smoothly, not randomly..
-- fix cancel-while-reflecting-conveyors problem
-- fix reflecting-conveyors-not resetting gravity state problem
-- develop analytics viewer! ie. session stats, drilldown, etc.
-- cleanup moment 34 - don't allow them to "bump up" the bubble..
-    see the play through recordings for how ppl deal with that
-- cleanup moment 33 - don't allow the solution here:
+- fix lev2 arrow reflection crash..
+	- add more recognizable shapes for intro levels, like smiley faces??
+- fix lev32 reflection crash..
+	- check all levels again with grid snap...fix some triang bugs/crashes
+- check if the bad solution to 33 still works..
     http://imgur.com/a/KrVWk
+		double-siding makes ball-keys behavior weird...UGH
 - moment 30...see how Jory solved that?
-- shimmer effect when mouse moves mirror widget, with sound
-- consider negating colors on the reflecting side...could look cool, like a photo negative
-- consider: making intro levels using non-abstract shapes, such as letters
-- i need to give each level a unique name, cuz i'll be modifying the level order.
-- clamp cursor icon (hide pointer?) to screen
-- reflect effects: try some "looks" in photoshop..
-		current geo "behind" mirror (ie. in the reflected side) should be in dotted outline?
-- consider just offering various "moments of reflection" when each puzzle is solved! just like..quotes.
-- for SJ: animate carrot/keys
-- make carrot/keys juicy
-		light color changes when you get all keys? like a quick blink of blue?
-- make level geo double-sided for physics? why not?
-- grid-snapping or mirror location to keep things less fidgety..
-	- although the visual grid bg helps already
-- level-select screen. Just show the level geometry and detect clicks on level areas! add number overlays
+- REMOVE PREVIEW??
+- make tutorial text follow your cursor!!
+	"Click 
+- develop analytics viewer! ie. session stats, drilldown, etc.
 
-MAYBE, LOW PRIO:
-- ok new level geo pipeline: Use blender to build geometry, then just use Unity to place objects
+- consider negating colors on the reflecting side...could look cool, like a photo negative
+- i need to give each level a unique ID, cuz i'll be modifying the level order.
+- clamp cursor icon (hide pointer?) to screen
 
 STORY/LYRICS:
 

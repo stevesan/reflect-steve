@@ -42,6 +42,7 @@ var safeArea : SafeArea;
 //----------------------------------------
 //  Objects for level geometry/UI
 //----------------------------------------
+var reverseLevelCollision : DynamicMeshCollider;
 var geoTriRender : MeshFilter;	// rendering the fill-triangles for the active collision geometry
 var rockCollider : DynamicMeshCollider;
 var rockRender : MeshFilter;
@@ -356,11 +357,22 @@ function PolysToStroke( polys:Mesh2D, vmax:float, width:float, buffer:MeshBuffer
 
 function OnCollidingGeometryChanged()
 {
-	// update collision mesh
+	// update collision meshes
 	ProGeo.BuildBeltMesh(
 			currLevPoly.pts, currLevPoly.edgeA, currLevPoly.edgeB,
 			-10, 10, false, GetComponent(MeshFilter).mesh );
 	GetComponent(DynamicMeshCollider).OnMeshChanged();
+
+	// Make it double-sided
+	var reverse = reverseLevelCollision;
+	if( reverse != null )
+	{
+		reverse.GetMesh().Clear();
+		ProGeo.BuildBeltMesh(
+				currLevPoly.pts, currLevPoly.edgeA, currLevPoly.edgeB,
+				-10, 10, true, reverse.GetMesh() );
+		reverse.OnMeshChanged();
+	}
 
 	// update rendered fill mesh
 	if( geoTriRender != null ) {
@@ -864,6 +876,7 @@ function Update()
 					isReflecting = false;
 					BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
                     GetComponent(Connectable).TriggerEvent("OnExitReflectMode");
+					UpdateConveyorVisuals( currConveyors );
 				}
 			}
 			else {
