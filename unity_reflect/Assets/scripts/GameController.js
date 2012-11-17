@@ -11,7 +11,7 @@ var snapReflectPosition = true;
 
 // Controls how fast the preview spins
 private var previewRotateSpeed = 1.5*Mathf.PI;
-private var previewTranslateSpeed = 10.0;
+private var previewTranslateSpeed = 100.0;
 
 //----------------------------------------
 //  Components instances we use
@@ -635,8 +635,12 @@ function UpdateReflectionLine() : void
 	var delta = goalLineStart - lineStart;
 	var dist = delta.magnitude;
 	var maxMoveDist = Time.deltaTime * previewTranslateSpeed;
+	var maxDistFromGoal = 1.0;
 	if( dist < maxMoveDist )
 		lineStart = goalLineStart;
+	else if( dist > maxDistFromGoal )
+		// never lag behind too far
+		lineStart = goalLineStart - delta*maxDistFromGoal/dist;
 	else
 		lineStart += maxMoveDist * delta/dist;
 
