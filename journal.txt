@@ -1,6 +1,7 @@
 
 TODO:
-- tweak grid-snapping of positions more..still don't like how it feels.
+- ANALYZE DATA ASAP SO I CAN START RE-EDITING LEVELS!!
+- fix moment 16 by introducing rigid-carrots! ie. get rid of the "ratchet" solution just doing that, instead of leading the player on with the off-to-left carrot.
 - fix conveyor bug where it doesn't fully pick you up
 - add more recognizable shapes for intro levels, like smiley faces??
 - make snow flake rotate smoothly, not randomly..
