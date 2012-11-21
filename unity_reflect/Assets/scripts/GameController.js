@@ -80,6 +80,9 @@ private var fadeStart : float;
 //----------------------------------------
 var levelsText : TextAsset;
 
+// Use this to hide levels not ready for prime time..
+private var maxNumLevels = 37;
+
 //----------------------------------------
 //  Sounds
 //----------------------------------------
@@ -573,7 +576,7 @@ function Awake()
 
 		// build from the text file
 		var reader = new StringReader( levelsText.text );
-		levels = LevelManager.ParseLevels( reader );
+		levels = LevelManager.ParseLevels( reader, maxNumLevels );
 		Debug.Log('Read in '+levels.Count+' levels');
 
 		origLightIntensity = mainLight.intensity;
@@ -707,7 +710,7 @@ function Update()
 		levelNumber.text = '';
 
 		if( Input.GetButtonDown('ReflectToggle') || Input.GetButtonDown('NextLevel') ) {
-			FadeToLevel( PlayerPrefs.GetInt("currentLevelId", 0), true );
+			FadeToLevel( Mathf.Min( maxNumLevels-1, PlayerPrefs.GetInt("currentLevelId", 0)), true );
 			AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
 			Destroy(titleText);
 		}

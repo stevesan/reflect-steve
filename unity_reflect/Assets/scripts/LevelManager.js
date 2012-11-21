@@ -132,7 +132,7 @@ static function ReadSvgToMesh2D( parts:String[], reader:StringReader ) : Mesh2D
 //----------------------------------------
 //  
 //----------------------------------------
-static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
+static function ParseLevels( reader:StringReader, maxNumLevels:int ) : List.<LevelInfo>
 {
 	//----------------------------------------
 	//  Parse all the areas and objects
@@ -151,7 +151,7 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 	while( line != null )
 	{
 		var parts = line.Split([' '], System.StringSplitOptions.RemoveEmptyEntries);
-		if( parts[0] == 'levelArea')
+		if( parts[0] == 'levelArea' && areas.Count < maxNumLevels )
 		{
 			areas.Add( ParseRect( parts ) );
 			maxReflections.Push( parseInt( parts[5] ) );
