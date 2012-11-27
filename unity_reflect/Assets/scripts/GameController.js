@@ -266,6 +266,7 @@ function FadeToLevel( levId:int, fast:boolean ) {
 
 function UpdateGoalLocked()
 {
+Debug.Log("updating goal lock state, "+numKeysGot+" / " +numKeys);
 	goal.GetComponent(Star).SetLocked( numKeysGot < numKeys );
 }
 
@@ -532,8 +533,7 @@ function SwitchLevel( id:int )
 		else if( lobj.type == 'ballKey' ) {
 			numKeys++;
 			obj = Instantiate( ballKeyPrefab, lobj.pos, ballKeyPrefab.transform.rotation );
-			// make it NOT collide with the player, so it doesn't affect player's motion
-			Physics.IgnoreCollision( obj.GetComponent(Collider), player.GetComponent(Collider) );
+			obj.GetComponent(Key).playerCollider = player.GetComponent(Collider);
 		}
 		else if( lobj.type == 'mirror' ) {
 			obj = Instantiate( mirrorPrefab, lobj.pos, mirrorPrefab.transform.rotation );

@@ -4,8 +4,14 @@
 var doPerFrameSphereCheck = false;	// If true, this will do a per-frame sphere-collision check to check for player-collision
 private var disableGravityCount = 0;
 
-function Start () {
+var playerCollider:Collider = null;
 
+function Start () {
+	if( playerCollider != null )
+	{
+		// make it NOT collide with the player, so it doesn't affect player's motion
+		Physics.IgnoreCollision( GetComponent(Collider), playerCollider );
+	}
 }
 
 function Update () {
