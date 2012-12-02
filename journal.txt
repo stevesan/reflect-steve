@@ -1,16 +1,15 @@
 
 TODO:
-- ANALYZE DATA ASAP SO I CAN START RE-EDITING LEVELS!!
+- implement events playback, so i can see ppl's solutions for like 34 and 30
+- implement lava-zones and falling lava blocks. for completeness.
+    closure has soooo many mechanics: rolling/blocks with and w/o lights, water, guns, spot lights, glass, elevators, no-drop-zones, spikey floors
+    so does Braid: goombas, rabbits, cannons, lava/spikes, ladders, movers, switches, ladders
+    portal 1 has: buttons, cubes, energy balls, moving platforms, turrets, lava
+    my game needs more mechanics!!
+    MOR has: keys, fall-keys, bricks, conveyors
 - fix moment 16 by introducing rigid-carrots! ie. get rid of the "ratchet" solution just doing that, instead of leading the player on with the off-to-left carrot.
 - fix conveyor bug where it doesn't fully pick you up
-- add more recognizable shapes for intro levels, like smiley faces??
-- make snow flake rotate smoothly, not randomly..
-- make tutorial text follow your cursor!!
-	"Click 
-- develop analytics viewer! ie. session stats, drilldown, etc.
-    - moment 30...see how Jory solved that?
 - consider negating colors on the reflecting side...could look cool, like a photo negative
-- i need to give each level a unique ID, cuz i'll be modifying the level order.
 - clamp cursor icon (hide pointer?) to screen
 
 STORY/LYRICS:
