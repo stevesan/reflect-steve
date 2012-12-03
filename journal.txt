@@ -1,6 +1,8 @@
 
 TODO:
+- implement game-end with option to enable free-reflection mode
 - implement events playback, so i can see ppl's solutions for like 34 and 30
+    use 'levels.txt' for data prior to 12-03
 - implement lava-zones and falling lava blocks. for completeness.
     closure has soooo many mechanics: rolling/blocks with and w/o lights, water, guns, spot lights, glass, elevators, no-drop-zones, spikey floors
     so does Braid: goombas, rabbits, cannons, lava/spikes, ladders, movers, switches, ladders

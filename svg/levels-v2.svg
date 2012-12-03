@@ -141,9 +141,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284273"
-     inkscape:cx="280.63372"
-     inkscape:cy="-226.08076"
+     inkscape:zoom="2.0000001"
+     inkscape:cx="298.48945"
+     inkscape:cy="-281.15643"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
@@ -173,7 +173,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -193,7 +193,7 @@
     <rect
        maxReflections="0"
        gameObjType="levelArea"
-       y="920"
+       y="800"
        x="360"
        height="99.999977"
        width="99.999977"
@@ -204,8 +204,8 @@
        id="rect3351"
        width="99.999977"
        height="99.999977"
-       x="120"
-       y="680"
+       x="240"
+       y="560"
        gameObjType="levelArea"
        maxReflections="0" />
     <rect
@@ -219,8 +219,8 @@
        maxReflections="0" />
     <rect
        gameObjType="levelArea"
-       y="560"
-       x="240"
+       y="440"
+       x="360"
        height="99.999977"
        width="100.00001"
        id="rect4327"
@@ -228,8 +228,8 @@
        maxReflections="0" />
     <rect
        gameObjType="levelArea"
-       y="560"
-       x="120"
+       y="320"
+       x="240"
        height="99.999977"
        width="100"
        id="rect3125"
@@ -258,8 +258,8 @@
        id="area3"
        width="99.999977"
        height="99.999977"
-       x="0"
-       y="560"
+       x="120"
+       y="320"
        gameObjType="levelArea"
        maxReflections="0" />
     <rect
@@ -286,7 +286,7 @@
        sodipodi:nodetypes="ccccccccccccc" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 30,590 40,0 0,40 -30,0 0,10 -10,0 z"
+       d="m 150,350 40,0 0,40 -30,0 0,10 -10,0 z"
        id="rect3911"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0"
@@ -300,7 +300,7 @@
        style="fill:#ffffff;fill-opacity:1;stroke:none" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 190,580 0,30 -10,0 0,20 -40,0 0,-50 z"
+       d="m 310,340 0,30 -10,0 0,20 -40,0 0,-50 z"
        id="path3135"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccccc"
@@ -309,7 +309,7 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path4333"
-       d="m 270,570 40,0 0,40 -40,0 z"
+       d="m 390,450 40,0 0,40 -40,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none" />
     <path
        sodipodi:nodetypes="ccccccc"
@@ -322,12 +322,12 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path4644"
-       d="m 480,245 20,0 0,7.4641 20,0 0,-7.4641 10,0 0,15 -50,0 z"
+       d="m 480,250 20,0 0,2.4641 20,0 0,-2.4641 10,0 0,10 -50,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        sodipodi:nodetypes="ccccccccc" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 140,720 40,0 0,30 -40,0 z"
+       d="m 260,600 40,0 0,30 -40,0 z"
        id="path3353"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
@@ -335,13 +335,13 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path3312"
-       d="m 370,950 80,0 0,40 -80,0 z"
+       d="m 370,830 80,0 0,40 -80,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        sodipodi:nodetypes="ccccc" />
     <rect
        gameObjType="levelArea"
-       y="680"
-       x="240"
+       y="560"
+       x="120"
        height="99.999977"
        width="100.00001"
        id="rect3244"
@@ -351,13 +351,13 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path3248"
-       d="m 280,720 40,0 0,20 -20,0 0,20 -20,0 z"
+       d="m 160,600 40,0 0,20 -20,0 0,20 -20,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        sodipodi:nodetypes="ccccccc" />
     <rect
        width="10"
-       y="730"
-       x="310"
+       y="610"
+       x="190"
        height="10"
        id="rect3250"
        style="fill:#ffff00;fill-opacity:1;stroke:none;display:inline"
@@ -365,20 +365,20 @@
     <rect
        gameObjType="player"
        width="10"
-       y="730"
-       x="300"
+       y="610"
+       x="180"
        height="10"
        id="rect3252"
        style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 280,700 10,0 0,10 -10,0 z"
+       d="m 160,580 10,0 0,10 -10,0 z"
        id="path3305"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
     <rect
        gameObjType="levelArea"
-       y="680"
+       y="560"
        x="0"
        height="99.999977"
        width="100.00001"
@@ -388,13 +388,13 @@
     <path
        sodipodi:nodetypes="ccccccc"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 20,700 50,0 0,20 -20,0 0,40 -30,0 z"
+       d="m 20,580 50,0 0,20 -20,0 0,40 -30,0 z"
        id="path3568"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
     <rect
        width="10"
-       y="740"
+       y="620"
        x="20"
        height="10"
        id="rect3562"
@@ -403,7 +403,7 @@
     <rect
        gameObjType="player"
        width="10"
-       y="750"
+       y="630"
        x="20"
        height="10"
        id="rect3564"
@@ -466,14 +466,14 @@
        id="rect3358"
        width="99.999977"
        height="99.999977"
-       x="240"
+       x="360"
        y="320"
        gameObjType="levelArea"
        maxReflections="0" />
     <path
        sodipodi:nodetypes="ccccccccc"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 250,340 80,0 0,10 -60,0 0,10 60,0 0,40 -80,0 z"
+       d="m 370,340 80,0 0,10 -60,0 0,10 60,0 0,40 -80,0 z"
        id="path3372"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
@@ -481,7 +481,7 @@
        maxReflections="0"
        gameObjType="levelArea"
        y="320"
-       x="120"
+       x="480"
        height="99.999977"
        width="99.999977"
        id="rect3507"
@@ -490,7 +490,7 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path3509"
-       d="m 130,360 80,0 0,40 -40,0 0,-30 -40,0 z"
+       d="m 490,360 80,0 0,40 -40,0 0,-30 -40,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        sodipodi:nodetypes="ccccccc" />
     <rect
@@ -500,12 +500,12 @@
        width="100.00001"
        height="99.999977"
        x="0"
-       y="800"
+       y="680"
        gameObjType="levelArea" />
     <path
        sodipodi:nodetypes="ccccc"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 50,830 40,0 0,30 -40,0 z"
+       d="m 50,710 40,0 0,30 -40,0 z"
        id="path3370"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
@@ -515,14 +515,14 @@
        id="rect3372"
        height="10"
        x="0"
-       y="820"
+       y="700"
        width="10" />
     <rect
        style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline"
        id="rect3374"
        height="10"
        x="80"
-       y="840"
+       y="720"
        width="10"
        gameObjType="player" />
     <rect
@@ -531,12 +531,12 @@
        id="rect3736"
        width="100.00001"
        height="99.999977"
-       x="360"
-       y="560"
+       x="480"
+       y="440"
        gameObjType="levelArea" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 380,570 10,0 0,10 10,0 0,10 10,0 0,10 10,0 0,-10 10,0 0,-10 10,0 0,-10 10,0 0,70 -70,0 z"
+       d="m 500,450 10,0 0,10 10,0 0,10 10,0 0,10 10,0 0,-10 10,0 0,-10 10,0 0,-10 10,0 0,70 -70,0 z"
        id="path3738"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0"
@@ -559,7 +559,7 @@
        sodipodi:nodetypes="ccccccc" />
     <rect
        gameObjType="levelArea"
-       y="800"
+       y="680"
        x="360"
        height="99.999977"
        width="100.00001"
@@ -570,12 +570,12 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path3412"
-       d="m 370,820 20,0 0,10 10,0 0,-10 20,0 0,10 10,0 0,-10 20,0 0,60 -80,0 z"
+       d="m 370,700 20,0 0,10 10,0 0,-10 20,0 0,10 10,0 0,-10 20,0 0,60 -80,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        sodipodi:nodetypes="ccccccccccccc" />
     <rect
        width="10"
-       y="870"
+       y="750"
        x="440"
        height="10"
        id="rect3414"
@@ -584,7 +584,7 @@
     <rect
        gameObjType="player"
        width="10"
-       y="870"
+       y="750"
        x="420"
        height="10"
        id="rect3416"
@@ -594,7 +594,7 @@
        inkscape:connector-curvature="0"
        gameObjType="rockGeo"
        id="path3418"
-       d="m 420,900 -20,0 0,-40 20,0 z"
+       d="m 420,780 -20,0 0,-40 20,0 z"
        style="fill:#ae550b;fill-opacity:1;stroke:none" />
     <rect
        maxReflections="0"
@@ -603,12 +603,12 @@
        width="100.00001"
        height="99.999977"
        x="240"
-       y="800"
+       y="680"
        gameObjType="levelArea" />
     <path
        sodipodi:nodetypes="ccccc"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 260,805 70,0 0,75 -70,0 z"
+       d="m 260,685 70,0 0,75 -70,0 z"
        id="path3367"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
@@ -618,19 +618,19 @@
        id="rect3369"
        height="10"
        x="320"
-       y="870"
+       y="750"
        width="10" />
     <rect
        style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline"
        id="rect3371"
        height="10"
        x="265"
-       y="815"
+       y="695"
        width="10"
        gameObjType="player" />
     <path
        style="fill:#ae550b;fill-opacity:1;stroke:none"
-       d="m 290,830 -30,0 0,-25 5,0 0,20 25,0 z"
+       d="m 290,710 -30,0 0,-25 5,0 0,20 25,0 z"
        id="path3373"
        gameObjType="rockGeo"
        inkscape:connector-curvature="0"
@@ -640,23 +640,8 @@
        inkscape:connector-curvature="0"
        gameObjType="rockGeo"
        id="path3377"
-       d="m 330,830 -30,0 0,-5 25,0 0,-20 5,0 z"
+       d="m 330,710 -30,0 0,-5 25,0 0,-20 5,0 z"
        style="fill:#ae550b;fill-opacity:1;stroke:none" />
-    <rect
-       maxReflections="0"
-       gameObjType="levelArea"
-       y="440"
-       x="240"
-       height="99.999977"
-       width="99.999977"
-       id="rect3243"
-       style="fill:#000000;fill-opacity:1;stroke:none" />
-    <path
-       inkscape:connector-curvature="0"
-       gameObjType="levelGeo"
-       id="path3245"
-       d="m 280,470 40,0 0,10 -40,0 z"
-       style="fill:#ffffff;fill-opacity:1;stroke:none" />
     <rect
        maxReflections="0"
        style="fill:#000000;fill-opacity:1;stroke:none"
@@ -664,12 +649,12 @@
        width="100.00001"
        height="99.999977"
        x="120"
-       y="800"
+       y="680"
        gameObjType="levelArea" />
     <path
        sodipodi:nodetypes="ccccccc"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 140,820 50,0 0,20 -30,0 0,30 -20,0 z"
+       d="m 140,700 50,0 0,20 -30,0 0,30 -20,0 z"
        id="path3695"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
@@ -679,14 +664,14 @@
        id="rect3697"
        height="10"
        x="155"
-       y="820"
+       y="700"
        width="10" />
     <rect
        style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline"
        id="rect3699"
        height="10"
        x="160"
-       y="830"
+       y="710"
        width="10"
        gameObjType="player" />
     <path
@@ -698,7 +683,7 @@
        sodipodi:nodetypes="cccccccc" />
     <path
        style="fill:#ae550b;fill-opacity:1;stroke:none"
-       d="m 190,870 -10,0 0,-10 10,0 z"
+       d="m 190,750 -10,0 0,-10 10,0 z"
        id="path3330"
        gameObjType="rockGeo"
        inkscape:connector-curvature="0"
@@ -768,14 +753,14 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path3325"
-       d="m 150,700 10,0 0,10 -10,0 z"
+       d="m 270,580 10,0 0,10 -10,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none" />
     <path
        sodipodi:nodetypes="ccccc"
        inkscape:connector-curvature="0"
        gameObjType="rockGeo"
        id="path3393"
-       d="m 60,850 10,0 0,10 -10,0 z"
+       d="m 60,730 10,0 0,10 -10,0 z"
        style="fill:#ae550b;fill-opacity:1;stroke:none" />
     <path
        sodipodi:nodetypes="ccccccccc"
@@ -829,8 +814,8 @@
        width="10" />
     <rect
        width="10"
-       y="630"
-       x="30"
+       y="390"
+       x="150"
        height="10"
        id="rect3846-0"
        style="fill:#ffff00;fill-opacity:1;stroke:none"
@@ -856,29 +841,29 @@
        style="fill:#ffff00;fill-opacity:1;stroke:none"
        id="rect4329"
        height="10"
-       x="280"
-       y="585"
+       x="400"
+       y="465"
        width="10" />
     <rect
        gameObjType="goal"
        style="fill:#ffff00;fill-opacity:1;stroke:none"
        id="rect3127"
        height="10"
-       x="140"
-       y="620"
+       x="260"
+       y="380"
        width="10" />
     <rect
        width="10"
        y="480"
-       x="70"
+       x="80"
        height="10"
        id="rect5031"
        style="fill:#ffff00;fill-opacity:1;stroke:none"
        gameObjType="goal" />
     <rect
        width="10"
-       y="630"
-       x="270"
+       y="510"
+       x="390"
        height="10"
        id="rect4335"
        style="fill:#00a3ff;fill-opacity:1;stroke:none"
@@ -894,16 +879,16 @@
     <rect
        gameObjType="player"
        width="10"
-       y="600"
-       x="275"
+       y="480"
+       x="395"
        height="10"
        id="rect4331"
        style="fill:#00ff00;fill-opacity:1;stroke:none" />
     <rect
        gameObjType="player"
        width="10"
-       y="620"
-       x="155"
+       y="380"
+       x="275"
        height="10"
        id="rect3129"
        style="fill:#00ff00;fill-opacity:1;stroke:none" />
@@ -943,14 +928,14 @@
        style="fill:#00ff00;fill-opacity:1;stroke:none"
        id="rect3844-3"
        height="10"
-       x="45"
-       y="620"
+       x="165"
+       y="380"
        width="10"
        gameObjType="player" />
     <rect
        width="10"
-       y="740"
-       x="140"
+       y="620"
+       x="260"
        height="10"
        id="rect3355"
        style="fill:#ffff00;fill-opacity:1;stroke:none"
@@ -959,8 +944,8 @@
        style="fill:#00ff00;fill-opacity:1;stroke:none"
        id="rect3357"
        height="10"
-       x="150"
-       y="740"
+       x="270"
+       y="620"
        width="10"
        gameObjType="player" />
     <rect
@@ -968,8 +953,8 @@
        style="fill:#00a3ff;fill-opacity:1;stroke:none"
        id="rect3359"
        height="10"
-       x="210"
-       y="715"
+       x="330"
+       y="595"
        width="10" />
     <rect
        gameObjType="goal"
@@ -977,12 +962,12 @@
        id="rect3314"
        height="10"
        x="405"
-       y="955"
+       y="835"
        width="10" />
     <rect
        gameObjType="player"
        width="10"
-       y="980"
+       y="860"
        x="405"
        height="10"
        id="rect3316"
@@ -992,28 +977,28 @@
        style="fill:#00a3ff;fill-opacity:1;stroke:none"
        id="rect3318"
        height="10"
-       x="55"
-       y="595"
+       x="175"
+       y="355"
        width="10" />
     <rect
        gameObjType="ballKey"
        style="fill:#ff3b00;fill-opacity:1;stroke:none"
        id="rect3254"
        height="10"
-       x="280"
-       y="700"
+       x="160"
+       y="580"
        width="10" />
     <rect
        width="10"
-       y="730"
-       x="260"
+       y="610"
+       x="140"
        height="10"
        id="rect3535"
        style="fill:#00a3ff;fill-opacity:1;stroke:none"
        gameObjType="key" />
     <rect
        width="10"
-       y="700"
+       y="580"
        x="55"
        height="10"
        id="rect3570"
@@ -1054,7 +1039,7 @@
     <rect
        width="10"
        y="390"
-       x="310"
+       x="430"
        height="10"
        id="rect3362"
        style="fill:#ffff00;fill-opacity:1;stroke:none"
@@ -1063,7 +1048,7 @@
        style="fill:#00ff00;fill-opacity:1;stroke:none"
        id="rect3364"
        height="10"
-       x="300"
+       x="420"
        y="340"
        width="10"
        gameObjType="player" />
@@ -1072,7 +1057,7 @@
        style="fill:#00a3ff;fill-opacity:1;stroke:none"
        id="rect3366"
        height="10"
-       x="290"
+       x="410"
        y="360"
        width="10" />
     <rect
@@ -1080,29 +1065,29 @@
        style="fill:#ffff00;fill-opacity:1;stroke:none"
        id="rect3511"
        height="10"
-       x="180"
+       x="540"
        y="390"
        width="10" />
     <rect
        gameObjType="player"
        width="10"
        y="360"
-       x="150"
+       x="510"
        height="10"
        id="rect3513"
        style="fill:#00ff00;fill-opacity:1;stroke:none" />
     <rect
        width="10"
        y="360"
-       x="190"
+       x="550"
        height="10"
        id="rect3515"
        style="fill:#00a3ff;fill-opacity:1;stroke:none"
        gameObjType="key" />
     <rect
        width="10"
-       y="585"
-       x="180"
+       y="345"
+       x="300"
        height="10"
        id="rect3442"
        style="fill:#00a3ff;fill-opacity:1;stroke:none"
@@ -1112,15 +1097,15 @@
        style="fill:#ffff00;fill-opacity:1;stroke:none"
        id="rect3740"
        height="10"
-       x="440"
-       y="630"
+       x="560"
+       y="510"
        width="10" />
     <rect
        style="fill:#00ff00;fill-opacity:1;stroke:none"
        id="rect3742"
        height="10"
-       x="390"
-       y="630"
+       x="510"
+       y="510"
        width="10"
        gameObjType="player" />
     <rect
@@ -1128,8 +1113,8 @@
        style="fill:#00a3ff;fill-opacity:1;stroke:none"
        id="rect3756"
        height="10"
-       x="380"
-       y="570"
+       x="500"
+       y="450"
        width="10" />
     <rect
        gameObjType="goal"
@@ -1149,7 +1134,7 @@
        gameObjType="player" />
     <rect
        width="10"
-       y="850"
+       y="730"
        x="390"
        height="10"
        id="rect3420"
@@ -1161,11 +1146,11 @@
        id="rect3375"
        height="10"
        x="300"
-       y="870"
+       y="750"
        width="10" />
     <rect
        width="10"
-       y="830"
+       y="710"
        x="265"
        height="10"
        id="rect3379"
@@ -1205,8 +1190,8 @@
        width="10" />
     <rect
        width="10"
-       y="605"
-       x="40"
+       y="365"
+       x="160"
        height="10"
        id="rect5585"
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
@@ -1216,13 +1201,13 @@
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
        id="rect5587"
        height="10"
-       x="155"
-       y="605"
+       x="275"
+       y="365"
        width="10" />
     <rect
        width="10"
-       y="600"
-       x="290"
+       y="480"
+       x="410"
        height="10"
        id="rect5589"
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
@@ -1232,13 +1217,13 @@
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
        id="rect5591"
        height="10"
-       x="300"
-       y="600"
+       x="420"
+       y="480"
        width="10" />
     <rect
        width="10"
-       y="740"
-       x="160"
+       y="620"
+       x="280"
        height="10"
        id="rect5593"
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
@@ -1248,20 +1233,20 @@
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
        id="rect5595"
        height="10"
-       x="160"
-       y="730"
+       x="280"
+       y="610"
        width="10" />
     <rect
        gameObjType="mirror"
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
        id="rect5597"
        height="10"
-       x="280"
+       x="400"
        y="340"
        width="10" />
     <rect
        width="10"
-       y="855"
+       y="735"
        x="430"
        height="10"
        id="rect5599"
@@ -1269,7 +1254,7 @@
        gameObjType="mirror" />
     <rect
        width="10"
-       y="855"
+       y="735"
        x="420"
        height="10"
        id="rect5603"
@@ -1281,7 +1266,7 @@
        id="rect5605"
        height="10"
        x="300"
-       y="815"
+       y="695"
        width="10" />
     <rect
        gameObjType="mirror"
@@ -1289,11 +1274,11 @@
        id="rect5607"
        height="10"
        x="280"
-       y="815"
+       y="695"
        width="10" />
     <rect
        width="10"
-       y="840"
+       y="720"
        x="60"
        height="10"
        id="rect5613"
@@ -1305,15 +1290,15 @@
        id="rect5615"
        height="10"
        x="60"
-       y="830"
+       y="710"
        width="10" />
     <rect
        gameObjType="mirror"
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
        id="rect5619"
        height="10"
-       x="300"
-       y="720"
+       x="180"
+       y="600"
        width="10" />
     <text
        xml:space="preserve"
@@ -1342,12 +1327,12 @@
     <text
        sodipodi:linespacing="125%"
        id="text5645"
-       y="1005"
+       y="885"
        x="385"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
        xml:space="preserve"><tspan
          style="font-size:12px;fill:#ffffff;fill-opacity:1"
-         y="1005"
+         y="885"
          x="385"
          id="tspan5647"
          sodipodi:role="line">Pretentious</tspan></text>
@@ -1378,14 +1363,14 @@
     <text
        xml:space="preserve"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="15"
-       y="575"
+       x="135"
+       y="335"
        id="text5669"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5671"
-         x="15"
-         y="575"
+         x="135"
+         y="335"
          style="font-size:12px;fill:#ffffff;fill-opacity:1">Foothold</tspan></text>
     <text
        sodipodi:linespacing="125%"
@@ -1424,49 +1409,9 @@
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
        gameObjType="mirror" />
     <rect
-       gameObjType="goal"
-       style="fill:#ffff00;fill-opacity:1;stroke:none"
-       id="rect3247"
-       height="10"
-       x="290"
-       y="510"
-       width="10" />
-    <rect
-       gameObjType="player"
-       width="10"
-       y="470"
-       x="285"
-       height="10"
-       id="rect3249"
-       style="fill:#00ff00;fill-opacity:1;stroke:none" />
-    <rect
-       width="10"
-       y="460"
-       x="285"
-       height="10"
-       id="rect3251"
-       style="fill:#00a3ff;fill-opacity:1;stroke:none"
-       gameObjType="key" />
-    <rect
-       gameObjType="mirror"
-       style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
-       id="rect3253"
-       height="10"
-       x="310"
-       y="470"
-       width="10" />
-    <rect
-       width="10"
-       y="470"
-       x="300"
-       height="10"
-       id="rect3255"
-       style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
-       gameObjType="mirror" />
-    <rect
        width="10"
        y="360"
-       x="140"
+       x="500"
        height="10"
        id="rect3583"
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
@@ -1476,13 +1421,13 @@
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
        id="rect3585"
        height="10"
-       x="380"
-       y="620"
+       x="500"
+       y="500"
        width="10" />
     <rect
        width="10"
-       y="620"
-       x="390"
+       y="500"
+       x="510"
        height="10"
        id="rect3587"
        style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
@@ -1493,7 +1438,7 @@
        id="rect3595"
        height="10"
        x="30"
-       y="740"
+       y="620"
        width="10" />
     <rect
        gameObjType="mirror"
@@ -1501,7 +1446,7 @@
        id="rect3597"
        height="10"
        x="405"
-       y="970"
+       y="850"
        width="10" />
     <rect
        gameObjType="mirror"
@@ -1509,7 +1454,7 @@
        id="rect3705"
        height="10"
        x="170"
-       y="820"
+       y="700"
        width="10" />
     <rect
        gameObjType="mirror"
@@ -1517,11 +1462,11 @@
        id="rect3709"
        height="10"
        x="170"
-       y="830"
+       y="710"
        width="10" />
     <rect
        width="10"
-       y="860"
+       y="740"
        x="170"
        height="10"
        id="rect3960"
@@ -1530,7 +1475,7 @@
     <rect
        maxReflections="0"
        gameObjType="levelArea"
-       y="920"
+       y="800"
        x="0"
        height="99.999977"
        width="99.999977"
@@ -1540,7 +1485,7 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path3312-7"
-       d="m 15,940 70,0 0,20 -20,0 0,40 -30,0 0,-40 -20,0 z"
+       d="m 15,820 70,0 0,20 -20,0 0,40 -30,0 0,-40 -20,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        sodipodi:nodetypes="ccccccccc" />
     <rect
@@ -1549,12 +1494,12 @@
        id="rect3314-4"
        height="10"
        x="75"
-       y="950"
+       y="830"
        width="10" />
     <rect
        gameObjType="player"
        width="10"
-       y="990"
+       y="870"
        x="50"
        height="10"
        id="rect3316-0"
@@ -1565,7 +1510,7 @@
        id="rect3654"
        height="10"
        x="-25"
-       y="950"
+       y="830"
        width="10"
        transform="scale(-1,1)" />
     <path
@@ -1573,7 +1518,7 @@
        gameObjType="conveyor"
        inkscape:connector-curvature="0"
        id="path3680"
-       d="m 40,995 0,-45"
+       d="m 40,875 0,-45"
        style="fill:none;stroke:#16a300;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow1Mend);display:inline" />
     <rect
        style="fill:#000000;fill-opacity:1;stroke:none;display:inline"
@@ -1581,19 +1526,19 @@
        width="109.99998"
        height="99.999977"
        x="120"
-       y="920"
+       y="800"
        gameObjType="levelArea"
        maxReflections="0" />
     <path
        sodipodi:nodetypes="ccccc"
        style="fill:#ffffff;fill-opacity:1;stroke:none;display:inline"
-       d="m 130,940 90,0 0,60 -90,0 z"
+       d="m 130,820 90,0 0,60 -90,0 z"
        id="path3990"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
     <rect
        width="10"
-       y="990"
+       y="870"
        x="135"
        height="10"
        id="rect3992"
@@ -1604,7 +1549,7 @@
        id="rect3994"
        height="10"
        x="145"
-       y="990"
+       y="870"
        width="10"
        gameObjType="player" />
     <rect
@@ -1613,11 +1558,11 @@
        id="rect3998"
        height="10"
        x="165"
-       y="990"
+       y="870"
        width="10" />
     <rect
        width="10"
-       y="990"
+       y="870"
        x="155"
        height="10"
        id="rect4004"
@@ -1625,7 +1570,7 @@
        gameObjType="mirror" />
     <rect
        width="10"
-       y="990"
+       y="870"
        x="175"
        height="10"
        id="rect4443"
@@ -1633,7 +1578,7 @@
        gameObjType="mirror" />
     <path
        style="fill:#ae550b;fill-opacity:1;stroke:none"
-       d="m 130,965 0,-25 5,0 0,20 10,0 0,-5 15,0 0,10 z"
+       d="m 130,845 0,-25 5,0 0,20 10,0 0,-5 15,0 0,10 z"
        id="path4580"
        gameObjType="rockGeo"
        inkscape:connector-curvature="0"
@@ -1643,14 +1588,14 @@
        inkscape:connector-curvature="0"
        gameObjType="rockGeo"
        id="path4641"
-       d="m 220,965 -30,0 0,-10 15,0 0,5 9.74998,0 0.25002,-20 5,0 z"
+       d="m 220,845 -30,0 0,-10 15,0 0,5 9.74998,0 0.25002,-20 5,0 z"
        style="fill:#ae550b;fill-opacity:1;stroke:none" />
     <path
        sodipodi:nodetypes="cc"
        gameObjType="conveyor"
        inkscape:connector-curvature="0"
        id="path4833"
-       d="m 200,970 -50,0"
+       d="m 200,850 -50,0"
        style="fill:none;stroke:#16a300;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow1Mend);display:inline" />
     <rect
        gameObjType="ballKey"
@@ -1658,11 +1603,11 @@
        id="rect4913"
        height="10"
        x="145"
-       y="940"
+       y="820"
        width="10" />
     <rect
        width="10"
-       y="940"
+       y="820"
        x="195"
        height="10"
        id="rect4915"
@@ -1670,8 +1615,8 @@
        gameObjType="ballKey" />
     <rect
        width="10"
-       y="700"
-       x="150"
+       y="580"
+       x="270"
        height="10"
        id="rect3323"
        style="fill:#ff3b00;fill-opacity:1;stroke:none"
@@ -1682,7 +1627,7 @@
        id="rect3331"
        height="10"
        x="40"
-       y="700"
+       y="580"
        width="10" />
     <rect
        style="fill:#000000;fill-opacity:1;stroke:none;display:inline"
@@ -1690,19 +1635,19 @@
        width="110"
        height="99.999977"
        x="240"
-       y="920"
-       gameObjType="levelArea"
+       y="800"
+       gameObjType="levelArea-EXCLUDED"
        maxReflections="0" />
     <path
        sodipodi:nodetypes="ccccc"
        style="fill:#ffffff;fill-opacity:1;stroke:none;display:inline"
-       d="m 250,930 90,0 0,60 -90,0 z"
+       d="m 250,810 90,0 0,60 -90,0 z"
        id="path3369"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
     <rect
        width="10"
-       y="950"
+       y="830"
        x="320"
        height="10"
        id="rect3373"
@@ -1713,12 +1658,12 @@
        id="rect3376"
        height="10"
        x="330"
-       y="950"
+       y="830"
        width="10"
        gameObjType="player" />
     <rect
        width="10"
-       y="940"
+       y="820"
        x="320"
        height="10"
        id="rect3378"
@@ -1729,18 +1674,18 @@
        inkscape:connector-curvature="0"
        gameObjType="rockGeo"
        id="path3380"
-       d="m 340,970 -30,0 0,-10 30,0 z"
+       d="m 340,850 -30,0 0,-10 30,0 z"
        style="fill:#ae550b;fill-opacity:1;stroke:none" />
     <path
        sodipodi:nodetypes="cc"
        gameObjType="conveyor"
        inkscape:connector-curvature="0"
        id="path3382"
-       d="m 305,955 -40,0"
+       d="m 305,835 -40,0"
        style="fill:none;stroke:#16a300;stroke-width:0.89442724px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-start:none;marker-end:url(#Arrow1Mend);display:inline" />
     <rect
        width="10"
-       y="940"
+       y="820"
        x="290"
        height="10"
        id="rect3384"
@@ -1752,11 +1697,11 @@
        id="rect3386"
        height="10"
        x="310"
-       y="950"
+       y="830"
        width="10" />
     <rect
        width="10"
-       y="940"
+       y="820"
        x="310"
        height="10"
        id="rect3388"
@@ -1767,7 +1712,7 @@
        inkscape:connector-curvature="0"
        gameObjType="rockGeo"
        id="path3390"
-       d="m 280,970 -20,0 0,-20 10,0 0,10 10,0 z"
+       d="m 280,850 -20,0 0,-20 10,0 0,10 10,0 z"
        style="fill:#ae550b;fill-opacity:1;stroke:none" />
     <rect
        width="10"
@@ -1780,42 +1725,18 @@
     <rect
        width="10"
        y="360"
-       x="320"
+       x="440"
        height="10"
        id="rect3334"
        style="fill:#00a3ff;fill-opacity:1;stroke:none"
        gameObjType="key" />
-    <text
-       xml:space="preserve"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       x="240"
-       y="780"
-       id="text4148-1"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan4150-7"
-         x="240"
-         y="780"
-         style="font-size:24px;fill:#ff0000;fill-opacity:1">needs work</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       x="245"
-       y="455"
-       id="text4148-1-4"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan4150-7-0"
-         x="245"
-         y="455"
-         style="font-size:24px;fill:#ff0000;fill-opacity:1">needs work</tspan></text>
     <rect
        gameObjType="key"
        style="fill:#00a3ff;fill-opacity:1;stroke:none"
        id="rect3380"
        height="10"
        x="140"
-       y="860"
+       y="740"
        width="10" />
     <rect
        width="10"
@@ -1833,25 +1754,80 @@
        x="490"
        y="250"
        width="10" />
-    <rect
-       width="10"
-       y="480"
-       x="80"
-       height="10"
-       id="rect3391"
-       style="fill:#00a3ff;fill-opacity:1;stroke:none"
-       gameObjType="key" />
     <text
        sodipodi:linespacing="125%"
        id="text3409"
        y="340"
-       x="125"
+       x="485"
        style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
        xml:space="preserve"><tspan
          style="font-size:24px;fill:#ff0000;fill-opacity:1"
          y="340"
-         x="125"
+         x="485"
          id="tspan3411"
          sodipodi:role="line">needs work</tspan></text>
+    <rect
+       maxReflections="0"
+       gameObjType="levelArea"
+       y="440"
+       x="240"
+       height="99.999977"
+       width="99.999977"
+       id="rect3243"
+       style="fill:#000000;fill-opacity:1;stroke:none" />
+    <path
+       inkscape:connector-curvature="0"
+       gameObjType="levelGeo"
+       id="path3245"
+       d="m 260,465 60,0 0,15 -60,0 z"
+       style="fill:#ffffff;fill-opacity:1;stroke:none" />
+    <rect
+       gameObjType="goal"
+       style="fill:#ffff00;fill-opacity:1;stroke:none;display:inline"
+       id="rect3247"
+       height="10"
+       x="285"
+       y="510"
+       width="10" />
+    <rect
+       gameObjType="player"
+       width="10"
+       y="470"
+       x="270"
+       height="10"
+       id="rect3249"
+       style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline" />
+    <rect
+       width="10"
+       y="455"
+       x="285"
+       height="10"
+       id="rect3251"
+       style="fill:#00a3ff;fill-opacity:1;stroke:none;display:inline"
+       gameObjType="key" />
+    <rect
+       gameObjType="mirror"
+       style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
+       id="rect3253"
+       height="10"
+       x="300"
+       y="470"
+       width="10" />
+    <rect
+       width="10"
+       y="470"
+       x="285"
+       height="10"
+       id="rect3255"
+       style="fill:#ff8d00;fill-opacity:1;stroke:none;display:inline"
+       gameObjType="mirror" />
+    <rect
+       gameObjType="key"
+       style="fill:#00a3ff;fill-opacity:1;stroke:none;display:inline"
+       id="rect3229"
+       height="10"
+       x="260"
+       y="480"
+       width="10" />
   </g>
 </svg>

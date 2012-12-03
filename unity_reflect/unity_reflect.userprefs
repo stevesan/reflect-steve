@@ -1,11 +1,11 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\scripts\Key.js">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\scripts\GameController.js">
     <Files>
-      <File FileName="Assets\scripts\GameController.js" Line="537" Column="1" />
-      <File FileName="Assets\scripts\LevelManager.js" Line="173" Column="11" />
+      <File FileName="Assets\scripts\GameController.js" Line="713" Column="55" />
+      <File FileName="Assets\scripts\LevelManager.js" Line="1" Column="1" />
       <File FileName="Assets\scripts\UnityUtils\Svg.js" Line="1" Column="1" />
-      <File FileName="Assets\scripts\UnityUtils\ProGeo.js" Line="109" Column="10" />
+      <File FileName="Assets\scripts\UnityUtils\ProGeo.js" Line="1" Column="1" />
       <File FileName="Assets\scripts\IsGrounded.js" Line="1" Column="1" />
       <File FileName="Assets\scripts\Key.js" Line="13" Column="3" />
     </Files>
