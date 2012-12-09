@@ -21,6 +21,11 @@ function SetLocked( locked:boolean )
 	lockSprite.enabled = locked;
 }
 
+function OnUnlockedGoalByKey()
+{
+	starSprite.SendMessage("Play");
+}
+
 function OnTriggerEnter(other : Collider) : void
 {
 	var player = other.GetComponent(PlayerControl);

@@ -234,6 +234,7 @@ function OnGetGoal()
 		else
 		{
 			AudioSource.PlayClipAtPoint( goalLockedSound, hostcam.transform.position );
+			BroadcastMessage("OnTouchLockedGoal", this, SendMessageOptions.DontRequireReceiver);
 		}
 	}
 }
@@ -280,6 +281,9 @@ function OnGetKey( keyObj:GameObject )
 {
 	numKeysGot++;
 	UpdateGoalLocked();
+	
+	if( numKeysGot >= numKeys )
+		BroadcastMessage("OnUnlockedGoalByKey", this, SendMessageOptions.DontRequireReceiver);
 
     keyFx.transform.position = keyObj.transform.position;
     keyFx.SendMessage("Play");

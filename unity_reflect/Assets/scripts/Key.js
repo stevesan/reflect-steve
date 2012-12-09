@@ -3,6 +3,7 @@
 
 var doPerFrameSphereCheck = false;	// If true, this will do a per-frame sphere-collision check to check for player-collision
 private var disableGravityCount = 0;
+var touchLockedAnim:GameObject = null;
 
 var playerCollider:Collider = null;
 
@@ -66,5 +67,11 @@ function OnExitConveyor() {
 	if( rigidbody ) {
 		disableGravityCount--;
 		rigidbody.useGravity = disableGravityCount <= 0;
+	}
+}
+
+function OnTouchLockedGoal() {
+	if( touchLockedAnim != null ) {
+		touchLockedAnim.SendMessage("Play");
 	}
 }

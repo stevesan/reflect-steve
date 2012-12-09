@@ -24,9 +24,10 @@ function Update () {
 		var t = (Time.time-flyStartTime) / flySecs;
 
 		if( t < 1.0 )
-			transform.position = Vector2.Lerp( flySource, flyTarget, t );
+			transform.position = Vector2.Lerp( flySource, flyTarget, Mathf.Pow(t,2.0) );
 		else {
 			transform.position = flyTarget;
+			receiver.SendMessage("OnGetMirror", this.GetComponent(Mirror) );
 			Destroy(this.gameObject);
 		}
 	}
@@ -41,7 +42,6 @@ function OnTriggerEnter(other : Collider) : void
 			state = "flying";
 			flyStartTime = Time.time;
 			flySource = transform.position;
-			receiver.SendMessage("OnGetMirror", this.GetComponent(Mirror) );
 
 			// Kick off fly animation
 			var ssX = guiFlyTarget.transform.position.x * mainCam.pixelWidth;
