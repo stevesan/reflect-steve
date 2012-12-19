@@ -81,18 +81,22 @@ private var fadeStart : float;
 var levelsText : TextAsset;
 
 // Use this to hide levels not ready for prime time..
-private var maxNumLevels = 37;
+#if UNITY_EDITOR
+private var maxNumLevels = 23;
+#else
+private var maxNumLevels = 23;
+#endif
 
 //----------------------------------------
 //  Sounds
 //----------------------------------------
-var goalGetSound : AudioClip;
-var restartSnd : AudioClip;
-var startReflectSnd : AudioClip;
-var cancelReflectSnd : AudioClip;
-var confirmReflectSnd : AudioClip;
-var goalLockedSound: AudioClip;
-var maxedReflectionsSnd: AudioClip;
+var goalGetSound : AudioClip = null;
+var restartSnd : AudioClip = null;
+var startReflectSnd : AudioClip = null;
+var cancelReflectSnd : AudioClip = null;
+var confirmReflectSnd : AudioClip = null;
+var goalLockedSound: AudioClip = null;
+var maxedReflectionsSnd: AudioClip = null;
 
 class RotationSounds
 {
@@ -435,6 +439,7 @@ function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
 
 function SwitchLevel( id:int )
 {
+	id = Mathf.Min( id, levels.Count-1 );
 	Debug.Log('switching to level '+id);
 	
     if( isReflecting ) {
@@ -559,10 +564,8 @@ function SwitchLevel( id:int )
 	UpdateGoalLocked();
 
 	// put up correct status text
-	levelNumber.text = 'Moment '+(currLevId+1)+ '/'+levels.Count+
-	'          R - Reset'+
-	'          [ ] - Skip';
-
+	levelNumber.text = 'Moment '+(currLevId+1)+ '/'+levels.Count;
+	
 	if( tracker != null )
 		tracker.PostEvent( "startLevel", ""+id );
 }
@@ -580,7 +583,10 @@ function Awake()
 
 		// build from the text file
 		var reader = new StringReader( levelsText.text );
-		levels = LevelManager.ParseLevels( reader, maxNumLevels );
+		levels = LevelManager.ParseLevels( reader );
+		// Truncate to hide last experimental levels
+		if( levels.Count > maxNumLevels )
+			levels.RemoveRange(maxNumLevels, levels.Count-maxNumLevels);
 		Debug.Log('Read in '+levels.Count+' levels');
 
 		origLightIntensity = mainLight.intensity;
@@ -672,7 +678,8 @@ function OnPlayerFallout() : void
 {
 	if( gamestate == 'playing' ) {
 		// reset
-		AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
+		if( restartSnd != null )
+			AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
 		FadeToLevel( currLevId, false );
 		previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
 	}
@@ -704,18 +711,26 @@ function Update()
 	level1TuteB.enabled = false;
 	level4Tute.enabled = false;
 	helpText.text = "";
+	
+	// handle system-wide keys
+	if( Input.GetButtonDown('MuteMusic') )
+	{
+		BroadcastMessage( "OnToggleMuteMusic", SendMessageOptions.DontRequireReceiver );
+	}
 
 	if( gamestate == 'startscreen' ) {
 		// fading in
 		var alpha = Mathf.Clamp( (Time.time-fadeStart) / 10.0, 0.0, 1.0 );
-		SetFadeAmount( alpha );
+		//SetFadeAmount( alpha );
+		SetFadeAmount(1.0);
 
 		// clear the other text objects
 		levelNumber.text = '';
 
 		if( Input.GetButtonDown('ReflectToggle') || Input.GetButtonDown('NextLevel') ) {
 			FadeToLevel( Mathf.Min( maxNumLevels-1, PlayerPrefs.GetInt("currentLevelId", 0)), true );
-			AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
+			if( restartSnd != null )
+				AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
 			Destroy(titleText);
 		}
 	}
@@ -751,7 +766,7 @@ function Update()
 			&& !isReflecting;
 		level1TuteB.enabled = currLevId == 1
 			&& isReflecting;
-		level4Tute.enabled = currLevId == 4
+		level4Tute.enabled = currLevId == 3
 			&& isReflecting;
 
 		if( currLevId != 0 ) {
@@ -766,7 +781,8 @@ function Update()
 
 			if( Input.GetButtonDown('Reset') )
 			{
-				AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
+				if( restartSnd != null )
+					AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
 				FadeToLevel( currLevId, true );
 				previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
 				
@@ -798,11 +814,12 @@ function Update()
 				//----------------------------------------
 				//  Check for rotation input
 				//----------------------------------------
-				if( Input.GetButtonDown('RotateMirrorCW') ) {
+				var wheel = Input.GetAxis("Mouse ScrollWheel");
+				if( Input.GetButtonDown('RotateMirrorCW') || wheel < 0 ) {
 					goalMirrorAngle -= Mathf.PI/4;
 					rotationSounds.Play(goalMirrorAngle);
 				}
-				else if( Input.GetButtonDown('RotateMirrorCCW') ) {
+				else if( Input.GetButtonDown('RotateMirrorCCW') || wheel > 0 ) {
 					goalMirrorAngle += Mathf.PI/4;
 					rotationSounds.Play(goalMirrorAngle);
 				}

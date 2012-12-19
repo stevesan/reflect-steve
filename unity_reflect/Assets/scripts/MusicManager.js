@@ -29,6 +29,8 @@ class FadeableSource
 		src.Play();
 	}
 	
+	function SetMaxVolume( _max:float ) { maxVolume = _max; }
+	
 	function SetStopOnFadeOut( val:boolean ) { stopOnFadeOut = val; }
 	function SetLevel(_lev:float) { level = _lev; }
 	
@@ -75,6 +77,12 @@ class MusicClip
 	var normal:FadeableSource;
 	var fx:FadeableSource;
 	var activeVersion:int;
+	var isMuted:boolean;
+	
+	function MusicClip()
+	{
+		isMuted = false;
+	}
 	
 	function ReadXML( node:XmlReader )
 	{
@@ -137,6 +145,19 @@ class MusicClip
 			normal.FadeIn();
 		}
 	}
+	
+	function OnIsMutedChanged()
+	{
+		var maxVol = (isMuted ? 0.0 : 1.0);
+		normal.SetMaxVolume(maxVol);
+		fx.SetMaxVolume(maxVol);
+	}
+	
+	function ToggleIsMuted()
+	{
+		isMuted = !isMuted;
+		OnIsMutedChanged();
+	}
 }
 
 class MusicGroup
@@ -178,6 +199,13 @@ class MusicGroup
 	function Update(dt:float) {
 		for( var clip:MusicClip in clips ) {
 			clip.Update(dt);
+		}		
+	}
+	
+	function ToggleIsMuted()
+	{
+		for( var clip:MusicClip in clips ) {
+			clip.ToggleIsMuted();
 		}		
 	}
 }
@@ -230,4 +258,11 @@ function OnEnterReflectMode( game:GameController )
 function OnExitReflectMode( game:GameController )
 {
 	groups[currGroup].ChangeFX(false);
+}
+
+function OnToggleMuteMusic()
+{
+	for( var group in groups ) {
+		group.ToggleIsMuted();
+	}
 }
