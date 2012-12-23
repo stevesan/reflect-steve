@@ -139,7 +139,7 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 	//	We do them all in separate lists, because we can only figure out which levels each objects belongs to after we've parsed all the levels
 	//----------------------------------------
 	var areas = new List.<Rect>();	// areas contain levels
-	var maxReflections = new Array();
+	var maxReflections = new List.<int>();
 	var players = new List.<Rect>();
 	var goals = new List.<Vector2>();
 	var objects = new List.<LevelObject>();
@@ -154,7 +154,7 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 		if( parts[0] == 'levelArea' )
 		{
 			areas.Add( ParseRect( parts ) );
-			maxReflections.Push( parseInt( parts[5] ) );
+			maxReflections.Add( parseInt( parts[5] ) );
 		}
 		else if( parts[0] == 'player' )
 			players.Add( ParseRect( parts ) );

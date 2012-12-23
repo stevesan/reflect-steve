@@ -82,7 +82,7 @@ var levelsText : TextAsset;
 
 // Use this to hide levels not ready for prime time..
 #if UNITY_EDITOR
-private var maxNumLevels = 23;
+private var maxNumLevels = 25;
 #else
 private var maxNumLevels = 23;
 #endif
@@ -518,13 +518,13 @@ function SwitchLevel( id:int )
 	objectInsts.Clear();
 
 	// disable the prefabs
-	keyPrefab.active = false;
+	keyPrefab.SetActive(false);
 	Utils.HideAll( keyPrefab );
 	
-	ballKeyPrefab.active = false;
+	ballKeyPrefab.SetActive(false);
 	Utils.HideAll( ballKeyPrefab );
 	
-	mirrorPrefab.active = false;
+	mirrorPrefab.SetActive(false);
 	Utils.HideAll( mirrorPrefab );
 	
 	numReflectionsAllowed = levels[id].maxReflections;
@@ -554,7 +554,7 @@ function SwitchLevel( id:int )
 
 		// setup
 		obj.transform.parent = this.transform;
-		obj.active = true;
+		obj.SetActive(true);
 		Utils.ShowAll( obj );
 		objectInsts.Push( obj );
 		Debug.Log('spawned '+lobj.type+' at '+lobj.pos);
@@ -830,7 +830,7 @@ function Update()
 				var newShape = currLevPoly.Duplicate();
 				UpdateReflectionLine();
 				newShape.Reflect( lineStart, lineEnd, false );
-
+				
 				// conveyors
 				var previewConvs = new List.<Mesh2D>();
 				for( conv in currConveyors ) {
@@ -911,7 +911,11 @@ function Update()
 
 				if( Input.GetButtonDown('ReflectToggle') )
 				{
+				#if UNITY_EDITOR
 					if( numReflectionsDone >= numReflectionsAllowed && !debugUnlimited )
+				#else
+					if( numReflectionsDone >= numReflectionsAllowed )
+				#endif
 					{
 						// no more allowed
 						AudioSource.PlayClipAtPoint( maxedReflectionsSnd, hostcam.transform.position );
@@ -928,6 +932,7 @@ function Update()
 						
 						BroadcastMessage("OnEnterReflectMode", this, SendMessageOptions.DontRequireReceiver);
                         GetComponent(Connectable).TriggerEvent("OnEnterReflectMode");
+                        
 					}
 				}
 			}

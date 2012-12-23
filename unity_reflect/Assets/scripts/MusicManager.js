@@ -136,7 +136,6 @@ class MusicClip
 	
 	function ChangeFX( useFX:boolean ) {
 		if( useFX ) {
-		Debug.Log("fading in FX..");
 			normal.FadeOut();
 			fx.FadeIn();
 		}

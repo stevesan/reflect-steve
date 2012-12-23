@@ -1,5 +1,10 @@
 
 TODO:
+- triangulation bugs:
+    - something to do with how we construct monotone pieces after plane sweep algo
+        we should maybe have PlaneSweep construct the pieces as it's going.
+    - TriangulateMonotonePiece should check that the piece is actually monotone..
+
 - fix moment 16 by introducing rigid-carrots! ie. get rid of the "ratchet" solution just doing that, instead of leading the player on with the off-to-left carrot.
 - implement game-end with option to enable free-reflection mode
 - implement lava-zones and falling lava blocks. for completeness.

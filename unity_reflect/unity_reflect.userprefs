@@ -1,24 +1,28 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\scripts\GameController.js">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\scripts\UnityUtils\ProGeo.js">
     <Files>
-      <File FileName="Assets\scripts\UnityUtils\PositionAnimation.js" Line="24" Column="2" />
-      <File FileName="Assets\scripts\GameController.js" Line="89" Column="1" />
-      <File FileName="Assets\scripts\LevelManager.js" Line="135" Column="28" />
+      <File FileName="Assets\scripts\GameController.js" Line="521" Column="21" />
       <File FileName="Assets\scripts\UnityUtils\Svg.js" Line="1" Column="1" />
-      <File FileName="Assets\scripts\UnityUtils\ProGeo.js" Line="1" Column="1" />
+      <File FileName="Assets\scripts\UnityUtils\PositionAnimation.js" Line="1" Column="1" />
+      <File FileName="Assets\scripts\LevelManager.js" Line="42" Column="32" />
+      <File FileName="Assets\scripts\UnityUtils\ProGeo.js" Line="959" Column="1" />
       <File FileName="Assets\scripts\IsGrounded.js" Line="1" Column="1" />
       <File FileName="Assets\scripts\Key.js" Line="1" Column="1" />
       <File FileName="Assets\scripts\UnityUtils\Pulser.js" Line="1" Column="1" />
       <File FileName="Assets\scripts\Mirror.js" Line="1" Column="1" />
       <File FileName="Assets\scripts\Star.js" Line="1" Column="1" />
-      <File FileName="Assets\scripts\MusicManager.js" Line="263" Column="27" />
+      <File FileName="Assets\scripts\MusicManager.js" Line="1" Column="1" />
       <File FileName="Assets\Resources\config.xml" Line="1" Column="1" />
+      <File FileName="Assets\scripts\UnityUtils\Math2D.js" Line="62" Column="1" />
+      <File FileName="Assets\TK2DROOT\tk2d\Editor\Sprites\tk2dSpriteAnimationEditor.cs" Line="804" Column="32" />
+      <File FileName="Assets\scripts\UnityUtils\Utils.js" Line="174" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="C:\reflect2\unity_reflect\Assets\scripts\LevelManager.js" line="90" />
+      <Breakpoint file="C:\reflect2\unity_reflect\Assets\scripts\UnityUtils\ProGeo.js" line="910" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
