@@ -1,7 +1,7 @@
 #pragma strict
 
 var polys:Mesh2D = null;
-private var ps:PlaneSweep = null;
+private var md:MonotoneDecomposition = null;
 var edge2verts = new List.<int>();
 var sortedVerts = new List.<Vector2IdPair>();
 var nbors = new PolyVertexNbors();
@@ -45,8 +45,8 @@ function Reset( _mesh:Mesh2D, isClockwise:boolean )
 	//----------------------------------------
 	//  Let the plane sweep algorithm do its thing
 	//----------------------------------------
-	ps = new PlaneSweep();
-	ps.Reset( polys, edge2verts, sortedVerts, nbors );
+	md = new MonotoneDecomposition();
+	md.Reset( polys, edge2verts, sortedVerts, nbors );
 	isDone = false;
 
 	Debug.Log('debugging polys with '+NV+' verts');
@@ -54,18 +54,18 @@ function Reset( _mesh:Mesh2D, isClockwise:boolean )
 
 function Update()
 {
-	if( ps != null ) {
+	if( md != null ) {
 		if( Input.GetButtonDown("DebugNext") ) {
 			if( isDone ) {
 				// reset it and go again
 				Reset( polys, false );
 			}
 			Debug.Log('Stepping');
-			isDone = !ps.Step(true);
+			isDone = !md.Step(true);
 			Debug.Log('is done = '+isDone);
 		}
 		polys.DebugDraw(Color.green, 0.0);
-		ps.DebugDrawActiveEdges(Color.red, Color.yellow);
+		md.DebugDrawActiveEdges(Color.red, Color.yellow);
 
 		// draw the current state
 	}
