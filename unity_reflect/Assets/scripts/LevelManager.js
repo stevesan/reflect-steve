@@ -206,6 +206,7 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 		for( pos in goals ) {
 			if( area.Contains( pos ) ) {
 				info.goalPos = pos;
+                Debug.Log('setting goalpos for info #'+infos.Count);
 				found = true;
 				break;
 			}

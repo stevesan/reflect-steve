@@ -160,6 +160,8 @@ private var currLevPoly : Mesh2D = null;	// current effective geometry
 private var currConveyors : List.<Mesh2D> = null;
 private var gamestate:String;
 
+function GetState() : String { return gamestate; }
+
 //----------------------------------------
 //  Per-level state
 //----------------------------------------
@@ -490,6 +492,7 @@ function SwitchLevel( id:int )
 	player.transform.position = levels[id].playerPos;
 	player.GetComponent(Rigidbody).velocity = Vector3(0,0,0);
 	player.GetComponent(PlayerControl).Reset();
+    var goalPos = levels[id].goalPos;
 	goal.transform.position = levels[id].goalPos;
 	goal.GetComponent(Star).SetShown( true );
 
@@ -728,7 +731,7 @@ function Update()
 		levelNumber.text = '';
 
 		if( Input.GetButtonDown('ReflectToggle') || Input.GetButtonDown('NextLevel') ) {
-			FadeToLevel( Mathf.Min( maxNumLevels-1, PlayerPrefs.GetInt("currentLevelId", 0)), true );
+			FadeToLevel( Mathf.Min( maxNumLevels-1, PlayerPrefs.GetInt("currentLevelId", 0)), false );
 			if( restartSnd != null )
 				AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
 			Destroy(titleText);

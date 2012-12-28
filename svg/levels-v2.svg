@@ -141,11 +141,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6568545"
-     inkscape:cx="477.50893"
-     inkscape:cy="-660.17868"
+     inkscape:zoom="1.4159216"
+     inkscape:cx="358.32589"
+     inkscape:cy="-637.81782"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="true"
      inkscape:window-width="1920"
      inkscape:window-height="1018"
@@ -664,7 +664,7 @@
     <path
        sodipodi:nodetypes="ccccc"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 140.06066,277.84911 5.15809,0.0259 1.875,4.71875 -9.15625,0.0312 z"
+       d="m 140.18551,277.84911 4.84597,0.0259 1.84378,4.71875 -8.62564,0.0312 z"
        id="path3331"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
@@ -735,44 +735,6 @@
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        d="m 449.97174,252.69485 8.91805,-0.1697 0.13419,4.52293 -6.83652,0.23041 -0.0924,3.47361 6.71688,-0.0884 0.17568,4.04728 -8.9278,-0.0214 z"
        id="path3407"
-       gameObjType="levelGeo"
-       inkscape:connector-curvature="0" />
-    <rect
-       maxReflections="0"
-       gameObjType="levelArea"
-       y="800"
-       x="480"
-       height="99.999977"
-       width="99.999977"
-       id="rect3310-17"
-       style="fill:#000000;fill-opacity:1;stroke:none" />
-    <path
-       inkscape:connector-curvature="0"
-       gameObjType="levelGeo"
-       id="path3312-4"
-       d="m 520,825 20,0 0,40 -20,0 z"
-       style="fill:#ffffff;fill-opacity:1;stroke:none"
-       sodipodi:nodetypes="ccccc" />
-    <rect
-       gameObjType="player"
-       width="10"
-       y="830"
-       x="525"
-       height="10"
-       id="rect3316-9"
-       style="fill:#00ff00;fill-opacity:1;stroke:none;display:inline" />
-    <path
-       inkscape:connector-curvature="0"
-       gameObjType="levelGeo"
-       id="path3312-4-2"
-       d="m 500,805 20,0 0,20 -20,0 z"
-       style="fill:#ffffff;fill-opacity:1;stroke:none"
-       sodipodi:nodetypes="ccccc" />
-    <path
-       sodipodi:nodetypes="ccccc"
-       style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 500,865 20,0 0,20 -20,0 z"
-       id="path3265"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0" />
   </g>
