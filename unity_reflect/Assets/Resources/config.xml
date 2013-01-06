@@ -2,26 +2,20 @@
     <group>
         <clip normal="no_FX/group 1/group_01_sample_01_loop_noRepeat"
         fx="FX/group 1/FX_group_01_sample_01_loop_noRepeat" />
-    </group>
-    <group>
-        <clip normal="no_FX/group 1/group_01_sample_01_loop_noRepeat"
-        fx="FX/group 1/FX_group_01_sample_01_loop_noRepeat" />
-    </group>
-    <group>
         <clip normal="no_FX/group 1/group_01_sample_02_meas_10_noRepeat"
         fx="FX/group 1/FX_group_01_sample_02_meas_10_noRepeat" />
     </group>
     <group>
         <clip normal="no_FX/group 2/group_02_sample_01_meas_4-2_noRepeat"
         fx="FX/group 2/FX_group_02_sample_01_meas_4-2_noRepeat" />
-    </group>
-    <group>
         <clip normal="no_FX/group 2/group_02_sample_02_meas_4-2_noRepeat"
         fx="FX/group 2/FX_group_02_sample_02_meas_4-2_noRepeat" />
-    </group>
-    <group>
         <clip normal="no_FX/group 2/group_02_sample_03_meas_4-2_noRepeat"
         fx="FX/group 2/FX_group_02_sample_03_meas_4-2_noRepeat" />
+    </group>
+    <group>
+    </group>
+    <group>
     </group>
     <group>
         <clip normal="no_FX/group 2/group_02_sample_04_meas_4-2_noRepeat"

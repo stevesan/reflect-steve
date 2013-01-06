@@ -1,7 +1,10 @@
 
 TODO:
+- WAIT: Mark to fix some music stuff - worst case, fall back on looping single samples again
 - implement level select
-- fix moment 16 by introducing rigid-carrots! ie. get rid of the "ratchet" solution just doing that, instead of leading the player on with the off-to-left carrot.
+    - initially, you are taken directly to first tutorial levels from start screen.
+    - then after level 4, you go to level select, see the feet animate, and then 5 other carrots pop up. beating each level takes you to the next one, except the last one in the group takes you back to selection.
+        use the vertical order of the SVG to determine "groups"
 - implement game-end with option to enable free-reflection mode
 - implement lava-zones and falling lava blocks. for completeness.
     closure has soooo many mechanics: rolling/blocks with and w/o lights, water, guns, spot lights, glass, elevators, no-drop-zones, spikey floors
@@ -11,7 +14,9 @@ TODO:
     MOR has: keys, fall-keys, bricks, conveyors
 - implement events playback, so i can see ppl's solutions for like 34 and 30
     use 'levels.txt' for data prior to 12-03
+
 - fix conveyor bug where it doesn't fully pick you up
+    i may just not use conveyors for this release..only 1 real conveyor puzzle in there
 
 STORY/LYRICS:
 

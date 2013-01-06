@@ -13,7 +13,6 @@ class FadeableSource
 	var state = "sustain";
 	var level:float;
 	var maxVolume:float;
-	var stateChangeTime:float;
 	var src:AudioSource;
 	var stopOnFadeOut:boolean;
 	
@@ -32,6 +31,7 @@ class FadeableSource
 	function SetMaxVolume( _max:float ) { maxVolume = _max; }
 	
 	function SetStopOnFadeOut( val:boolean ) { stopOnFadeOut = val; }
+
 	function SetLevel(_lev:float) { level = _lev; }
 	
 	function FadeIn() {
@@ -76,8 +76,11 @@ class MusicClip
 {
 	var normal:FadeableSource;
 	var fx:FadeableSource;
-	var activeVersion:int;
 	var isMuted:boolean;
+
+static var allMaxVolume = 1.0;
+static var allAttackTime = 2.0;
+static var allReleaseTime = 2.0;
 	
 	function MusicClip()
 	{
@@ -91,20 +94,26 @@ class MusicClip
 		var normalClip = Resources.Load(node.GetAttribute("normal")) as AudioClip;
 		if( normalClip == null )
 			Debug.LogError("Could not load "+node.GetAttribute("normal"));
-		var obj = new GameObject();
-		var src = obj.AddComponent(AudioSource);
-		src.clip = normalClip;
-		src.loop = true;
-		normal = new FadeableSource(src, 2.0, 2.0, 1.0 );
+        else
+        {
+            var obj = new GameObject();
+            var src = obj.AddComponent(AudioSource);
+            src.clip = normalClip;
+            src.loop = true;
+            normal = new FadeableSource(src, allAttackTime, allReleaseTime, allMaxVolume);
+        }
 		
 		var fxClip = Resources.Load(node.GetAttribute("fx")) as AudioClip;
 		if( fxClip == null )
 			Debug.LogError("Could not load "+node.GetAttribute("fx"));
-		obj = new GameObject();
-		src = obj.AddComponent(AudioSource);
-		src.clip = fxClip;
-		src.loop = true;
-		fx = new FadeableSource(src, 2.0, 2.0, 1.0 );
+        else
+        {
+            obj = new GameObject();
+            src = obj.AddComponent(AudioSource);
+            src.clip = fxClip;
+            src.loop = true;
+            fx = new FadeableSource(src, allAttackTime, allReleaseTime, allMaxVolume );
+        }
 	}
 	
 	function OnLevelStart()
@@ -159,7 +168,7 @@ class MusicClip
 	}
 }
 
-class MusicGroup
+class ClipGroup
 {
 	var clips = new List.<MusicClip>();
 
@@ -209,7 +218,7 @@ class MusicGroup
 	}
 }
 
-private var groups = new List.<MusicGroup>();
+private var groups = new List.<ClipGroup>();
 private var currGroup = -1;
 
 function Start () {
@@ -217,7 +226,7 @@ function Start () {
 	while( reader.ReadToFollowing( 'group' ) )
 	{
 		Debug.Log('found song group' );
-		var newGroup = new MusicGroup();
+		var newGroup = new ClipGroup();
 		newGroup.ReadXML( reader );
 		groups.Add(newGroup);
 	}
