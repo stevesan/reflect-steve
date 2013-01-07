@@ -23,7 +23,6 @@ var tracker:Tracking = null;
 //----------------------------------------
 var helpText : GUIText;
 var levelNumber : GUIText;
-var titleText : GUIText;
 var level0Tute : GUIText;
 var level0TuteB : GUIText;
 var level1TuteA : GUIText;
@@ -730,13 +729,22 @@ function Update()
 		// clear the other text objects
 		levelNumber.text = '';
 
-		if( Input.GetButtonDown('ReflectToggle') || Input.GetButtonDown('NextLevel') ) {
+		if( Input.GetButtonDown('ReflectToggle') || Input.GetButtonDown('NextLevel') )
+        {
 			FadeToLevel( Mathf.Min( maxNumLevels-1, PlayerPrefs.GetInt("currentLevelId", 0)), false );
 			if( restartSnd != null )
 				AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
-			Destroy(titleText);
 		}
+        // TEMP
+        else if( Input.GetButtonDown('PrevLevel') )
+        {
+            gamestate = 'levelselect';
+        }
 	}
+    else if( gamestate == 'levelselect' )
+    {
+        // Do nothing until the level selector tells us it's done
+    }
 	else if( gamestate == 'fadingOut' ) {
 		var outTime = (doFastFade ? fastFadeOutTime : fadeOutTime);
 		alpha = Mathf.Clamp( (Time.time-fadeStart) / outTime, 0.0, 1.0 );
