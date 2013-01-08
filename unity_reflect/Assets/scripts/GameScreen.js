@@ -10,10 +10,11 @@ var fadeOutAnim = new ParameterAnimation();
 
 // If the game controller's state equals this, the sub-tree will be shown.
 var showingGameState = "startscreen";
+var recurseDepth = 1;
 
 private var state = "hidden";
 
-function SetAlphaRecursive(go:GameObject, alpha:float)
+function SetAlphaRecursive(go:GameObject, alpha:float, depthLeft:int)
 {
     var sprite = go.GetComponent( tk2dSprite );
     if( sprite != null )
@@ -22,19 +23,23 @@ function SetAlphaRecursive(go:GameObject, alpha:float)
     if( go.guiText != null )
         go.guiText.material.color.a = alpha;
 
-    for( var child:Transform in go.transform )
+    if( depthLeft > 0 )
     {
-        SetAlphaRecursive(child.gameObject, alpha);
+        for( var child:Transform in go.transform )
+        {
+            SetAlphaRecursive(child.gameObject, alpha, depthLeft-1);
+        }
     }
 }
 
 function Start ()
 {
-    SetAlphaRecursive(gameObject, 0.0);
+    SetAlphaRecursive(gameObject, 0.0, recurseDepth);
     state = 'hidden';
 }
 
-function Update () {
+function Update ()
+{
     if( state == "shown" )
     {
         if( game.GetState() != showingGameState )
@@ -54,12 +59,12 @@ function Update () {
     else if( state == "fadeout" )
     {
         fadeOutAnim.Update();
-        SetAlphaRecursive( gameObject, 1-fadeOutAnim.GetFraction() );
+        SetAlphaRecursive( gameObject, 1-fadeOutAnim.GetFraction(), recurseDepth );
     }
     else if( state == "fadein" )
     {
         fadeInAnim.Update();
-        SetAlphaRecursive( gameObject, fadeInAnim.GetFraction() );
+        SetAlphaRecursive( gameObject, fadeInAnim.GetFraction(), recurseDepth );
 
         if( game.GetState() != showingGameState )
         {

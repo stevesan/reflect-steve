@@ -17,12 +17,20 @@ var stopMessage = "Stop";
 // If true, the messages will be broadcasted to the objects' children as well as themselves.
 var isBroadcast = false;
 
-// The prefab of the animation that will be played each "step"
-var stepAnimPrefab:GameObject = null;
+//----------------------------------------
+//   This can also auto-gen foot step positions using a subdivsion curve
+//----------------------------------------
+class CurveGenInfo
+{
+    var enabled = false;
+    var numSteps = 10;
+    var curve:SubdivisionCurve = null;
+    var stepPrefab:GameObject = null;
+    var halfWidth = 0.1;
+};
+var curveGen = new CurveGenInfo();
 
 private var numTriggered = 0;
-
-private var animInsts = new List.<GameObject>();
 
 function Awake()
 {
@@ -31,11 +39,30 @@ function Awake()
 
 function Start ()
 {
-    for( var xform:Transform in transform )
+    if( curveGen.enabled && curveGen.numSteps > 0 )
     {
-        var inst = Instantiate( stepAnimPrefab, xform.position, xform.rotation );
-        animInsts.Add(inst);
-        Destroy(xform.gameObject);
+        for( var i = 0; i < curveGen.numSteps; i++ )
+        {
+            var t = i * 1.0/(curveGen.numSteps-1);
+            var tstep = (i+0.5) * 1.0/(curveGen.numSteps-1);
+            var p = curveGen.curve.GetSmoothedPoint(t);
+            var pstep = curveGen.curve.GetSmoothedPoint(tstep);
+
+            var stepDir = (pstep-p).normalized;
+            var sideDir = Math2D.PerpCCW(stepDir);
+
+            // point in right direction
+            var rot:Quaternion;
+            rot.SetLookRotation( Vector3(0,0,1), sideDir );
+
+            // left, right
+            var sideSign = i%2 == 0 ? -1 : 1;
+            p += sideDir * sideSign * curveGen.halfWidth;
+
+            // TODO - do left/right foot, rotation, etc.
+            var go = Instantiate(curveGen.stepPrefab, p, rot);
+            go.transform.parent = transform;
+        }
     }
 }
 
@@ -50,12 +77,12 @@ function Stop()
     anim.Stop();
 
     // Stop all children too
-    for( anim in animInsts )
+    for( var child:Transform in transform )
     {
         if( isBroadcast )
-            anim.BroadcastMessage( stopMessage );
+            child.gameObject.BroadcastMessage( stopMessage );
         else
-            anim.SendMessage( stopMessage );
+            child.gameObject.SendMessage( stopMessage );
     }
 }
 
@@ -65,19 +92,20 @@ function Update () {
 
     var frac = anim.GetFraction();
 
-    var nextTriggerFrac = 1.0*numTriggered/animInsts.Count;
+    var nextTriggerFrac = 1.0*numTriggered/transform.childCount;
 
-    while( numTriggered < animInsts.Count && nextTriggerFrac < frac )
+    while( numTriggered < transform.childCount && nextTriggerFrac < frac )
     {
         var next = numTriggered;
+        var go = transform.GetChild(next);
 
         if( isBroadcast )
-            animInsts[next].BroadcastMessage( triggerMessage );
+            go.BroadcastMessage( triggerMessage );
         else
-            animInsts[next].SendMessage( triggerMessage );
+            go.SendMessage( triggerMessage );
 
         numTriggered++;
-        nextTriggerFrac = 1.0*numTriggered/animInsts.Count;
+        nextTriggerFrac = 1.0*numTriggered/transform.childCount;
     }
 
 }
