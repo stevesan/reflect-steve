@@ -142,8 +142,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6568543"
-     inkscape:cx="327.03852"
-     inkscape:cy="-64.66853"
+     inkscape:cx="426.90426"
+     inkscape:cy="-188.62023"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -444,7 +444,7 @@
        inkscape:connector-curvature="0"
        gameObjType="levelGeo"
        id="path3509"
-       d="m 370,360 80,0 0,40 -40,0 0,-30 -40,0 z"
+       d="m 370,350 80,0 0,50 -40,0 0,-40 -40,0 z"
        style="fill:#ffffff;fill-opacity:1;stroke:none"
        sodipodi:nodetypes="ccccccc" />
     <rect
@@ -980,20 +980,20 @@
        style="fill:#ffff00;fill-opacity:1;stroke:none"
        id="rect3511"
        height="10"
-       x="420"
+       x="410"
        y="390"
        width="10" />
     <rect
        gameObjType="player"
        width="10"
-       y="360"
+       y="350"
        x="390"
        height="10"
        id="rect3513"
        style="fill:#00ff00;fill-opacity:1;stroke:none" />
     <rect
        width="10"
-       y="360"
+       y="350"
        x="430"
        height="10"
        id="rect3515"
@@ -1301,7 +1301,7 @@
        gameObjType="mirror" />
     <rect
        width="10"
-       y="360"
+       y="350"
        x="380"
        height="10"
        id="rect3583"
