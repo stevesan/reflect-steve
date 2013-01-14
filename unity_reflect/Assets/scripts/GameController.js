@@ -221,6 +221,8 @@ function GetIsReflecting() : boolean { return isReflecting; }
 function GetMirrorPos() : Vector2 { return lineStart; }
 function GetMirrorAngle() : float { return mirrorAngle; }
 
+function GetHostCam() : Camera { return hostcam; }
+
 function OnGetGoal()
 {
 	if( gamestate == 'playing' ) {
@@ -704,6 +706,14 @@ class ReflectEventDetails
 		return e.ToJson();		
 	}
 };
+
+function OnLevelSelected(num:int)
+{
+    if( gamestate == 'levelselect' )
+    {
+        FadeToLevel( Mathf.Min(maxNumLevels-1, num), false );
+    }
+}
 
 function Update()
 {

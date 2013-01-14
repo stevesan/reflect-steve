@@ -1,40 +1,74 @@
 #pragma strict
 
 var game:GameController;
-var fadeOutSecs = 0.5;
-
-private var state = "shown";
-private var fadeOutStart = 0.0;
 
 function Start () {
+}
+
+function OnGameScreenShow()
+{
+}
+
+function OnGameScreenHide()
+{
 
 }
 
-function Update () {
-    if( state == "shown" )
+private var prevTarget:GameObject = null;
+
+function Update ()
+{
+    var clickPos = game.GetMouseXYWorldPos();
+
+    var currTarget:GameObject = null; 
+    var overIndex = -1;
+
+    //----------------------------------------
+    // Detect and generate mouse events
+    //----------------------------------------
+    for( var i = 0; ; i++ )
     {
-        if( game.GetState() != "startscreen" )
+        var iconName = "icon" + i.ToString("000");
+        var iconXform = transform.Find(iconName);
+
+        if( iconXform == null )
+            break;
+
+        var iconObj = iconXform.gameObject;
+        var iconRender = iconObj.GetComponent(Renderer);
+
+        if( iconRender == null )
+            continue;
+
+        var testPt = Vector3( clickPos.x, clickPos.y, iconRender.bounds.center.z );
+        if( iconRender.bounds.Contains(testPt) )
         {
-            state = "fadeout";
-            fadeOutStart = Time.time;
+            currTarget = iconObj;
+            overIndex = i;
+            break;
         }
     }
-    else if( state == "fadeout" )
-    {
-        var prog = (Time.time-fadeOutStart) / fadeOutSecs;
 
-        if( prog > 1.0 )
+    if( currTarget != prevTarget )
+    {
+        if( currTarget != null )
         {
-            state = "hidden";
-            Utils.HideAll(gameObject);
+            currTarget.SendMessage("OnMouseEnter", SendMessageOptions.DontRequireReceiver);
         }
-        else
+
+        if( prevTarget != null )
         {
-            for( var child in transform )
-            {
-                var go = (child as Transform).gameObject;
-                go.GetComponent(Tk2dAnimSpriteFade).SetFadeAmount(1-prog);
-            }
+            prevTarget.SendMessage("OnMouseExit", SendMessageOptions.DontRequireReceiver);
         }
+
+        prevTarget = currTarget;
+    }
+
+    //----------------------------------------
+    //  See if we clicked a level
+    //----------------------------------------
+    if( Input.GetButtonDown('ReflectToggle') )
+    {
+        game.OnLevelSelected(overIndex);
     }
 }

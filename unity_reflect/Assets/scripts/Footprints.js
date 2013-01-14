@@ -59,7 +59,6 @@ function Start ()
             var sideSign = i%2 == 0 ? -1 : 1;
             p += sideDir * sideSign * curveGen.halfWidth;
 
-            // TODO - do left/right foot, rotation, etc.
             var go = Instantiate(curveGen.stepPrefab, p, rot);
             go.transform.parent = transform;
         }
