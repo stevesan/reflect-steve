@@ -21,7 +21,7 @@ var tracker:Tracking = null;
 //----------------------------------------
 //  Prefabs/Puppet-objects
 //----------------------------------------
-var helpText : GUIText;
+var mirrorCount : GUIText;
 var levelNumber : GUIText;
 var level0Tute : GUIText;
 var level0TuteB : GUIText;
@@ -223,12 +223,20 @@ function GetMirrorAngle() : float { return mirrorAngle; }
 
 function GetHostCam() : Camera { return hostcam; }
 
+function HasBeatLevel(id:int) : boolean
+{
+    return PlayerPrefs.GetInt("beatLevel"+id, 0) == 1;
+}
+
 function OnGetGoal()
 {
 	if( gamestate == 'playing' ) {
 		if( numKeysGot == numKeys ) {
 			if( tracker != null )
 				tracker.PostEvent( "beatLevel", ""+currLevId );
+
+            PlayerPrefs.SetInt("beatLevel"+currLevId, 1);
+            PlayerPrefs.Save();
 
 			FadeToLevel( (currLevId+1) % levels.Count, false );
 			goal.GetComponent(Star).SetShown( false );
@@ -248,20 +256,22 @@ function OnGetGoal()
 
 function OnGetMirror( mirror:Mirror )
 {
-	if( gamestate == 'playing' ) {
+	if( gamestate == 'playing' )
+    {
 		numReflectionsAllowed++;
-		helpText.GetComponent(PositionAnimation).Play();
+		mirrorCount.GetComponent(PositionAnimation).Play();
 	}
 }
 
 //----------------------------------------
 //  t is from 0 to 1
 //----------------------------------------
-function SetFadeAmount( t:float ) {
+function SetFadeAmount( t:float )
+{
 	GetComponent(FadeAmount).SetFadeAmount(t);
 	mainLight.intensity = t * origLightIntensity;
 	levelNumber.GetComponent(GUITextFade).SetFadeAmount(t);
-	helpText.GetComponent(GUITextFade).SetFadeAmount(t);
+	mirrorCount.GetComponent(GUITextFade).SetFadeAmount(t);
 }
 
 function FadeToLevel( levId:int, fast:boolean ) {
@@ -442,7 +452,7 @@ function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
 
 function SwitchLevel( id:int )
 {
-	id = Mathf.Min( id, levels.Count-1 );
+	id = Mathf.Clamp( id, 0, levels.Count-1 );
 	Debug.Log('switching to level '+id);
 	
     if( isReflecting ) {
@@ -722,7 +732,7 @@ function Update()
 	level1TuteA.enabled = false;
 	level1TuteB.enabled = false;
 	level4Tute.enabled = false;
-	helpText.text = "";
+	mirrorCount.text = "";
 	
 	// handle system-wide keys
 	if( Input.GetButtonDown('MuteMusic') )
@@ -745,8 +755,7 @@ function Update()
 			if( restartSnd != null )
 				AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
 		}
-        // TEMP
-        else if( Input.GetButtonDown('PrevLevel') )
+        else if( Input.GetButtonDown('LevelSelect') )
         {
             gamestate = 'levelselect';
         }
@@ -755,7 +764,8 @@ function Update()
     {
         // Do nothing until the level selector tells us it's done
     }
-	else if( gamestate == 'fadingOut' ) {
+	else if( gamestate == 'fadingOut' )
+    {
 		var outTime = (doFastFade ? fastFadeOutTime : fadeOutTime);
 		alpha = Mathf.Clamp( (Time.time-fadeStart) / outTime, 0.0, 1.0 );
 		SetFadeAmount( 1-alpha );
@@ -765,7 +775,8 @@ function Update()
 			gamestate = 'fadedOut';
 		}
 	}
-	else if( gamestate == 'fadedOut' ) {
+	else if( gamestate == 'fadedOut' )
+    {
 		// do the actual level switch
 		SwitchLevel( goalLevId );
 
@@ -774,7 +785,8 @@ function Update()
 		gamestate = 'playing';
 		BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
 	}
-	else if( gamestate == 'playing' ) {
+	else if( gamestate == 'playing' )
+    {
 		// fade in initially - just keep updating this
 		var inTime = (doFastFade ? fastFadeInTime : fadeInTime);
 		alpha = Mathf.Clamp( (Time.time-fadeStart) / inTime, 0.0, 1.0 );
@@ -791,38 +803,44 @@ function Update()
 			&& isReflecting;
 
 		if( currLevId != 0 ) {
-			helpText.text =  "x"+(numReflectionsAllowed-numReflectionsDone);
+			mirrorCount.text =  "x"+(numReflectionsAllowed-numReflectionsDone);
 		} else {
-			helpText.text = "";
+			mirrorCount.text = "";
 		}
 
-		if( currLevPoly != null )
-		{
-			//currLevPoly.DebugDraw( Color.blue, 0.0 );
+        if( Input.GetButtonDown('Reset') )
+        {
+            if( restartSnd != null )
+                AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
+            FadeToLevel( currLevId, true );
+            previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
+            
+            BroadcastMessage("OnResetLevel", this, SendMessageOptions.DontRequireReceiver);
 
-			if( Input.GetButtonDown('Reset') )
-			{
-				if( restartSnd != null )
-					AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
-				FadeToLevel( currLevId, true );
-				previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
-				
-				BroadcastMessage("OnResetLevel", this, SendMessageOptions.DontRequireReceiver);
+            if( tracker != null )
+                tracker.PostEvent( "resetLevel", ""+currLevId );
+        }
+        else if( Input.GetButtonDown('LevelSelect') )
+        {
+            gamestate = 'levelselect';
+        }
+#if UNITY_EDITOR
+        else if( Input.GetButtonDown('NextLevel') ) {
+            FadeToLevel( (currLevId+1)%levels.Count, true );
+            previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
+            BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
+        }
+        else if( Input.GetButtonDown('PrevLevel') ) {
+            FadeToLevel( (levels.Count+currLevId-1)%levels.Count, true );
+            previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
+            BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
+        }
+#endif
+        else if(currLevPoly != null )
+        {
+            //currLevPoly.DebugDraw( Color.blue, 0.0 );
 
-				if( tracker != null )
-					tracker.PostEvent( "resetLevel", ""+currLevId );
-			}
-			else if( Input.GetButtonDown('NextLevel') ) {
-				FadeToLevel( (currLevId+1)%levels.Count, true );
-				previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
-				BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
-			}
-			else if( Input.GetButtonDown('PrevLevel') ) {
-				FadeToLevel( (levels.Count+currLevId-1)%levels.Count, true );
-				previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
-				BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
-			}
-			else if( isReflecting )
+			if( isReflecting )
 			{
 				//----------------------------------------
 				//  Update visuals
@@ -903,7 +921,7 @@ function Update()
 
 					// update state
 					numReflectionsDone++;
-					helpText.GetComponent(PositionAnimation).Play();
+					mirrorCount.GetComponent(PositionAnimation).Play();
 					isReflecting = false;
 					BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
                     GetComponent(Connectable).TriggerEvent("OnExitReflectMode");
@@ -940,7 +958,7 @@ function Update()
 					{
 						// no more allowed
 						AudioSource.PlayClipAtPoint( maxedReflectionsSnd, hostcam.transform.position );
-						helpText.GetComponent(PositionAnimation).Play();
+						mirrorCount.GetComponent(PositionAnimation).Play();
 					}
 					else
 					{

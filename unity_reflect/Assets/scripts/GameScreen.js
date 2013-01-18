@@ -17,7 +17,7 @@ private var state = "hidden";
 
 function Start ()
 {
-    GetComponent(AlphaHierarchy).SetLocalAlpha(0.0);
+    GetComponent(AlphaHierarchy).SetLocalAlpha(0.0, true);
     state = 'hidden';
 
     for( var child:Transform in transform )
@@ -49,13 +49,13 @@ function Update ()
             }
 
             BroadcastMessage("OnGameScreenShow", SendMessageOptions.DontRequireReceiver);
-            GetComponent(AlphaHierarchy).SetLocalAlpha(0.0);
+            GetComponent(AlphaHierarchy).SetLocalAlpha(0.0, true);
         }
     }
     else if( state == "fadeout" )
     {
         fadeOutAnim.Update();
-        GetComponent(AlphaHierarchy).SetLocalAlpha( 1.0 - fadeOutAnim.GetFraction() );
+        GetComponent(AlphaHierarchy).SetLocalAlpha( 1.0 - fadeOutAnim.GetFraction(), true );
 
         if( fadeOutAnim.GetFraction() >= 1.0 )
         {
@@ -72,7 +72,7 @@ function Update ()
     else if( state == "fadein" )
     {
         fadeInAnim.Update();
-        GetComponent(AlphaHierarchy).SetLocalAlpha( fadeInAnim.GetFraction() );
+        GetComponent(AlphaHierarchy).SetLocalAlpha( fadeInAnim.GetFraction(), true );
 
         if( game.GetState() != showingGameState )
         {
