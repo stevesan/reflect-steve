@@ -24,6 +24,8 @@ function Awake()
 
         levelIcons.Add(iconXform.gameObject);
     }
+
+    Utils.Assert(game.GetLevels().Count >= levelIcons.Count);
 }
 
 function Start ()
@@ -33,6 +35,12 @@ function Start ()
 function GetLevelGroup( levId:int )
 {
     return levelIcons[levId].GetComponent(LevelIcon).groupNumber;
+}
+
+function GetIsLevelLastInGroup( levId:int )
+{
+    return levId >= (levelIcons.Count-1)
+        || GetLevelGroup(levId+1) != GetLevelGroup(levId);
 }
 
 function GetUnfinishedLevelGroups()
@@ -49,6 +57,14 @@ function GetUnfinishedLevelGroups()
     }
 
     return groups;
+}
+
+function OnBeatCurrentLevel()
+{
+    var levId = game.GetCurrentLevelId();
+
+    if( GetIsLevelLastInGroup(levId) )
+        game.RequestLevelSelect();
 }
 
 function OnGameScreenShow()

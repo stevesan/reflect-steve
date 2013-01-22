@@ -158,6 +158,7 @@ private var goalLevId : int = 0;	// which level we're fading into
 private var currLevPoly : Mesh2D = null;	// current effective geometry
 private var currConveyors : List.<Mesh2D> = null;
 private var gamestate:String;
+private var levelSelectRequested : boolean = false;
 
 function GetState() : String { return gamestate; }
 
@@ -216,6 +217,7 @@ private var mirrorAngle = 0.0;
 private var goalMirrorAngle = 0.0;
 
 function GetLevel() : LevelInfo { return levels[currLevId]; }
+function GetLevels() : List.<LevelInfo> { return levels; }
 
 function GetIsReflecting() : boolean { return isReflecting; }
 function GetMirrorPos() : Vector2 { return lineStart; }
@@ -228,6 +230,11 @@ function HasBeatLevel(id:int) : boolean
     return PlayerPrefs.GetInt("beatLevel"+id, 0) == 1;
 }
 
+function RequestLevelSelect()
+{
+    levelSelectRequested = true;
+}
+
 function OnGetGoal()
 {
 	if( gamestate == 'playing' ) {
@@ -237,6 +244,7 @@ function OnGetGoal()
 
             PlayerPrefs.SetInt("beatLevel"+currLevId, 1);
             PlayerPrefs.Save();
+            GetComponent(Connectable).TriggerEvent("OnBeatCurrentLevel");
 
 			FadeToLevel( (currLevId+1) % levels.Count, false );
 			goal.GetComponent(Star).SetShown( false );
@@ -296,27 +304,30 @@ function GetLastKeyPos() { return lastKeyPos; }
 
 function OnGetKey( keyObj:GameObject )
 {
-	numKeysGot++;
-	UpdateGoalLocked();
-	
-	if( numKeysGot >= numKeys )
-		BroadcastMessage("OnUnlockedGoalByKey", this, SendMessageOptions.DontRequireReceiver);
+	if( gamestate == 'playing' )
+    {
+        numKeysGot++;
+        UpdateGoalLocked();
 
-    keyFx.transform.position = keyObj.transform.position;
-    keyFx.SendMessage("Play");
+        if( numKeysGot >= numKeys )
+            BroadcastMessage("OnUnlockedGoalByKey", this, SendMessageOptions.DontRequireReceiver);
 
-    Destroy(keyObj);
+        keyFx.transform.position = keyObj.transform.position;
+        keyFx.SendMessage("Play");
 
-	if( tracker != null )
-	{
-		var json = new ToStringJsonWriter();
-		json.WriteObjectStart();
-		json.Write("keyPos", Utils.ToVector2(keyObj.transform.position));
-		json.WriteObjectEnd();
-		tracker.PostEvent( "gotKey", json.GetString() );
-	}
+        Destroy(keyObj);
 
-    GetComponent(Connectable).TriggerEvent("OnGetKey");
+        if( tracker != null )
+        {
+            var json = new ToStringJsonWriter();
+            json.WriteObjectStart();
+            json.Write("keyPos", Utils.ToVector2(keyObj.transform.position));
+            json.WriteObjectEnd();
+            tracker.PostEvent( "gotKey", json.GetString() );
+        }
+
+        GetComponent(Connectable).TriggerEvent("OnGetKey");
+    }
 }
 
 function PolysToStroke( polys:Mesh2D, vmax:float, width:float, buffer:MeshBuffer, mesh:Mesh )
@@ -770,10 +781,17 @@ function Update()
 		alpha = Mathf.Clamp( (Time.time-fadeStart) / outTime, 0.0, 1.0 );
 		SetFadeAmount( 1-alpha );
 
-		if( alpha >= 1.0 ) {
-			// done fading
-			gamestate = 'fadedOut';
-		}
+		if( alpha >= 1.0 )
+        {
+            // done fading
+            if( levelSelectRequested )
+            {
+                gamestate = 'levelselect';
+                levelSelectRequested = false;
+            }
+            else
+                gamestate = 'fadedOut';
+        }
 	}
 	else if( gamestate == 'fadedOut' )
     {

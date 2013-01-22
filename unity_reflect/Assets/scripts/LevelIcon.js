@@ -6,21 +6,25 @@
 
 var groupNumber = 0;
 
-function Start () {
-
+function Start ()
+{
+    GetComponent(AlphaHierarchy).SetLocalAlpha(1.0, true);
 }
 
-function Update () {
+function Update ()
+{
 
 }
 
 function OnMouseEnter()
 {
     //GetComponent(Tk2dAnimSpriteFade).playback.SetLinearFraction(0.5);
-    SendMessage("Unpause");
+    //transform.localScale = Vector3(1.1, 1.1, 1.1);
+    GetComponent(AlphaHierarchy).SetLocalAlpha(0.5, true);
 }
 
 function OnMouseExit()
 {
-    SendMessage("Stop");
+    //transform.localScale = Vector3(1,1,1);
+    GetComponent(AlphaHierarchy).SetLocalAlpha(1.0, true);
 }
