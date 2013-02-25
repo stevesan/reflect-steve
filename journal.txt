@@ -1,22 +1,12 @@
 
 TODO:
+- look into unity reverb zones - do they sound OK?
 - WAIT: Mark to fix some music stuff - worst case, fall back on looping single samples again
 - implement level select
     - initially, you are taken directly to first tutorial levels from start screen.
     - then after level 4, you go to level select, see the feet animate, and then 5 other carrots pop up. beating each level takes you to the next one, except the last one in the group takes you back to selection.
         use the vertical order of the SVG to determine "groups"
 - implement game-end with option to enable free-reflection mode
-- implement lava-zones and falling lava blocks. for completeness.
-    closure has soooo many mechanics: rolling/blocks with and w/o lights, water, guns, spot lights, glass, elevators, no-drop-zones, spikey floors
-    so does Braid: goombas, rabbits, cannons, lava/spikes, ladders, movers, switches, ladders
-    portal 1 has: buttons, cubes, energy balls, moving platforms, turrets, lava
-    my game needs more mechanics!!
-    MOR has: keys, fall-keys, bricks, conveyors
-- implement events playback, so i can see ppl's solutions for like 34 and 30
-    use 'levels.txt' for data prior to 12-03
-
-- fix conveyor bug where it doesn't fully pick you up
-    i may just not use conveyors for this release..only 1 real conveyor puzzle in there
 
 STORY/LYRICS:
 
@@ -54,3 +44,24 @@ It's pretty exhilirating. I feel powerful. In control.
 And I'm able to keep chasing the rocks
 Sometimes things get tricky, but I find a way
 Random things appear here and there. Like most dreams.
+
+----------------------------------------
+CANCELED:
+----------------------------------------
+
+- implement lava-zones and falling lava blocks. for completeness.
+    closure has soooo many mechanics: rolling/blocks with and w/o lights, water, guns, spot lights, glass, elevators, no-drop-zones, spikey floors
+    so does Braid: goombas, rabbits, cannons, lava/spikes, ladders, movers, switches, ladders
+    portal 1 has: buttons, cubes, energy balls, moving platforms, turrets, lava
+    my game needs more mechanics!!
+    MOR has: keys, fall-keys, bricks, conveyors
+
+    CANCELED: nah, i'm not longer feeling inspired about the mechanic. So, screw it! This is a good point, but I'm ready to move on from this game and release it as-is rather than try to force myself to make it more substantial.
+
+- implement events playback, so i can see ppl's solutions for like 34 and 30
+    use 'levels.txt' for data prior to 12-03
+    CANCELED: meh not really worth it at this point.
+
+- fix conveyor bug where it doesn't fully pick you up
+    i may just not use conveyors for this release..only 1 real conveyor puzzle in there
+    CANCELED: conveyor puzzles didn't yield enough to be worth keeping

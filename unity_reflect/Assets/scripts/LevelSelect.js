@@ -9,6 +9,7 @@ var wsLevelNumberOffset = Vector3(0.0, -1.0, 0.0);
 
 private var prevMouseTarget:GameObject = null;
 private var levelIcons:List.<GameObject> = null;
+private var selectedLevId = -1;
 
 function Awake()
 {
@@ -32,7 +33,7 @@ function Start ()
 {
 }
 
-function GetLevelGroup( levId:int )
+function GetGroupNum( levId:int )
 {
     return levelIcons[levId].GetComponent(LevelIcon).groupNumber;
 }
@@ -40,7 +41,7 @@ function GetLevelGroup( levId:int )
 function GetIsLevelLastInGroup( levId:int )
 {
     return levId >= (levelIcons.Count-1)
-        || GetLevelGroup(levId+1) != GetLevelGroup(levId);
+        || GetGroupNum(levId+1) != GetGroupNum(levId);
 }
 
 function GetUnfinishedLevelGroups()
@@ -50,11 +51,12 @@ function GetUnfinishedLevelGroups()
     for( var levId = 0; levId < levelIcons.Count; levId++ )
     {
         if( !game.HasBeatLevel(levId) )
-        {
             // level not beaten. So its group is unfinished
-            groups.Add( GetLevelGroup(levId) );
-        }
+            groups.Add( GetGroupNum(levId) );
     }
+
+    for( var gnum in groups )
+        Debug.Log("not beat group "+gnum);
 
     return groups;
 }
@@ -63,31 +65,30 @@ function OnBeatCurrentLevel()
 {
     var levId = game.GetCurrentLevelId();
 
-    if( GetIsLevelLastInGroup(levId) )
-        game.RequestLevelSelect();
+    // TODO need to return to level select when we finish a group..but GameController should take care of that really
+    //if( GetIsLevelLastInGroup(levId) )
+        //game.RequestLevelSelect();
 }
 
 function OnGameScreenShow()
 {
+    // Reset state
+    selectedLevId = -1;
+
     // Toggle level icons
 
-    var remainGroups = GetUnfinishedLevelGroups();
+    var unbeatGroups = GetUnfinishedLevelGroups();
 
     for( var levId = 0; levId < levelIcons.Count; levId++ )
     {
         var iconObj = levelIcons[levId];
 
         // Only show level icons if the previous group is all finished
-
-        if( remainGroups.Contains( GetLevelGroup(levId)-1 ) )
-        {
+        if( unbeatGroups.Contains( GetGroupNum(levId)-1 ) )
             // previous group not finished yet. don't show this group yet
             iconObj.SetActive(false);
-        }
         else
-        {
             iconObj.SetActive(true);
-        }
     }
 
     // Toggle footprints
@@ -96,20 +97,28 @@ function OnGameScreenShow()
     {
         var printsTrans = transform.Find("prints"+group);
 
-        if( printsTrans == null ) break;
-
-        if( !remainGroups.Contains( group-1 ) )
-            printsTrans.gameObject.SendMessage("Play");
+        if( printsTrans == null )
+            break;
+        else if( !unbeatGroups.Contains( group-1 ) )
+        {
+            // just show this one, don't play it
+            printsTrans.gameObject.SetActive(true);
+            printsTrans.gameObject.SendMessage("Stop");
+            printsTrans.gameObject.SendMessage("SkipToEnd");
+        }
+        else
+            printsTrans.gameObject.SetActive(false);
     }
 
     prevMouseTarget = null;
 
 }
 
-function OnGameScreenHide()
+function OnGameScreenHidden()
 {
+    if( selectedLevId != -1 )
+        game.StartLevel(selectedLevId);
 }
-
 
 function Update ()
 {
@@ -117,7 +126,7 @@ function Update ()
     var clickPos = game.GetMouseXYWorldPos();
 
     var currTarget:GameObject = null; 
-    var activeLevId = -1;
+    var mouseOverLevId = -1;
 
     //----------------------------------------
     // Detect and generate mouse events
@@ -138,7 +147,7 @@ function Update ()
         if( iconRender.bounds.Contains(testPt) )
         {
             currTarget = iconObj;
-            activeLevId = i;
+            mouseOverLevId = i;
             break;
         }
     }
@@ -146,21 +155,17 @@ function Update ()
     if( currTarget != prevMouseTarget )
     {
         if( currTarget != null )
-        {
             currTarget.SendMessage("OnMouseEnter", SendMessageOptions.DontRequireReceiver);
-        }
 
         if( prevMouseTarget != null )
-        {
             prevMouseTarget.SendMessage("OnMouseExit", SendMessageOptions.DontRequireReceiver);
-        }
 
         prevMouseTarget = currTarget;
     }
 
-    if( activeLevId >= 0 )
+    if( mouseOverLevId >= 0 )
     {
-        levelNumber.text = "" + (activeLevId+1);
+        levelNumber.text = "" + (mouseOverLevId+1);
         var p:Vector3 = game.GetHostCam().WorldToViewportPoint( currTarget.transform.position + wsLevelNumberOffset );
 
         levelNumber.transform.position.x = p.x;
@@ -168,7 +173,10 @@ function Update ()
 
         if( Input.GetButtonDown('ReflectToggle') )
         {
-            game.OnLevelSelected(activeLevId);
+            // clicked a carrot.
+            // hide, and make sure to start the selected level once hidden
+            selectedLevId = mouseOverLevId;
+            GetComponent(GameScreen).Hide();
         }
     }
 }

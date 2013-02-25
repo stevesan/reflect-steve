@@ -26,12 +26,20 @@ function Start ()
     }
 }
 
+function Hide()
+{
+    BroadcastMessage("OnGameScreenHide", SendMessageOptions.DontRequireReceiver);
+    state = "fadeout";
+    fadeOutAnim.Play();
+}
+
 function Update ()
 {
     if( state == "shown" )
     {
         if( game.GetState() != showingGameState )
         {
+            BroadcastMessage("OnGameScreenHide", SendMessageOptions.DontRequireReceiver);
             state = "fadeout";
             fadeOutAnim.Play();
         }
@@ -66,7 +74,7 @@ function Update ()
                 child.gameObject.SetActive(false);
             }
 
-            BroadcastMessage("OnGameScreenHide", SendMessageOptions.DontRequireReceiver);
+            BroadcastMessage("OnGameScreenHidden", SendMessageOptions.DontRequireReceiver);
         }
     }
     else if( state == "fadein" )
@@ -77,6 +85,7 @@ function Update ()
         if( game.GetState() != showingGameState )
         {
             state = "fadeout";
+            BroadcastMessage("OnGameScreenHide", SendMessageOptions.DontRequireReceiver);
             fadeOutAnim.Play();
         }
     }

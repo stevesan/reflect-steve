@@ -41,7 +41,6 @@ var safeArea : SafeArea;
 //----------------------------------------
 //  Objects for level geometry/UI
 //----------------------------------------
-var reverseLevelCollision : DynamicMeshCollider;
 var geoTriRender : MeshFilter;	// rendering the fill-triangles for the active collision geometry
 var rockCollider : DynamicMeshCollider;
 var rockRender : MeshFilter;
@@ -158,7 +157,7 @@ private var goalLevId : int = 0;	// which level we're fading into
 private var currLevPoly : Mesh2D = null;	// current effective geometry
 private var currConveyors : List.<Mesh2D> = null;
 private var gamestate:String;
-private var levelSelectRequested : boolean = false;
+private var isFadingToLevelSelect : boolean = false;
 
 function GetState() : String { return gamestate; }
 
@@ -167,7 +166,7 @@ function GetState() : String { return gamestate; }
 //----------------------------------------
 private var numKeysGot = 0;
 private var numKeys = 0;
-private var objectInsts = new Array();
+private var objectInsts = new List.<GameObject>();
 
 class Conveyors
 {
@@ -230,15 +229,12 @@ function HasBeatLevel(id:int) : boolean
     return PlayerPrefs.GetInt("beatLevel"+id, 0) == 1;
 }
 
-function RequestLevelSelect()
-{
-    levelSelectRequested = true;
-}
-
 function OnGetGoal()
 {
-	if( gamestate == 'playing' ) {
-		if( numKeysGot == numKeys ) {
+	if( gamestate == 'playing' )
+    {
+		if( numKeysGot == numKeys )
+        {
 			if( tracker != null )
 				tracker.PostEvent( "beatLevel", ""+currLevId );
 
@@ -282,17 +278,26 @@ function SetFadeAmount( t:float )
 	mirrorCount.GetComponent(GUITextFade).SetFadeAmount(t);
 }
 
-function FadeToLevel( levId:int, fast:boolean ) {
+function FadeToLevel( levId:int, fast:boolean )
+{
 	// fade into next level
 	gamestate = 'fadingOut';
 	fadeStart = Time.time;
 	goalLevId = levId;
 	doFastFade = fast;
+    isFadingToLevelSelect = false;
+}
+
+function FadeToLevelSelect()
+{
+    gamestate = 'fadingOut';
+    fadeStart = Time.time;
+    isFadingToLevelSelect = true;
+	doFastFade = false;
 }
 
 function UpdateGoalLocked()
 {
-Debug.Log("updating goal lock state, "+numKeysGot+" / " +numKeys);
 	goal.GetComponent(Star).SetLocked( numKeysGot < numKeys );
 }
 
@@ -332,18 +337,17 @@ function OnGetKey( keyObj:GameObject )
 
 function PolysToStroke( polys:Mesh2D, vmax:float, width:float, buffer:MeshBuffer, mesh:Mesh )
 {
-	var edgeVisited = new boolean[ polys.GetNumEdges() ];
-	for( var eid = 0; eid < edgeVisited.length; eid++ ) {
-		edgeVisited[ eid ] = false;
-	}
+    var edgeVisited = new boolean[ polys.GetNumEdges() ];
+    for( var eid = 0; eid < edgeVisited.length; eid++ )
+        edgeVisited[ eid ] = false;
 
 	// TODO - we're being pretty damn conservative with the number of vertices the final mesh may need..
 	buffer.Allocate( 4*polys.GetNumEdges(), 2*polys.GetNumEdges() );
 	var nextFreeVert = 0;
 	var nextFreeTri = 0;
 
-	while( true ) {
-
+	while( true )
+    {
 		// find an unvisited edge
 		eid = 0;
 		while( eid < edgeVisited.length && edgeVisited[eid] ) eid++;
@@ -353,9 +357,8 @@ function PolysToStroke( polys:Mesh2D, vmax:float, width:float, buffer:MeshBuffer
 		var loop = polys.GetEdgeLoop( eid );
 
 		// mark all edges in the loop
-		for( var loopEid = 0; loopEid < loop.Count; loopEid++ ) {
+		for( var loopEid = 0; loopEid < loop.Count; loopEid++ )
 			edgeVisited[ loop[loopEid] ] = true;
-		}
 
 		// stroke out the loop
 		// reverse the loop, just cuz
@@ -364,7 +367,8 @@ function PolysToStroke( polys:Mesh2D, vmax:float, width:float, buffer:MeshBuffer
 		// get the points of the edge loop to use as control points
 		var nControls = loop.Count;
 		var loopPts = new Vector2[ nControls ];
-		for( loopEid = 0; loopEid < loop.Count; loopEid++ ) {
+		for( loopEid = 0; loopEid < loop.Count; loopEid++ )
+        {
 			var polysEid = loop[ loopEid ];
 			var startPid = polys.edgeA[ polysEid ];
 			loopPts[loopEid] = polys.pts[ startPid ];
@@ -372,9 +376,8 @@ function PolysToStroke( polys:Mesh2D, vmax:float, width:float, buffer:MeshBuffer
 
 		// compute simple lerp'd V coordinates
 		var texVs = new float[nControls];
-		for( var i = 0; i < nControls; i++ ) {
+		for( var i = 0; i < nControls; i++ )
 			texVs[i] = (i*1.0)/(nControls-1.0) * vmax;
-		}
 
 		ProGeo.Stroke2D( loopPts, texVs, 0, nControls-1,
 				true,
@@ -398,17 +401,6 @@ function OnCollidingGeometryChanged()
 			currLevPoly.pts, currLevPoly.edgeA, currLevPoly.edgeB,
 			-10, 10, false, GetComponent(MeshFilter).mesh );
 	GetComponent(DynamicMeshCollider).OnMeshChanged();
-
-	// Make it double-sided
-	var reverse = reverseLevelCollision;
-	if( reverse != null )
-	{
-		reverse.GetMesh().Clear();
-		ProGeo.BuildBeltMesh(
-				currLevPoly.pts, currLevPoly.edgeA, currLevPoly.edgeB,
-				-10, 10, true, reverse.GetMesh() );
-		reverse.OnMeshChanged();
-	}
 
 	// update rendered fill mesh
 	if( geoTriRender != null ) {
@@ -460,9 +452,22 @@ function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
     SetNormalsAtCamera( conveyorsMesh.mesh );
 }
 
-
-function SwitchLevel( id:int )
+//----------------------------------------
+//  Sets up the playing level
+//----------------------------------------
+function EnterPlayingState( id:int )
 {
+    BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
+    fadeStart = Time.time;
+    gamestate = 'playing';
+
+    player.SetActive(true);
+    goal.SetActive(true);
+    geoTriRender.gameObject.SetActive(true);
+    rockRender.gameObject.SetActive(true);
+    previewTriRender.gameObject.SetActive(true);
+    outlineMesh.gameObject.SetActive(true);
+
 	id = Mathf.Clamp( id, 0, levels.Count-1 );
 	Debug.Log('switching to level '+id);
 	
@@ -511,6 +516,7 @@ function SwitchLevel( id:int )
     convsInst.Reset( currConveyors, conveyorsStrokeWidth/2.0 );
 
 	// position the player
+    player.SetActive(true);
 	player.transform.position = levels[id].playerPos;
 	player.GetComponent(Rigidbody).velocity = Vector3(0,0,0);
 	player.GetComponent(PlayerControl).Reset();
@@ -581,7 +587,7 @@ function SwitchLevel( id:int )
 		obj.transform.parent = this.transform;
 		obj.SetActive(true);
 		Utils.ShowAll( obj );
-		objectInsts.Push( obj );
+		objectInsts.Add( obj );
 		Debug.Log('spawned '+lobj.type+' at '+lobj.pos);
 	}
 
@@ -593,6 +599,25 @@ function SwitchLevel( id:int )
 	
 	if( tracker != null )
 		tracker.PostEvent( "startLevel", ""+id );
+}
+
+function ExitPlayingState()
+{
+    player.SetActive(false);
+    goal.SetActive(false);
+    geoTriRender.gameObject.SetActive(false);
+    rockRender.gameObject.SetActive(false);
+    previewTriRender.gameObject.SetActive(false);
+    outlineMesh.gameObject.SetActive(false);
+
+    // in case we're in reflect
+    BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
+
+	for( inst in objectInsts )
+    {
+        if( inst != null )
+            inst.SetActive(false);
+    }
 }
 
 function Awake()
@@ -701,7 +726,8 @@ function UpdateReflectionLine() : void
 
 function OnPlayerFallout() : void
 {
-	if( gamestate == 'playing' ) {
+	if( gamestate == 'playing' )
+    {
 		// reset
 		if( restartSnd != null )
 			AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
@@ -728,12 +754,14 @@ class ReflectEventDetails
 	}
 };
 
-function OnLevelSelected(num:int)
+function StartLevel(num:int)
 {
-    if( gamestate == 'levelselect' )
-    {
-        FadeToLevel( Mathf.Min(maxNumLevels-1, num), false );
-    }
+    EnterPlayingState( num );
+}
+
+private function EnterLevelSelectState()
+{
+    gamestate = 'levelselect';
 }
 
 function Update()
@@ -768,12 +796,11 @@ function Update()
 		}
         else if( Input.GetButtonDown('LevelSelect') )
         {
-            gamestate = 'levelselect';
+            FadeToLevelSelect();
         }
 	}
     else if( gamestate == 'levelselect' )
     {
-        // Do nothing until the level selector tells us it's done
     }
 	else if( gamestate == 'fadingOut' )
     {
@@ -784,10 +811,11 @@ function Update()
 		if( alpha >= 1.0 )
         {
             // done fading
-            if( levelSelectRequested )
+            if( isFadingToLevelSelect )
             {
-                gamestate = 'levelselect';
-                levelSelectRequested = false;
+                ExitPlayingState();
+                EnterLevelSelectState();
+                isFadingToLevelSelect = false;
             }
             else
                 gamestate = 'fadedOut';
@@ -795,13 +823,8 @@ function Update()
 	}
 	else if( gamestate == 'fadedOut' )
     {
-		// do the actual level switch
-		SwitchLevel( goalLevId );
-
-		// and fade in, but game is playable now
-		fadeStart = Time.time;
-		gamestate = 'playing';
-		BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
+        // Start playing now in the next level
+		EnterPlayingState( goalLevId );
 	}
 	else if( gamestate == 'playing' )
     {
@@ -840,7 +863,7 @@ function Update()
         }
         else if( Input.GetButtonDown('LevelSelect') )
         {
-            gamestate = 'levelselect';
+            FadeToLevelSelect();
         }
 #if UNITY_EDITOR
         else if( Input.GetButtonDown('NextLevel') ) {
