@@ -10,10 +10,16 @@ var wsLevelNumberOffset = Vector3(0.0, -1.0, 0.0);
 private var prevMouseTarget:GameObject = null;
 private var levelIcons:List.<GameObject> = null;
 private var selectedLevId = -1;
+private var mouseOver = new MouseEventManager();
+private var iconMouseListeners:List.<MouseEventManager.Listener> = null;
+private var state = "hidden";
+private var shown = false;
 
 function Awake()
 {
     levelIcons = new List.<GameObject>();
+    iconMouseListeners = new List.<MouseEventManager.Listener>();
+    mouseOver.SetTargets(iconMouseListeners);
 
     for( var i = 0; ; i++ )
     {
@@ -38,7 +44,7 @@ function GetGroupNum( levId:int )
     return levelIcons[levId].GetComponent(LevelIcon).groupNumber;
 }
 
-function GetIsLevelLastInGroup( levId:int )
+function GetIsLevelLastOfGroup( levId:int )
 {
     return levId >= (levelIcons.Count-1)
         || GetGroupNum(levId+1) != GetGroupNum(levId);
@@ -66,18 +72,21 @@ function OnBeatCurrentLevel()
     var levId = game.GetCurrentLevelId();
 
     // TODO need to return to level select when we finish a group..but GameController should take care of that really
-    //if( GetIsLevelLastInGroup(levId) )
+    //if( GetIsLevelLastOfGroup(levId) )
         //game.RequestLevelSelect();
 }
 
 function OnGameScreenShow()
 {
+    shown = true;
+
     // Reset state
     selectedLevId = -1;
 
-    // Toggle level icons
+    // Toggle level icons and gather render objects
 
     var unbeatGroups = GetUnfinishedLevelGroups();
+    iconMouseListeners.Clear();
 
     for( var levId = 0; levId < levelIcons.Count; levId++ )
     {
@@ -88,7 +97,14 @@ function OnGameScreenShow()
             // previous group not finished yet. don't show this group yet
             iconObj.SetActive(false);
         else
+        {
             iconObj.SetActive(true);
+
+            // set icon depending on beat state
+            var iconComp = iconObj.GetComponent(LevelIcon);
+            iconComp.OnIsBeatenChanged( game.HasBeatLevel(levId) );
+            iconMouseListeners.Add( new IconMouseListener(iconComp) );
+        }
     }
 
     // Toggle footprints
@@ -118,55 +134,24 @@ function OnGameScreenHidden()
 {
     if( selectedLevId != -1 )
         game.StartLevel(selectedLevId);
+    shown = false;
 }
 
 function Update ()
 {
+    if( !shown )
+        return;
+
     levelNumber.text = "";
-    var clickPos = game.GetMouseXYWorldPos();
 
-    var currTarget:GameObject = null; 
-    var mouseOverLevId = -1;
+    mouseOver.Update();
+    var currTarget = mouseOver.GetCurrentTarget() as IconMouseListener;
+    var currTargetId = mouseOver.GetCurrentTargetId();
 
-    //----------------------------------------
-    // Detect and generate mouse events
-    //----------------------------------------
-    for( var i = 0; i < levelIcons.Count; i++ )
+    if( currTarget != null )
     {
-        var iconObj = levelIcons[i];
-
-        if( !iconObj.activeInHierarchy )
-            continue;
-
-        var iconRender = iconObj.GetComponent(Renderer);
-
-        if( iconRender == null )
-            continue;
-
-        var testPt = Vector3( clickPos.x, clickPos.y, iconRender.bounds.center.z );
-        if( iconRender.bounds.Contains(testPt) )
-        {
-            currTarget = iconObj;
-            mouseOverLevId = i;
-            break;
-        }
-    }
-
-    if( currTarget != prevMouseTarget )
-    {
-        if( currTarget != null )
-            currTarget.SendMessage("OnMouseEnter", SendMessageOptions.DontRequireReceiver);
-
-        if( prevMouseTarget != null )
-            prevMouseTarget.SendMessage("OnMouseExit", SendMessageOptions.DontRequireReceiver);
-
-        prevMouseTarget = currTarget;
-    }
-
-    if( mouseOverLevId >= 0 )
-    {
-        levelNumber.text = "" + (mouseOverLevId+1);
-        var p:Vector3 = game.GetHostCam().WorldToViewportPoint( currTarget.transform.position + wsLevelNumberOffset );
+        levelNumber.text = "" + (currTargetId+1);
+        var p:Vector3 = Camera.main.WorldToViewportPoint( currTarget.icon.transform.position + wsLevelNumberOffset );
 
         levelNumber.transform.position.x = p.x;
         levelNumber.transform.position.y = p.y;
@@ -175,7 +160,7 @@ function Update ()
         {
             // clicked a carrot.
             // hide, and make sure to start the selected level once hidden
-            selectedLevId = mouseOverLevId;
+            selectedLevId = currTargetId;
             GetComponent(GameScreen).Hide();
         }
     }
