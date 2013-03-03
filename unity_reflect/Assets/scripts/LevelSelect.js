@@ -2,37 +2,44 @@
 
 import System.Collections.Generic;
 
-var game:GameController = null;
 
 var levelNumber:GUIText = null;
 var wsLevelNumberOffset = Vector3(0.0, -1.0, 0.0);
+var widgetSpacing = 1.0;
 
-private var prevMouseTarget:GameObject = null;
-private var levelIcons:List.<GameObject> = null;
-private var selectedLevId = -1;
-private var mouseOver = new MouseEventManager();
-private var iconMouseListeners:List.<MouseEventManager.Listener> = null;
+private var game:GameController = null;
+private var widgetPrefabs = new List.<GameObject>();
+
+private var widgets = new List.<GameObject>();
+private var mouseMgr:MouseEventManager = null;
+private var mouseListeners = new List.<MouseEventManager.Listener>();
 private var state = "hidden";
 private var shown = false;
+private var currentGroup = 0;
+
+private var level2group = [
+    0, 0, 0, 0,
+    1, 1, 1, 1,
+    2, 2, 2, 2, 2,
+    3, 3, 3,
+    4, 4, 4, 4,
+    5
+    ];
+
+private var numGroups = 6;
 
 function Awake()
 {
-    levelIcons = new List.<GameObject>();
-    iconMouseListeners = new List.<MouseEventManager.Listener>();
-    mouseOver.SetTargets(iconMouseListeners);
+    game = GameObject.Find("gameController").GetComponent(GameController);
 
-    for( var i = 0; ; i++ )
+    // gather prefabs
+    for( var g = 0; g < numGroups; g++ )
     {
-        var iconName = "icon" + i.ToString("000");
-        var iconXform = transform.Find(iconName);
-
-        if( iconXform == null )
-            break;
-
-        levelIcons.Add(iconXform.gameObject);
+        var prefabName = "levelwidget" + (g+1).ToString("0");
+        var prefab = GameObject.Find(prefabName);
+        widgetPrefabs.Add(prefab);
+        prefab.SetActive(false);
     }
-
-    Utils.Assert(game.GetLevels().Count >= levelIcons.Count);
 }
 
 function Start ()
@@ -41,12 +48,35 @@ function Start ()
 
 function GetGroupNum( levId:int )
 {
-    return levelIcons[levId].GetComponent(LevelIcon).groupNumber;
+    return level2group[levId];
+}
+
+function GetCurrentGroup()
+{
+    return currentGroup;
+}
+
+function GetFirstLevel()
+{
+    for( var lev = 0; lev < level2group.length; lev++ )
+    {
+        if( level2group[lev] == GetCurrentGroup() )
+            return lev;
+    }
+}
+
+function GetLastLevel()
+{
+    for( var lev = level2group.length-1; lev >= 0; lev-- )
+    {
+        if( level2group[lev] == GetCurrentGroup() )
+            return lev;
+    }
 }
 
 function GetIsLevelLastOfGroup( levId:int )
 {
-    return levId >= (levelIcons.Count-1)
+    return levId >= (level2group.length-1)
         || GetGroupNum(levId+1) != GetGroupNum(levId);
 }
 
@@ -54,7 +84,7 @@ function GetUnfinishedLevelGroups()
 {
     var groups = new HashSet.<int>();
 
-    for( var levId = 0; levId < levelIcons.Count; levId++ )
+    for( var levId = 0; levId < level2group.length; levId++ )
     {
         if( !game.HasBeatLevel(levId) )
             // level not beaten. So its group is unfinished
@@ -79,34 +109,35 @@ function OnBeatCurrentLevel()
 function OnGameScreenShow()
 {
     shown = true;
+    mouseMgr = new MouseEventManager();
+    mouseMgr.SetTargets(mouseListeners);
+    currentGroup = GetGroupNum( game.GetCurrentLevelId() );
 
-    // Reset state
-    selectedLevId = -1;
+    // Create widgets
 
-    // Toggle level icons and gather render objects
+    var firstLev = GetFirstLevel();
+    var lastLev = GetLastLevel();
+    var numLevs = lastLev - firstLev + 1;
+    var prefab = widgetPrefabs[GetCurrentGroup()];
 
-    var unbeatGroups = GetUnfinishedLevelGroups();
-    iconMouseListeners.Clear();
+    var totalWidth = widgetSpacing * (numLevs-1);
 
-    for( var levId = 0; levId < levelIcons.Count; levId++ )
+    for( var lev = firstLev; lev <= lastLev; lev++ )
     {
-        var iconObj = levelIcons[levId];
+        var xFromCenter = -totalWidth/2.0 + (lev-firstLev)*widgetSpacing;
+        Debug.Log("xfrom center = "+xFromCenter);
+        var p0 = prefab.transform.position;
+        var pos = Vector3( transform.position.x+xFromCenter, p0.y, p0.z );
+        var widget = Instantiate( prefab, pos, prefab.transform.rotation );
+        widget.transform.parent = transform;
+        widget.SetActive(true);
+        widget.GetComponent(LevelIcon).OnIsBeatenChanged( game.HasBeatLevel(lev) );
+        widgets.Add(widget);
 
-        // Only show level icons if the previous group is all finished
-        if( unbeatGroups.Contains( GetGroupNum(levId)-1 ) )
-            // previous group not finished yet. don't show this group yet
-            iconObj.SetActive(false);
-        else
-        {
-            iconObj.SetActive(true);
-
-            // set icon depending on beat state
-            var iconComp = iconObj.GetComponent(LevelIcon);
-            iconComp.OnIsBeatenChanged( game.HasBeatLevel(levId) );
-            iconMouseListeners.Add( new IconMouseListener(iconComp) );
-        }
+        mouseListeners.Add( new IconMouseListener(widget.GetComponent(LevelIcon)) );
     }
 
+    /*
     // Toggle footprints
 
     for( var group = 0; ; group++ )
@@ -125,16 +156,21 @@ function OnGameScreenShow()
         else
             printsTrans.gameObject.SetActive(false);
     }
-
-    prevMouseTarget = null;
-
+    */
 }
 
 function OnGameScreenHidden()
 {
-    if( selectedLevId != -1 )
-        game.StartLevel(selectedLevId);
     shown = false;
+
+    // destroy all level widgets
+    for( var widget in widgets )
+    {
+        Destroy(widget);
+    }
+
+    widgets.Clear();
+    mouseListeners.Clear();
 }
 
 function Update ()
@@ -144,23 +180,27 @@ function Update ()
 
     levelNumber.text = "";
 
-    mouseOver.Update();
-    var currTarget = mouseOver.GetCurrentTarget() as IconMouseListener;
-    var currTargetId = mouseOver.GetCurrentTargetId();
+    mouseMgr.Update();
+    var currTarget = mouseMgr.GetCurrentTarget() as IconMouseListener;
+    var currTargetId = mouseMgr.GetCurrentTargetId();
 
     if( currTarget != null )
     {
-        levelNumber.text = "" + (currTargetId+1);
-        var p:Vector3 = Camera.main.WorldToViewportPoint( currTarget.icon.transform.position + wsLevelNumberOffset );
+        var targetLevId = GetFirstLevel() + currTargetId;
 
-        levelNumber.transform.position.x = p.x;
-        levelNumber.transform.position.y = p.y;
+        // show the number
+        levelNumber.text = "" + (targetLevId+1);
+        var wsTextPos = currTarget.icon.transform.position;
+        wsTextPos.y = currTarget.GetBounds().max.y + 0.5;
+        var textPos = Camera.main.WorldToViewportPoint( wsTextPos );
+        levelNumber.transform.position.x = textPos.x;
+        levelNumber.transform.position.y = textPos.y;
 
         if( Input.GetButtonDown('ReflectToggle') )
         {
             // clicked a carrot.
             // hide, and make sure to start the selected level once hidden
-            selectedLevId = currTargetId;
+            game.StartLevel(targetLevId);
             GetComponent(GameScreen).Hide();
         }
     }

@@ -7,11 +7,8 @@
 var unbeatIcon : GameObject;
 var beatIcon : GameObject;
 
-var groupNumber = 0;
-
 function Start ()
 {
-    GetComponent(AlphaHierarchy).SetLocalAlpha(1.0, true);
 }
 
 function Update ()
@@ -35,14 +32,14 @@ function GetShownIcon() : GameObject
 
 function OnMouseEnter()
 {
-    transform.localScale = Vector3(1.1, 1.1, 1.1);
-    GetComponent(AlphaHierarchy).SetLocalAlpha(0.5, true);
+    //transform.localScale = Vector3(1.1, 1.1, 1.1);
+    //GetComponent(AlphaHierarchy).SetLocalAlpha(0.5, true);
 }
 
 function OnMouseExit()
 {
-    transform.localScale = Vector3(1,1,1);
-    GetComponent(AlphaHierarchy).SetLocalAlpha(1.0, true);
+    //transform.localScale = Vector3(1,1,1);
+    //GetComponent(AlphaHierarchy).SetLocalAlpha(1.0, true);
 }
 
 //----------------------------------------
@@ -57,8 +54,18 @@ class IconMouseListener implements MouseEventManager.Listener
         icon = _icon;
     }
 
-    function GetRenderer() : Renderer { return icon.GetShownIcon().GetComponent(Renderer); }
-    function OnMouseEnter() : void { icon.OnMouseEnter(); }
-    function OnMouseExit() : void { icon.OnMouseExit(); }
+    function GetBounds() : Bounds { return icon.GetShownIcon().GetComponent(Renderer).bounds; }
+
+    function OnMouseEnter() : void
+    {
+        if( icon != null )
+            icon.OnMouseEnter();
+    }
+
+    function OnMouseExit() : void
+    {
+        if( icon != null )
+            icon.OnMouseExit();
+    }
 };
 
