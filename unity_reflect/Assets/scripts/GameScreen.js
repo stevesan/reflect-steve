@@ -6,14 +6,19 @@
 
 @script RequireComponent(AlphaHierarchy)
 
-var game:GameController;
 var fadeInAnim = new ParameterAnimation();
 var fadeOutAnim = new ParameterAnimation();
 
 // If the game controller's state equals this, the sub-tree will be shown.
 var showingGameState = "startscreen";
 
+private var game:GameController;
 private var state = "hidden";
+
+function Awake()
+{
+    game = GameObject.Find("gameController").GetComponent(GameController);
+}
 
 function Start ()
 {
