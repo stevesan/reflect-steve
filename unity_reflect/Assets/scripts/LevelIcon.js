@@ -6,6 +6,7 @@
 
 var unbeatIcon : GameObject;
 var beatIcon : GameObject;
+var levelId = -1;
 
 function Start ()
 {
@@ -20,6 +21,11 @@ function OnIsBeatenChanged( isBeaten:boolean )
 {
     beatIcon.SetActive( isBeaten );
     unbeatIcon.SetActive( !isBeaten );
+}
+
+function OnNotBeatError()
+{
+    unbeatIcon.GetComponent(PositionAnimation).Play();
 }
 
 function GetShownIcon() : GameObject

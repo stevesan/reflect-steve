@@ -63,6 +63,7 @@ function Update ()
 
             BroadcastMessage("OnGameScreenShow", SendMessageOptions.DontRequireReceiver);
             GetComponent(AlphaHierarchy).SetLocalAlpha(0.0, true);
+            Debug.Log("fading in");
         }
     }
     else if( state == "fadeout" )

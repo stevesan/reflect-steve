@@ -8,6 +8,7 @@ static var Singleton : GameController = null;
 var hostcam : Camera;
 var snapReflectAngle = true;
 var snapReflectPosition = true;
+var levelSelectScreen:LevelSelect;
 
 // Controls how fast the preview spins
 private var previewRotateSpeed = 1.5*Mathf.PI;
@@ -240,15 +241,27 @@ function OnGetGoal()
 
             PlayerPrefs.SetInt("beatLevel"+currLevId, 1);
             PlayerPrefs.Save();
-            GetComponent(Connectable).TriggerEvent("OnBeatCurrentLevel");
 
-			FadeToLevel( (currLevId+1) % levels.Count, false );
-			goal.GetComponent(Star).SetShown( false );
-
-			// fireworks
+            // fireworks
+            goal.GetComponent(Star).SetShown( false );
 			AudioSource.PlayClipAtPoint( goalGetSound, hostcam.transform.position );
 			goalGetFx.transform.position = goal.transform.position;
 			goalGetFx.Play();
+
+            GetComponent(Connectable).TriggerEvent("OnBeatCurrentLevel");
+
+            // if last level of group, go to level select screen
+            // also return if the next level is beaten already
+            if( levelSelectScreen.GetIsLevelLastOfGroup(currLevId)
+                    || HasBeatLevel(currLevId+1) )
+            {
+                FadeToLevelSelect();
+            }
+            else
+            {
+                // to next level
+			    FadeToLevel( (currLevId+1) % levels.Count, false );
+            }
 		}
 		else
 		{
@@ -465,6 +478,7 @@ function EnterPlayingState( id:int )
     goal.SetActive(true);
     geoTriRender.gameObject.SetActive(true);
     rockRender.gameObject.SetActive(true);
+    rockOutlineMesh.gameObject.SetActive(true);
     previewTriRender.gameObject.SetActive(true);
     outlineMesh.gameObject.SetActive(true);
 
@@ -607,6 +621,7 @@ function ExitPlayingState()
     goal.SetActive(false);
     geoTriRender.gameObject.SetActive(false);
     rockRender.gameObject.SetActive(false);
+    rockOutlineMesh.gameObject.SetActive(false);
     previewTriRender.gameObject.SetActive(false);
     outlineMesh.gameObject.SetActive(false);
 
@@ -759,11 +774,6 @@ function StartLevel(num:int)
     EnterPlayingState( num );
 }
 
-private function EnterLevelSelectState()
-{
-    gamestate = 'levelselect';
-}
-
 function Update()
 {
 	level0Tute.enabled = false;
@@ -814,7 +824,7 @@ function Update()
             if( isFadingToLevelSelect )
             {
                 ExitPlayingState();
-                EnterLevelSelectState();
+                gamestate = 'levelselect';
                 isFadingToLevelSelect = false;
             }
             else
