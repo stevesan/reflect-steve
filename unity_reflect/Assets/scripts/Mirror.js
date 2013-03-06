@@ -35,7 +35,8 @@ function Update () {
 
 function OnTriggerEnter(other : Collider) : void
 {
-	if( state == "normal" ) {
+	if( state == "normal" )
+	{
 		var player = other.GetComponent(PlayerControl);
 		if( player != null ) {
 			AudioSource.PlayClipAtPoint( onGetSound, transform.position );

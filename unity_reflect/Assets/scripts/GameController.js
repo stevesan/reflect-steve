@@ -22,7 +22,8 @@ var tracker:Tracking = null;
 //----------------------------------------
 //  Prefabs/Puppet-objects
 //----------------------------------------
-var mirrorCount : GUIText;
+var mirrorCount : MirrorCount;
+private var ssMirrorCountOffset = Vector2(20, 0);	// pixels
 var levelNumber : GUIText;
 var level0Tute : GUIText;
 var level0TuteB : GUIText;
@@ -42,21 +43,24 @@ var safeArea : SafeArea;
 //----------------------------------------
 //  Objects for level geometry/UI
 //----------------------------------------
-var geoTriRender : MeshFilter;	// rendering the fill-triangles for the active collision geometry
+var mainPolygon : MeshFilter;	// rendering the fill-triangles for the active collision geometry
+var mainOutline : MeshFilter;
+var mainOutlineWidth  = 0.5;
+private var outlineBuffer = new MeshBuffer();
+
 var rockCollider : DynamicMeshCollider;
-var rockRender : MeshFilter;
-var previewTriRender : MeshFilter;	// rendering the fill-triangles of the preview
+var rockPolygon : MeshFilter;
+var rockOutline : MeshFilter;
+var rockStrokeWidth = 0.5;
+private var rockOutlineBuffer = new MeshBuffer();
+
+var previewPolygon : MeshFilter;	// rendering the fill-triangles of the preview
+var previewOutline : MeshFilter;
+private var previewOutlineBuffer = new MeshBuffer();
+
 var debugHost:DebugTriangulate = null;
 
 var mirrorPosIcon : Renderer;
-
-var outlineMesh : MeshFilter;
-var outlineWidth  = 0.5;
-private var outlineBuffer = new MeshBuffer();
-
-var rockOutlineMesh : MeshFilter;
-var rockStrokeWidth = 0.5;
-private var rockOutlineBuffer = new MeshBuffer();
 
 var conveyorsMesh : MeshFilter;
 var conveyorsStrokeWidth = 0.01;
@@ -81,9 +85,9 @@ var levelsText : TextAsset;
 
 // Use this to hide levels not ready for prime time..
 #if UNITY_EDITOR
-private var maxNumLevels = 25;
+private var maxNumLevels = 21;
 #else
-private var maxNumLevels = 23;
+private var maxNumLevels = 21;
 #endif
 
 //----------------------------------------
@@ -276,7 +280,7 @@ function OnGetMirror( mirror:Mirror )
 	if( gamestate == 'playing' )
     {
 		numReflectionsAllowed++;
-		mirrorCount.GetComponent(PositionAnimation).Play();
+		mirrorCount.OnCountChanged(numReflectionsAllowed - numReflectionsDone);
 	}
 }
 
@@ -285,10 +289,12 @@ function OnGetMirror( mirror:Mirror )
 //----------------------------------------
 function SetFadeAmount( t:float )
 {
+	// get rid of all this...should just use AlphaHierarchy instead
 	GetComponent(FadeAmount).SetFadeAmount(t);
 	mainLight.intensity = t * origLightIntensity;
 	levelNumber.GetComponent(GUITextFade).SetFadeAmount(t);
-	mirrorCount.GetComponent(GUITextFade).SetFadeAmount(t);
+
+	GetComponent(AlphaHierarchy).SetLocalAlpha(t, true);
 }
 
 function FadeToLevel( levId:int, fast:boolean )
@@ -299,6 +305,9 @@ function FadeToLevel( levId:int, fast:boolean )
 	goalLevId = levId;
 	doFastFade = fast;
     isFadingToLevelSelect = false;
+
+	if( isReflecting )
+		ExitReflectMode();
 }
 
 function FadeToLevelSelect()
@@ -416,14 +425,10 @@ function OnCollidingGeometryChanged()
 	GetComponent(DynamicMeshCollider).OnMeshChanged();
 
 	// update rendered fill mesh
-	if( geoTriRender != null ) {
-		ProGeo.TriangulateSimplePolygon( currLevPoly, geoTriRender.mesh, false );
-		SetNormalsAtCamera( geoTriRender.mesh );
-
-		// update the outline
-		PolysToStroke( currLevPoly, 1.0, outlineWidth, outlineBuffer, outlineMesh.mesh );
-		SetNormalsAtCamera( outlineMesh.mesh );
-	}
+	ProGeo.TriangulateSimplePolygon( currLevPoly, mainPolygon.mesh, false );
+	SetNormalsAtCamera( mainPolygon.mesh );
+	PolysToStroke( currLevPoly, 1.0, mainOutlineWidth, outlineBuffer, mainOutline.mesh );
+	SetNormalsAtCamera( mainOutline.mesh );
 }
 
 function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
@@ -468,7 +473,7 @@ function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
 //----------------------------------------
 //  Sets up the playing level
 //----------------------------------------
-function EnterPlayingState( id:int )
+function EnterPlayingState( levId:int )
 {
     BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
     fadeStart = Time.time;
@@ -476,53 +481,55 @@ function EnterPlayingState( id:int )
 
     player.SetActive(true);
     goal.SetActive(true);
-    geoTriRender.gameObject.SetActive(true);
-    rockRender.gameObject.SetActive(true);
-    rockOutlineMesh.gameObject.SetActive(true);
-    previewTriRender.gameObject.SetActive(true);
-    outlineMesh.gameObject.SetActive(true);
+    mainPolygon.gameObject.SetActive(true);
+    mainOutline.gameObject.SetActive(true);
+    rockPolygon.gameObject.SetActive(true);
+    rockOutline.gameObject.SetActive(true);
 
-	id = Mathf.Clamp( id, 0, levels.Count-1 );
-	Debug.Log('switching to level '+id);
+    previewPolygon.gameObject.SetActive(false);
+	previewOutline.gameObject.SetActive(false);
+
+	levId = Mathf.Clamp( levId, 0, levels.Count-1 );
+	Debug.Log('switching to level '+levId);
 	
-    if( isReflecting ) {
+    if( isReflecting )
+	{
 	    isReflecting = false;
 	    BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
         GetComponent(Connectable).TriggerEvent("OnExitReflectMode");
     }
-	numReflectionsDone = 0;
-	currLevId = id;
-	PlayerPrefs.SetInt("currentLevelId", id);
+		numReflectionsDone = 0;
+	currLevId = levId;
+	PlayerPrefs.SetInt("currentLevelId", levId);
 
-	currLevPoly = levels[id].geo.Duplicate();
+	currLevPoly = levels[levId].geo.Duplicate();
 	OnCollidingGeometryChanged();
 
 	// update rocks collider
-	if( levels[id].rockGeo.pts != null ) {
-		ProGeo.BuildBeltMesh( levels[id].rockGeo, -10, 10, true,
+	if( levels[levId].rockGeo.pts != null )
+	{
+		ProGeo.BuildBeltMesh( levels[levId].rockGeo, -10, 10, true,
 				rockCollider.GetMesh() );
 		rockCollider.OnMeshChanged();
 
 		// update rock render
-		ProGeo.TriangulateSimplePolygon( levels[id].rockGeo, rockRender.mesh, false );
-		SetNormalsAtCamera( rockRender.mesh );
+		ProGeo.TriangulateSimplePolygon( levels[levId].rockGeo, rockPolygon.mesh, false );
+		SetNormalsAtCamera( rockPolygon.mesh );
 
 		// update the outline
-		PolysToStroke( levels[id].rockGeo, 1.0, rockStrokeWidth, rockOutlineBuffer, rockOutlineMesh.mesh );
-		SetNormalsAtCamera( rockOutlineMesh.mesh );
+		PolysToStroke( levels[levId].rockGeo, 1.0, rockStrokeWidth, rockOutlineBuffer, rockOutline.mesh );
+		SetNormalsAtCamera( rockOutline.mesh );
 	}
 	else {
 		rockCollider.GetMesh().Clear();
 		rockCollider.OnMeshChanged();
-		rockRender.mesh.Clear();
-
-		// outline
-		rockOutlineMesh.mesh.Clear();
+		rockPolygon.mesh.Clear();
+		rockOutline.mesh.Clear();
 	}
 
     // get conveyors
     currConveyors = new List.<Mesh2D>();
-    for( conv in levels[id].conveyors ) {
+    for( conv in levels[levId].conveyors ) {
         currConveyors.Add( conv.Duplicate() );
     }
     conveyorsMesh.mesh.Clear();
@@ -531,26 +538,26 @@ function EnterPlayingState( id:int )
 
 	// position the player
     player.SetActive(true);
-	player.transform.position = levels[id].playerPos;
+	player.transform.position = levels[levId].playerPos;
 	player.GetComponent(Rigidbody).velocity = Vector3(0,0,0);
 	player.GetComponent(PlayerControl).Reset();
-    var goalPos = levels[id].goalPos;
-	goal.transform.position = levels[id].goalPos;
+    var goalPos = levels[levId].goalPos;
+	goal.transform.position = levels[levId].goalPos;
 	goal.GetComponent(Star).SetShown( true );
 
 	// move the background to the area's center
-	background.transform.position = levels[id].areaCenter;
+	background.transform.position = levels[levId].areaCenter;
 	background.transform.position.z = 10;
 
 	// move the safe area
-	safeArea.transform.position = levels[id].areaCenter;
+	safeArea.transform.position = levels[levId].areaCenter;
 	safeArea.transform.position.z = player.transform.position.z;
 
 	// move camera to see the level
-	hostcam.transform.position = Utils.ToVector3( levels[id].areaCenter, hostcam.transform.position.z );
+	hostcam.transform.position = Utils.ToVector3( levels[levId].areaCenter, hostcam.transform.position.z );
 
 	//Debug.Log('spawned player at '+player.transform.position);
-	//Debug.Log('level area center at '+levels[id].areaCenter);
+	//Debug.Log('level area center at '+levels[levId].areaCenter);
 
 	//----------------------------------------
 	//  Spawn objects
@@ -572,11 +579,17 @@ function EnterPlayingState( id:int )
 	mirrorPrefab.SetActive(false);
 	Utils.HideAll( mirrorPrefab );
 	
-	numReflectionsAllowed = levels[id].maxReflections;
+	numReflectionsAllowed = levels[levId].maxReflections;
+
+	if( levId > 0 )
+	{
+		mirrorCount.gameObject.SetActive(true);
+		mirrorCount.OnCountChanged(numReflectionsAllowed);
+	}
 	
 	// spawn all objects
 
-	for( lobj in levels[id].objects ) {
+	for( lobj in levels[levId].objects ) {
 		var obj:GameObject = null;
 
 		// spawn key or ballkey
@@ -612,18 +625,21 @@ function EnterPlayingState( id:int )
 	levelNumber.text = 'Moment '+(currLevId+1)+ '/'+levels.Count;
 	
 	if( tracker != null )
-		tracker.PostEvent( "startLevel", ""+id );
+		tracker.PostEvent( "startLevel", ""+levId );
 }
 
 function ExitPlayingState()
 {
     player.SetActive(false);
     goal.SetActive(false);
-    geoTriRender.gameObject.SetActive(false);
-    rockRender.gameObject.SetActive(false);
-    rockOutlineMesh.gameObject.SetActive(false);
-    previewTriRender.gameObject.SetActive(false);
-    outlineMesh.gameObject.SetActive(false);
+    mainPolygon.gameObject.SetActive(false);
+    mainOutline.gameObject.SetActive(false);
+    rockPolygon.gameObject.SetActive(false);
+    rockOutline.gameObject.SetActive(false);
+    previewPolygon.gameObject.SetActive(false);
+	previewOutline.gameObject.SetActive(false);
+
+	mirrorCount.gameObject.SetActive(false);
 
     // in case we're in reflect
     BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
@@ -666,6 +682,8 @@ function Start()
 	SetFadeAmount( 0 );
 	fadeStart = Time.time;
 	gamestate = 'startscreen';
+
+	mirrorCount.gameObject.SetActive(false);
 }
 
 function UpdateCollisionMesh()
@@ -746,8 +764,11 @@ function OnPlayerFallout() : void
 		// reset
 		if( restartSnd != null )
 			AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
+
+		if( isReflecting )
+			ExitReflectMode();
+
 		FadeToLevel( currLevId, false );
-		previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
 	}
 }
 
@@ -774,6 +795,30 @@ function StartLevel(num:int)
     EnterPlayingState( num );
 }
 
+function EnterReflectMode()
+{
+	isReflecting = true;
+	BroadcastMessage("OnEnterReflectMode", this, SendMessageOptions.DontRequireReceiver);
+	GetComponent(Connectable).TriggerEvent("OnEnterReflectMode");
+
+	mainPolygon.gameObject.SetActive(false);
+	mainOutline.gameObject.SetActive(false);
+	previewPolygon.gameObject.SetActive(true);
+	previewOutline.gameObject.SetActive(true);
+}
+
+function ExitReflectMode()
+{
+	isReflecting = false;
+	BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
+	GetComponent(Connectable).TriggerEvent("OnExitReflectMode");
+
+	mainPolygon.gameObject.SetActive(true);
+	mainOutline.gameObject.SetActive(true);
+	previewPolygon.gameObject.SetActive(false);
+	previewOutline.gameObject.SetActive(false);
+}
+
 function Update()
 {
 	level0Tute.enabled = false;
@@ -781,7 +826,6 @@ function Update()
 	level1TuteA.enabled = false;
 	level1TuteB.enabled = false;
 	level4Tute.enabled = false;
-	mirrorCount.text = "";
 	
 	// handle system-wide keys
 	if( Input.GetButtonDown('MuteMusic') )
@@ -838,6 +882,7 @@ function Update()
 	}
 	else if( gamestate == 'playing' )
     {
+
 		// fade in initially - just keep updating this
 		var inTime = (doFastFade ? fastFadeInTime : fadeInTime);
 		alpha = Mathf.Clamp( (Time.time-fadeStart) / inTime, 0.0, 1.0 );
@@ -853,18 +898,12 @@ function Update()
 		level4Tute.enabled = currLevId == 3
 			&& isReflecting;
 
-		if( currLevId != 0 ) {
-			mirrorCount.text =  "x"+(numReflectionsAllowed-numReflectionsDone);
-		} else {
-			mirrorCount.text = "";
-		}
-
         if( Input.GetButtonDown('Reset') )
         {
             if( restartSnd != null )
                 AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
+				
             FadeToLevel( currLevId, true );
-            previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
             
             BroadcastMessage("OnResetLevel", this, SendMessageOptions.DontRequireReceiver);
 
@@ -878,12 +917,10 @@ function Update()
 #if UNITY_EDITOR
         else if( Input.GetButtonDown('NextLevel') ) {
             FadeToLevel( (currLevId+1)%levels.Count, true );
-            previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
             BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
         }
         else if( Input.GetButtonDown('PrevLevel') ) {
             FadeToLevel( (levels.Count+currLevId-1)%levels.Count, true );
-            previewTriRender.gameObject.GetComponent(Renderer).enabled = false;
             BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
         }
 #endif
@@ -934,14 +971,21 @@ function Update()
 					newShape.DebugDraw( debugColor, debugSecs );
 				}
 
-				if( previewTriRender != null ) {
-					ProGeo.TriangulateSimplePolygon( newShape, previewTriRender.mesh, false );
-					SetNormalsAtCamera( previewTriRender.mesh );
+				if( previewPolygon != null )
+				{
+					ProGeo.TriangulateSimplePolygon( newShape, previewPolygon.mesh, false );
+					SetNormalsAtCamera( previewPolygon.mesh );
 
 					// debug output all verts..
-					if( Input.GetButtonDown('DebugReset') && debugHost != null ) {
+					if( Input.GetButtonDown('DebugReset') && debugHost != null )
 						debugHost.Reset( newShape, false );
-					}
+				}
+
+				if( previewOutline != null )
+				{
+					// update the outline
+					PolysToStroke( newShape, 1.0, mainOutlineWidth, previewOutlineBuffer, previewOutline.mesh );
+					SetNormalsAtCamera( previewOutline.mesh );
 				}
 
 				// we done?
@@ -972,10 +1016,8 @@ function Update()
 
 					// update state
 					numReflectionsDone++;
-					mirrorCount.GetComponent(PositionAnimation).Play();
-					isReflecting = false;
-					BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
-                    GetComponent(Connectable).TriggerEvent("OnExitReflectMode");
+					mirrorCount.OnCountChanged(numReflectionsAllowed-numReflectionsDone);
+					ExitReflectMode();
 
 					if( tracker != null )
 					{
@@ -991,9 +1033,7 @@ function Update()
 				else if( Input.GetButtonDown('Cancel'))
 				{
 					AudioSource.PlayClipAtPoint( cancelReflectSnd, hostcam.transform.position );
-					isReflecting = false;
-					BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
-                    GetComponent(Connectable).TriggerEvent("OnExitReflectMode");
+					ExitReflectMode();
 					UpdateConveyorVisuals( currConveyors );
 				}
 			}
@@ -1009,20 +1049,16 @@ function Update()
 					{
 						// no more allowed
 						AudioSource.PlayClipAtPoint( maxedReflectionsSnd, hostcam.transform.position );
-						mirrorCount.GetComponent(PositionAnimation).Play();
+						mirrorCount.OnNotEnoughError();
 					}
 					else
 					{
 						AudioSource.PlayClipAtPoint( startReflectSnd, hostcam.transform.position );
 						lineStart = GetMouseXYWorldPos();
 						goalLineStart = Vector2(0,0);
-						isReflecting = true;
 						mirrorAngle = Mathf.PI / 2;
 						goalMirrorAngle = Mathf.PI / 2;
-						
-						BroadcastMessage("OnEnterReflectMode", this, SendMessageOptions.DontRequireReceiver);
-                        GetComponent(Connectable).TriggerEvent("OnEnterReflectMode");
-                        
+						EnterReflectMode();
 					}
 				}
 			}
