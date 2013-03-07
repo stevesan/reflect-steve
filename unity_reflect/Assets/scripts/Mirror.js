@@ -2,16 +2,16 @@
 @script RequireComponent(Collider)
 
 var receiver:GameObject = null;	// sent OnGetMirror events
+
 var onGetSound:AudioClip = null;
 var flySecs:float = 0.5;
+var flyTarget:Transform;
 var mainCam:Camera;
-var guiFlyTarget:GUIText;
 var tracker : Tracking = null;
 
 private var state = "normal";
 private var flyStartTime:float;
-private var flyTarget:Vector2;
-private var flySource:Vector2;
+private var flyStartPos:Vector2;
 
 function Start () {
 
@@ -24,9 +24,9 @@ function Update () {
 		var t = (Time.time-flyStartTime) / flySecs;
 
 		if( t < 1.0 )
-			transform.position = Vector2.Lerp( flySource, flyTarget, Mathf.Pow(t,2.0) );
+			transform.position = Vector2.Lerp( flyStartPos, flyTarget.position, Mathf.Pow(t,2.0) );
 		else {
-			transform.position = flyTarget;
+			transform.position = flyTarget.position;
 			receiver.SendMessage("OnGetMirror", this.GetComponent(Mirror) );
 			Destroy(this.gameObject);
 		}
@@ -42,14 +42,16 @@ function OnTriggerEnter(other : Collider) : void
 			AudioSource.PlayClipAtPoint( onGetSound, transform.position );
 			state = "flying";
 			flyStartTime = Time.time;
-			flySource = transform.position;
+			flyStartPos = transform.position;
 
 			// Kick off fly animation
+			/*
 			var ssX = guiFlyTarget.transform.position.x * mainCam.pixelWidth;
 			var ssY = guiFlyTarget.transform.position.y * mainCam.pixelHeight;
 			var ray = mainCam.ScreenPointToRay( Vector3(ssX, ssY, 0 ));
 			var t = (mainCam.nearClipPlane-ray.origin.z) / ray.direction.z;
-			flyTarget = ray.origin + t*ray.direction;
+			flyTarget.position = ray.origin + t*ray.direction;
+			*/
 			
 			if( tracker != null )
 			{

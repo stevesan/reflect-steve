@@ -7,16 +7,16 @@ import System.Collections.Generic;
 
 var playback = new ParameterAnimation();
 
-// The message to send to the objects when they should trigger themselves
+// The message to send to the step objects when they should trigger themselves
 var triggerMessage = "Play";
 
-// The message to send to the objects when they should stop themselves
+// The message to send to the step objects when they should stop themselves
 var stopMessage = "Stop";
 
-// The message to send to the objects when they should skip to the end of their "step" animation
+// The message to send to the step objects when they should skip to the end of their "step" animation
 var endMessage = "SkipToEnd";
 
-// If true, the messages will be broadcasted to the objects' children as well as themselves.
+// If true, the messages will be broadcasted to the step objects' children as well as themselves.
 var isBroadcast = false;
 
 //----------------------------------------
@@ -25,10 +25,11 @@ var isBroadcast = false;
 class CurveGenInfo
 {
     var enabled = false;
-    var numSteps = 10;
+    var stepsPerSec = 2.5;	// If this is set >0, it will override playback.duration!
+	var stepDistance = 0.5;
     var curve:SubdivisionCurve = null;
     var stepPrefab:GameObject = null;
-    var halfWidth = 0.1;
+    var stepWidth = 0.2;
 };
 var curveGen = new CurveGenInfo();
 
@@ -48,16 +49,21 @@ private function CreateStepsIdem()
 {
     if( state == "uninit" )
     {
-        if( curveGen.enabled && curveGen.numSteps > 0 )
-        {
-            for( var i = 0; i < curveGen.numSteps; i++ )
-            {
-                var t = i * 1.0/(curveGen.numSteps-1);
-                var tstep = (i+0.5) * 1.0/(curveGen.numSteps-1);
-                var p = curveGen.curve.GetSmoothedPoint(t);
-                var pstep = curveGen.curve.GetSmoothedPoint(tstep);
+		var numSteps = Mathf.Floor(
+				curveGen.curve.GetTotalLength() / curveGen.stepDistance);
 
-                var stepDir = (pstep-p).normalized;
+        if( curveGen.enabled && numSteps > 0 )
+        {
+            for( var i = 0; i < numSteps; i++ )
+            {
+				var distOfStep = i*curveGen.stepDistance;
+                var t = distOfStep / curveGen.curve.GetTotalLength();
+                var p = curveGen.curve.GetSmoothedPoint(t);
+
+				var distOfNextStep = (i+1)*curveGen.stepDistance;
+				var nextT = distOfNextStep / curveGen.curve.GetTotalLength();
+                var nextP = curveGen.curve.GetSmoothedPoint(nextT);
+                var stepDir = (nextP-p).normalized;
                 var sideDir = Math2D.PerpCCW(stepDir);
 
                 // point in right direction
@@ -66,13 +72,18 @@ private function CreateStepsIdem()
 
                 // left, right
                 var sideSign = i%2 == 0 ? -1 : 1;
-                p += sideDir * sideSign * curveGen.halfWidth;
+                p += sideDir * sideSign * curveGen.stepWidth*2;
 
                 var go = Instantiate(curveGen.stepPrefab, p, rot);
                 go.name = this.gameObject.name + "_print"+i;
                 go.transform.parent = transform;
             }
         }
+
+		if( curveGen.stepsPerSec > 0.0 )
+		{
+			playback.duration = numSteps / curveGen.stepsPerSec;
+		}
 
         state = "ready";
     }
