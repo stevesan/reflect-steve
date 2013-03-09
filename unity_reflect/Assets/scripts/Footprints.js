@@ -63,16 +63,16 @@ private function CreateStepsIdem()
 				var distOfNextStep = (i+1)*curveGen.stepDistance;
 				var nextT = distOfNextStep / curveGen.curve.GetTotalLength();
                 var nextP = curveGen.curve.GetSmoothedPoint(nextT);
-                var stepDir = (nextP-p).normalized;
-                var sideDir = Math2D.PerpCCW(stepDir);
+                var stepDir = nextP-p;
+                var leftDir = Math2D.PerpCCW(stepDir).normalized;
 
                 // point in right direction
                 var rot:Quaternion;
-                rot.SetLookRotation( Vector3(0,0,1), sideDir );
+                rot.SetLookRotation( Vector3(0,0,1), leftDir );
 
                 // left, right
-                var sideSign = i%2 == 0 ? -1 : 1;
-                p += sideDir * sideSign * curveGen.stepWidth*2;
+                var sideSign = (i%2 == 0 ? -1 : 1);
+                p += leftDir * sideSign * curveGen.stepWidth*0.5;
 
                 var go = Instantiate(curveGen.stepPrefab, p, rot);
                 go.name = this.gameObject.name + "_print"+i;

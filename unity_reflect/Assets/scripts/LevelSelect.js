@@ -22,40 +22,52 @@ class FootprintsPathGen
 	var curvePrefab:SubdivisionCurve;
 	var printsPrefab:Footprints;
 
-	var startOffsetX = -1.0;
-	var midOffsetY = -1.0;
-	var endOffsetX = 1.0;
-	var yxAspectRatio = 0.2;
+	var startOffset = Vector3(0,0,0);
+	var midOffset = Vector3(0,0,0);
+	var endOffset = Vector3(0,0,0);
 
-	function Create(levelSelect:GameObject, start:Transform, end:Transform) : GameObject
+	private var instances = new List.<GameObject>();
+
+	function Create( start:Transform, end:Transform) : GameObject
 	{
-		var p0 = start.position;
-		p0.x += startOffsetX;
-		var p1 = end.position;
-		p1.x += endOffsetX;
-		var midPos = 0.5 * (p0+p1);
-		var dx = Mathf.Abs(p1.x-p0.x);
-		midPos.y += midOffsetY;
+		var p0 = start.position + startOffset;
+		var p1 = end.position + endOffset;
+		var midPos = 0.5 * (p0+p1) + midOffset;
 
-		var curve = levelSelect.Instantiate( curvePrefab.gameObject, p0, Quaternion.identity );
+		var curve = GameObject.Instantiate( curvePrefab.gameObject, p0, Quaternion.identity );
+		instances.Add(curve);
 
-		var node = levelSelect.Instantiate( nodePrefab, start.position, Quaternion.identity );
+		var node = GameObject.Instantiate( nodePrefab, p0, Quaternion.identity );
+		instances.Add(node);
 		node.name = "000";
 		node.transform.parent = curve.transform;
 
-		node = levelSelect.Instantiate( nodePrefab, midPos, Quaternion.identity );
+		node = GameObject.Instantiate( nodePrefab, midPos, Quaternion.identity );
+		instances.Add(node);
 		node.name = "001";
 		node.transform.parent = curve.transform;
 
-		node = levelSelect.Instantiate( nodePrefab, p1, Quaternion.identity );
+		node = GameObject.Instantiate( nodePrefab, p1, Quaternion.identity );
+		instances.Add(node);
 		node.name = "002";
 		node.transform.parent = curve.transform;
 
-		var prints = levelSelect.Instantiate( printsPrefab.gameObject, start.position, Quaternion.identity );
+		var prints = GameObject.Instantiate( printsPrefab.gameObject, start.position, Quaternion.identity );
+		instances.Add(prints);
 		prints.GetComponent(Footprints).curveGen.curve = curve.GetComponent(SubdivisionCurve);
 
 		return prints;
 	}
+
+	function Clear()
+	{
+		for( var go:GameObject in instances )
+		{
+			GameObject.Destroy(go);
+		}
+		instances.Clear();
+	}
+
 };
 var printsGen = new FootprintsPathGen();
 
@@ -255,11 +267,11 @@ function OnGameScreenShow()
 
 	for( widget in widgets )
 	{
-		var prints = printsGen.Create( this.gameObject, prevNode, widget.transform);
+		var prints = printsGen.Create( prevNode, widget.transform);
 		prevNode = widget.transform;
 	}
 
-	printsGen.Create( this.gameObject, prevNode, printsEnd );
+	printsGen.Create( prevNode, printsEnd );
 
     /*
     // Toggle footprints
@@ -295,6 +307,7 @@ function OnGameScreenHidden()
 
     widgets.Clear();
     mouseListeners.Clear();
+	printsGen.Clear();
 
     if( selectedLevId != -1 )
         game.StartLevel(selectedLevId);
