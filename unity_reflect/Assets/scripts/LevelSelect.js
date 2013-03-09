@@ -10,6 +10,55 @@ var widgetSpacing = 1.0;
 var nextIcon:GameObject;
 var prevIcon:GameObject;
 
+//----------------------------------------
+//  Footprints generation
+//----------------------------------------
+var printsStart:Transform;
+var printsEnd:Transform;
+
+class FootprintsPathGen
+{
+	var nodePrefab:GameObject;
+	var curvePrefab:SubdivisionCurve;
+	var printsPrefab:Footprints;
+
+	var startOffsetX = -1.0;
+	var midOffsetY = -1.0;
+	var endOffsetX = 1.0;
+	var yxAspectRatio = 0.2;
+
+	function Create(levelSelect:GameObject, start:Transform, end:Transform) : GameObject
+	{
+		var p0 = start.position;
+		p0.x += startOffsetX;
+		var p1 = end.position;
+		p1.x += endOffsetX;
+		var midPos = 0.5 * (p0+p1);
+		var dx = Mathf.Abs(p1.x-p0.x);
+		midPos.y += midOffsetY;
+
+		var curve = levelSelect.Instantiate( curvePrefab.gameObject, p0, Quaternion.identity );
+
+		var node = levelSelect.Instantiate( nodePrefab, start.position, Quaternion.identity );
+		node.name = "000";
+		node.transform.parent = curve.transform;
+
+		node = levelSelect.Instantiate( nodePrefab, midPos, Quaternion.identity );
+		node.name = "001";
+		node.transform.parent = curve.transform;
+
+		node = levelSelect.Instantiate( nodePrefab, p1, Quaternion.identity );
+		node.name = "002";
+		node.transform.parent = curve.transform;
+
+		var prints = levelSelect.Instantiate( printsPrefab.gameObject, start.position, Quaternion.identity );
+		prints.GetComponent(Footprints).curveGen.curve = curve.GetComponent(SubdivisionCurve);
+
+		return prints;
+	}
+};
+var printsGen = new FootprintsPathGen();
+
 private var game:GameController = null;
 private var widgetPrefabs = new List.<GameObject>();
 
@@ -179,6 +228,9 @@ function OnGameScreenShow()
         mouseListeners.Add( new IconMouseListener(widget.GetComponent(LevelIcon)) );
     }
 
+	//----------------------------------------
+	//  Arrows
+	//----------------------------------------
     prevIcon.SetActive(false);
     nextIcon.SetActive(false);
 
@@ -193,6 +245,21 @@ function OnGameScreenShow()
         nextIcon.SetActive(true);
         mouseListeners.Add( new ArrowListener(nextIcon) );
     }
+
+	//----------------------------------------
+	//  Footprints
+	//----------------------------------------
+
+	// create footprint paths
+	var prevNode = printsStart;
+
+	for( widget in widgets )
+	{
+		var prints = printsGen.Create( this.gameObject, prevNode, widget.transform);
+		prevNode = widget.transform;
+	}
+
+	printsGen.Create( this.gameObject, prevNode, printsEnd );
 
     /*
     // Toggle footprints

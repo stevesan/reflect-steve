@@ -1,5 +1,8 @@
 
 TODO:
+- foot prints??
+- work out grid
+- flap menu
 - look into unity reverb zones - do they sound OK?
 - WAIT: Mark to fix some music stuff - worst case, fall back on looping single samples again
 - implement level select

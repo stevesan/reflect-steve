@@ -9,7 +9,7 @@ var flyTarget:Transform;
 var mainCam:Camera;
 var tracker : Tracking = null;
 
-private var state = "normal";
+private var state = "active";
 private var flyStartTime:float;
 private var flyStartPos:Vector2;
 
@@ -35,23 +35,16 @@ function Update () {
 
 function OnTriggerEnter(other : Collider) : void
 {
-	if( state == "normal" )
+	if( state == "active" )
 	{
 		var player = other.GetComponent(PlayerControl);
-		if( player != null ) {
+
+		if( player != null )
+		{
 			AudioSource.PlayClipAtPoint( onGetSound, transform.position );
 			state = "flying";
 			flyStartTime = Time.time;
 			flyStartPos = transform.position;
-
-			// Kick off fly animation
-			/*
-			var ssX = guiFlyTarget.transform.position.x * mainCam.pixelWidth;
-			var ssY = guiFlyTarget.transform.position.y * mainCam.pixelHeight;
-			var ray = mainCam.ScreenPointToRay( Vector3(ssX, ssY, 0 ));
-			var t = (mainCam.nearClipPlane-ray.origin.z) / ray.direction.z;
-			flyTarget.position = ray.origin + t*ray.direction;
-			*/
 			
 			if( tracker != null )
 			{
