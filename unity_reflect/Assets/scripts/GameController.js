@@ -234,6 +234,11 @@ function HasBeatLevel(id:int) : boolean
     return PlayerPrefs.GetInt("beatLevel"+id, 0) == 1;
 }
 
+function HasSeenLevel(id:int) : boolean
+{
+    return PlayerPrefs.GetInt("seenLevel"+id, 0) == 1;
+}
+
 function OnGetGoal()
 {
 	if( gamestate == 'playing' )
@@ -479,6 +484,9 @@ function EnterPlayingState( levId:int )
     fadeStart = Time.time;
     gamestate = 'playing';
 
+	PlayerPrefs.SetInt("seenLevel"+levId, 1);
+	PlayerPrefs.Save();
+
     player.SetActive(true);
     goal.SetActive(true);
     mainPolygon.gameObject.SetActive(true);
@@ -490,7 +498,6 @@ function EnterPlayingState( levId:int )
 	previewOutline.gameObject.SetActive(false);
 
 	levId = Mathf.Clamp( levId, 0, levels.Count-1 );
-	Debug.Log('switching to level '+levId);
 	
     if( isReflecting )
 	{
@@ -833,7 +840,8 @@ function Update()
 		BroadcastMessage( "OnToggleMuteMusic", SendMessageOptions.DontRequireReceiver );
 	}
 
-	if( gamestate == 'startscreen' ) {
+	if( gamestate == 'startscreen' )
+	{
 		// fading in
 		var alpha = Mathf.Clamp( (Time.time-fadeStart) / 10.0, 0.0, 1.0 );
 		//SetFadeAmount( alpha );
@@ -852,6 +860,18 @@ function Update()
         {
             FadeToLevelSelect();
         }
+
+#if UNITY_EDITOR
+        if( Input.GetButtonDown('Reset') )
+		{
+			for( var levId = 0; levId < levels.Count; levId++ )
+			{
+				PlayerPrefs.SetInt("seenLevel"+levId, 0);
+				PlayerPrefs.SetInt("beatLevel"+levId, 0);
+			}
+			PlayerPrefs.Save();
+		}
+#endif
 	}
     else if( gamestate == 'levelselect' )
     {

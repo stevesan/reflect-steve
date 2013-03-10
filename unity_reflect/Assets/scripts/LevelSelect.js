@@ -28,7 +28,7 @@ class FootprintsPathGen
 
 	private var instances = new List.<GameObject>();
 
-	function Create( start:Transform, end:Transform) : GameObject
+	function Create( topParent:Transform, start:Transform, end:Transform) : GameObject
 	{
 		var p0 = start.position + startOffset;
 		var p1 = end.position + endOffset;
@@ -36,6 +36,7 @@ class FootprintsPathGen
 
 		var curve = GameObject.Instantiate( curvePrefab.gameObject, p0, Quaternion.identity );
 		instances.Add(curve);
+		curve.transform.parent = topParent;
 
 		var node = GameObject.Instantiate( nodePrefab, p0, Quaternion.identity );
 		instances.Add(node);
@@ -55,6 +56,7 @@ class FootprintsPathGen
 		var prints = GameObject.Instantiate( printsPrefab.gameObject, start.position, Quaternion.identity );
 		instances.Add(prints);
 		prints.GetComponent(Footprints).curveGen.curve = curve.GetComponent(SubdivisionCurve);
+		prints.transform.parent = topParent;
 
 		return prints;
 	}
@@ -75,6 +77,7 @@ private var game:GameController = null;
 private var widgetPrefabs = new List.<GameObject>();
 
 private var widgets = new List.<GameObject>();
+private var printsAnims = new List.<GameObject>();
 private var mouseMgr:MouseEventManager = null;
 private var mouseListeners = new List.<MouseEventManager.Listener>();
 private var state = "hidden";
@@ -204,28 +207,47 @@ function GetIsGroupFinished(group)
 function OnGameScreenShow()
 {
     state = "active";
-    mouseMgr = new MouseEventManager();
-    mouseMgr.SetTargets(mouseListeners);
 
     if( !keepGroupOnShow )
         currentGroup = GetGroupNum( game.GetCurrentLevelId() );
     keepGroupOnShow = false;
 
-    // hide prefabs
-
-    for( var p in widgetPrefabs )
-        p.SetActive(false);
-
-    // Create widgets
-
+	// Compute some numbers
     var firstLev = GetFirstLevel();
     var lastLev = GetLastLevel();
     var numLevs = lastLev - firstLev + 1;
-    var prefab = widgetPrefabs[GetCurrentGroup()];
+    var prefab = widgetPrefabs[currentGroup];
+
+	var isGroupFinished = GetIsGroupFinished(currentGroup);
+	var lastShownLev = lastLev;
+
+	if( !isGroupFinished )
+	{
+		// shown up to the first unseen level
+		for( var lev = firstLev; lev <= lastLev; lev++ )
+		{
+			if( !game.HasSeenLevel(lev) )
+			{
+				lastShownLev = lev;
+				break;
+			}
+		}
+	}
+
+	//----------------------------------------
+	//  Create level icon widgets
+	//----------------------------------------
+
+    mouseMgr = new MouseEventManager();
+    mouseMgr.SetTargets(mouseListeners);
+
+    // hide prefabs
+    for( var p in widgetPrefabs )
+        p.SetActive(false);
 
     var totalWidth = widgetSpacing * (numLevs-1);
 
-    for( var lev = firstLev; lev <= lastLev; lev++ )
+    for( lev = firstLev; lev <= lastShownLev; lev++ )
     {
         var xFromCenter = -totalWidth/2.0 + (lev-firstLev)*widgetSpacing;
         var p0 = prefab.transform.position;
@@ -263,36 +285,49 @@ function OnGameScreenShow()
 	//----------------------------------------
 
 	// create footprint paths
+	printsAnims.Clear();
 	var prevNode = printsStart;
 
 	for( widget in widgets )
 	{
-		var prints = printsGen.Create( prevNode, widget.transform);
+		var anim = printsGen.Create( this.transform, prevNode, widget.transform);
+		printsAnims.Add(anim);
 		prevNode = widget.transform;
 	}
 
-	printsGen.Create( prevNode, printsEnd );
+	// last one, from last carrot to the right of the screen
+	if( isGroupFinished )
+	{
+		printsAnims.Add( printsGen.Create( this.transform, prevNode, printsEnd ) );
+	}
 
-    /*
+	// animate foot prints to the first level that has not been seen
+
     // Toggle footprints
 
-    for( var group = 0; ; group++ )
+    for( lev = firstLev; lev <= lastShownLev; lev++ )
     {
-        var printsTrans = transform.Find("prints"+group);
+		anim = printsAnims[lev-firstLev];
 
-        if( printsTrans == null )
-            break;
-        else if( !unbeatGroups.Contains( group-1 ) )
-        {
-            // just show this one, don't play it
-            printsTrans.gameObject.SetActive(true);
-            printsTrans.gameObject.SendMessage("Stop");
-            printsTrans.gameObject.SendMessage("SkipToEnd");
-        }
-        else
-            printsTrans.gameObject.SetActive(false);
+		if( game.HasSeenLevel(lev) )
+		{
+			// just show this one, don't play it
+			anim.SetActive(true);
+			anim.SendMessage("Stop");
+			anim.SendMessage("SkipToEnd");
+		}
+		else if( lev == lastShownLev )
+		{
+			// play this one
+			anim.SetActive(true);
+			anim.SendMessage("Play");
+		}
+		else
+		{
+			// haven't seen this - hide it
+			anim.SetActive(false);
+		}
     }
-    */
 }
 
 function OnGameScreenHidden()
