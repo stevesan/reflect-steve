@@ -105,6 +105,8 @@ class ArrowListener implements MouseEventManager.Listener
         this.arrow = _arrow;
     }
 
+    function GetSpace() : String { return "world"; }
+
     function GetBounds() : Bounds
     {
         if( arrow != null )
@@ -382,6 +384,7 @@ function Update ()
     }
     else if( arrowTarget != null )
     {
+        // show text above the arrow
         if( arrowTarget.arrow == nextIcon )
             levelNumber.text = ">>";
         else 

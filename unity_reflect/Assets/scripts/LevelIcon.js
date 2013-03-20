@@ -60,7 +60,12 @@ class IconMouseListener implements MouseEventManager.Listener
         icon = _icon;
     }
 
-    function GetBounds() : Bounds { return icon.GetShownIcon().GetComponent(Renderer).bounds; }
+    function GetSpace() : String { return "world"; }
+
+    function GetBounds() : Bounds
+    {
+        return icon.GetShownIcon().GetComponent(Renderer).bounds;
+    }
 
     function OnMouseEnter() : void
     {

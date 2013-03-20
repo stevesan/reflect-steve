@@ -5,10 +5,14 @@ import System.Text;
 
 static var Singleton : GameController = null;
 
+//----------------------------------------
+//  Object references
+//----------------------------------------
 var hostcam : Camera;
 var snapReflectAngle = true;
 var snapReflectPosition = true;
 var levelSelectScreen:LevelSelect;
+var menu:CornerMenu = null;
 
 // Controls how fast the preview spins
 private var previewRotateSpeed = 1.5*Mathf.PI;
@@ -166,6 +170,8 @@ private var isFadingToLevelSelect : boolean = false;
 
 function GetState() : String { return gamestate; }
 
+function GetIsInLevel() { return gamestate == 'playing'; }
+
 //----------------------------------------
 //  Per-level state
 //----------------------------------------
@@ -212,6 +218,7 @@ private var convsInst:Conveyors = null;
 //  Reflection UI state
 //----------------------------------------
 private var isReflecting = false;
+private var justEnteredReflecting = false;
 private var numReflectionsDone = 0;
 private var numReflectionsAllowed = 0;
 private var lineStart = Vector2(0,0);
@@ -237,6 +244,11 @@ function HasBeatLevel(id:int) : boolean
 function HasSeenLevel(id:int) : boolean
 {
     return PlayerPrefs.GetInt("seenLevel"+id, 0) == 1;
+}
+
+function IsLevelUnlocked(id:int) : boolean
+{
+    return PlayerPrefs.GetInt("levelUnlocked"+id, 0) == 1;
 }
 
 function OnGetGoal()
@@ -317,6 +329,9 @@ function FadeToLevel( levId:int, fast:boolean )
 
 function FadeToLevelSelect()
 {
+    if( menu.GetIsActive() )
+        menu.EnterHidden();
+    
     gamestate = 'fadingOut';
     fadeStart = Time.time;
     isFadingToLevelSelect = true;
@@ -483,6 +498,7 @@ function EnterPlayingState( levId:int )
     BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
     fadeStart = Time.time;
     gamestate = 'playing';
+    menu.EnterHidden();
 
 	PlayerPrefs.SetInt("seenLevel"+levId, 1);
 	PlayerPrefs.Save();
@@ -501,11 +517,9 @@ function EnterPlayingState( levId:int )
 	
     if( isReflecting )
 	{
-	    isReflecting = false;
-	    BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
-        GetComponent(Connectable).TriggerEvent("OnExitReflectMode");
+        ExitReflectMode();
     }
-		numReflectionsDone = 0;
+    numReflectionsDone = 0;
 	currLevId = levId;
 	PlayerPrefs.SetInt("currentLevelId", levId);
 
@@ -591,6 +605,7 @@ function EnterPlayingState( levId:int )
 	if( levId > 0 )
 	{
 		mirrorCount.gameObject.SetActive(true);
+        mirrorCount.Show();
 		mirrorCount.OnCountChanged(numReflectionsAllowed);
 	}
 	
@@ -805,13 +820,9 @@ function StartLevel(num:int)
 function EnterReflectMode()
 {
 	isReflecting = true;
+    justEnteredReflecting = true;
 	BroadcastMessage("OnEnterReflectMode", this, SendMessageOptions.DontRequireReceiver);
 	GetComponent(Connectable).TriggerEvent("OnEnterReflectMode");
-
-	mainPolygon.gameObject.SetActive(false);
-	mainOutline.gameObject.SetActive(false);
-	previewPolygon.gameObject.SetActive(true);
-	previewOutline.gameObject.SetActive(true);
 }
 
 function ExitReflectMode()
@@ -826,6 +837,44 @@ function ExitReflectMode()
 	previewOutline.gameObject.SetActive(false);
 }
 
+private function UpdateMenu()
+{
+    if( gamestate == 'playing' )
+    {
+        if( Input.GetButtonDown("Menu") )
+        {
+            menu.EnterActive();
+            mirrorCount.Hide();
+            gamestate = 'menu';
+        }
+    }
+    else if( gamestate == 'menu' )
+    {
+        if( Input.GetButtonDown("Menu") || !menu.GetIsActive() )
+        {
+            menu.EnterHidden();
+            mirrorCount.Show();
+            gamestate = 'playing';
+        }
+    }
+}
+
+function ResetLevel()
+{
+    if( gamestate == 'playing' || gamestate == 'menu' )
+    {
+        if( restartSnd != null )
+            AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
+
+        FadeToLevel( currLevId, true );
+
+        BroadcastMessage("OnResetLevel", this, SendMessageOptions.DontRequireReceiver);
+
+        if( tracker != null )
+            tracker.PostEvent( "resetLevel", ""+currLevId );
+    }
+}
+
 function Update()
 {
 	level0Tute.enabled = false;
@@ -838,7 +887,9 @@ function Update()
 	if( Input.GetButtonDown('MuteMusic') )
 	{
 		BroadcastMessage( "OnToggleMuteMusic", SendMessageOptions.DontRequireReceiver );
-	}
+    }
+
+    UpdateMenu();
 
 	if( gamestate == 'startscreen' )
 	{
@@ -852,16 +903,19 @@ function Update()
 
 		if( Input.GetButtonDown('ReflectToggle') || Input.GetButtonDown('NextLevel') )
         {
+            FadeToLevelSelect();
+            /*
 			FadeToLevel( Mathf.Min( maxNumLevels-1, PlayerPrefs.GetInt("currentLevelId", 0)), false );
 			if( restartSnd != null )
 				AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
+                */
 		}
         else if( Input.GetButtonDown('LevelSelect') )
         {
             FadeToLevelSelect();
         }
 
-#if UNITY_EDITOR
+//#if UNITY_EDITOR
         if( Input.GetButtonDown('Reset') )
 		{
 			for( var levId = 0; levId < levels.Count; levId++ )
@@ -871,7 +925,7 @@ function Update()
 			}
 			PlayerPrefs.Save();
 		}
-#endif
+//#endif
 	}
     else if( gamestate == 'levelselect' )
     {
@@ -892,13 +946,8 @@ function Update()
                 isFadingToLevelSelect = false;
             }
             else
-                gamestate = 'fadedOut';
+                EnterPlayingState( goalLevId );
         }
-	}
-	else if( gamestate == 'fadedOut' )
-    {
-        // Start playing now in the next level
-		EnterPlayingState( goalLevId );
 	}
 	else if( gamestate == 'playing' )
     {
@@ -920,15 +969,7 @@ function Update()
 
         if( Input.GetButtonDown('Reset') )
         {
-            if( restartSnd != null )
-                AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
-				
-            FadeToLevel( currLevId, true );
-            
-            BroadcastMessage("OnResetLevel", this, SendMessageOptions.DontRequireReceiver);
-
-            if( tracker != null )
-                tracker.PostEvent( "resetLevel", ""+currLevId );
+            ResetLevel();
         }
         else if( Input.GetButtonDown('LevelSelect') )
         {
@@ -948,8 +989,20 @@ function Update()
         {
             //currLevPoly.DebugDraw( Color.blue, 0.0 );
 
-			if( isReflecting )
+            if( menu.GetIsActive() )
+            {
+                // ignore input
+            }
+            else if( isReflecting )
 			{
+                if( justEnteredReflecting )
+                {
+                    mainPolygon.gameObject.SetActive(false);
+                    mainOutline.gameObject.SetActive(false);
+                    previewPolygon.gameObject.SetActive(true);
+                    previewOutline.gameObject.SetActive(true);
+                }
+
 				//----------------------------------------
 				//  Update visuals
 				//----------------------------------------
@@ -991,24 +1044,20 @@ function Update()
 					newShape.DebugDraw( debugColor, debugSecs );
 				}
 
-				if( previewPolygon != null )
-				{
-					ProGeo.TriangulateSimplePolygon( newShape, previewPolygon.mesh, false );
-					SetNormalsAtCamera( previewPolygon.mesh );
+                ProGeo.TriangulateSimplePolygon( newShape, previewPolygon.mesh, false );
+                SetNormalsAtCamera( previewPolygon.mesh );
 
-					// debug output all verts..
-					if( Input.GetButtonDown('DebugReset') && debugHost != null )
-						debugHost.Reset( newShape, false );
-				}
+                // debug output all verts..
+                if( Input.GetButtonDown('DebugReset') && debugHost != null )
+                    debugHost.Reset( newShape, false );
 
-				if( previewOutline != null )
-				{
-					// update the outline
-					PolysToStroke( newShape, 1.0, mainOutlineWidth, previewOutlineBuffer, previewOutline.mesh );
-					SetNormalsAtCamera( previewOutline.mesh );
-				}
+                // update the outline
+                PolysToStroke( newShape, 1.0, mainOutlineWidth, previewOutlineBuffer, previewOutline.mesh );
+                SetNormalsAtCamera( previewOutline.mesh );
 
-				// we done?
+                //----------------------------------------
+                //  Check for confirm
+                //----------------------------------------
 				if( Input.GetButtonDown('ReflectToggle') )
 				{
 					// confirmed
@@ -1019,7 +1068,7 @@ function Update()
 					mirrorAngle = goalMirrorAngle;
 					lineStart = goalLineStart;
 					newShape = currLevPoly.Duplicate();
-					UpdateReflectionLine();
+					UpdateReflectionLine(); // to snap, etc.
 					newShape.Reflect( lineStart, lineEnd, false );
 
 					// use new shape
