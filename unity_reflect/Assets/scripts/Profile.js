@@ -85,9 +85,12 @@ function IsLevelUnlocked(id:int)
     return PlayerPrefs.GetInt("levelAvail"+id, 0) == 1;
 }
 
-function GetCanSkipLevel(levId:int) : boolean
+function CanSkipLevel(levId:int) : boolean
 {
-    return !HasBeatLevel(levId) && !IsLastLevelOfGroup(levId);
+    return !HasBeatLevel(levId)
+        && !IsLastLevelOfGroup(levId)
+        && !IsLevelUnlocked(levId+1)
+        ;
 }
 
 private function MaybeUnlockNextLevel(levId:int)
@@ -119,6 +122,11 @@ function OnPlayingLevel(levId:int)
     PlayerPrefs.Save();
 }
 
+function GetLastPlayedLevel()
+{
+    return PlayerPrefs.GetInt("currentLevelId", -1);
+}
+
 function HasPlayedLevel(levId:int)
 {
     return PlayerPrefs.GetInt("playedLevel"+levId, 0);
@@ -129,11 +137,6 @@ function OnSkipLevel(levId:int)
     MaybeUnlockNextLevel(levId);
 }
 
-function GetLastPlayedLevel()
-{
-	PlayerPrefs.GetInt("currentLevelId", 0);
-}
-
 function Reset()
 {
     for( var levId = 0; levId < level2group.length; levId++ )
@@ -141,13 +144,14 @@ function Reset()
         PlayerPrefs.SetInt("beatLevel"+levId, 0);
         PlayerPrefs.SetInt("levelAvail"+levId, 0);
         PlayerPrefs.SetInt("playedLevel"+levId, 0);
+        PlayerPrefs.SetInt("currentLevelId", -1);
         PlayerPrefs.Save();
     }
 }
 
 function SkipLevel(levId:int)
 {
-    if( GetCanSkipLevel(levId) )
+    if( CanSkipLevel(levId) )
     {
     }
 }

@@ -153,12 +153,26 @@ function GetLastLevel()
     return profile.GetLastLevel( GetCurrentGroup() );
 }
 
+private function ActivateText()
+{
+    var text = transform.Find("text").GetComponent(GUIText);
+    text.text = "If you get stuck, take a break!\nAll progress is auto-saved.";
+}
+
 function OnGameScreenShow()
 {
     state = "active";
 
+    ActivateText();
+
     if( !keepGroupOnShow )
-        currentGroup = profile.GetGroupNum( game.GetCurrentLevelId() );
+    {
+        var lastPlayedLev = profile.GetLastPlayedLevel();
+        if( lastPlayedLev == -1 )
+            currentGroup = 0;
+        else
+            currentGroup = profile.GetGroupNum( lastPlayedLev );
+    }
     keepGroupOnShow = false;
 
 	// Compute some numbers
@@ -166,8 +180,6 @@ function OnGameScreenShow()
     var lastLev = GetLastLevel();
     var numLevs = lastLev - firstLev + 1;
     var prefab = widgetPrefabs[currentGroup];
-
-	var isGroupFinished = profile.GetIsGroupFinished(currentGroup);
 
 	//----------------------------------------
 	//  Create level icon widgets
@@ -233,8 +245,8 @@ function OnGameScreenShow()
 		prevNode = widget.transform;
 	}
 
-    if( profile.HasBeatLevel(lastLev)
-            && GetCurrentGroup() == profile.GetNumGroups()-1 )
+    if( profile.GetIsGroupFinished(GetCurrentGroup())
+            && GetCurrentGroup() != profile.GetNumGroups()-1 )
 	{
         // last one, from last carrot to the right of the screen
         var lastPrints = printsGen.Create( this.transform, prevNode, printsEnd );

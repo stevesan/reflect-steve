@@ -34,6 +34,7 @@ var level0Tute : GUIText;
 var level0TuteB : GUIText;
 var level1TuteA : GUIText;
 var level1TuteB : GUIText;
+var level2Tute : GUIText;
 var level4Tute : GUIText;
 
 var player : GameObject;
@@ -70,6 +71,7 @@ var mirrorPosIcon : Renderer;
 var conveyorsMesh : MeshFilter;
 var conveyorsStrokeWidth = 0.01;
 private var conveyorsBuffer = new MeshBuffer();
+
 
 //----------------------------------------
 //  Fading state
@@ -492,6 +494,9 @@ function EnterPlayingState( levId:int )
     rockPolygon.gameObject.SetActive(true);
     rockOutline.gameObject.SetActive(true);
 
+    flapWidget.SetActive(true);
+    mouseMgr.SetActive(true);
+
     previewPolygon.gameObject.SetActive(false);
 	previewOutline.gameObject.SetActive(false);
 
@@ -634,6 +639,9 @@ function EnterPlayingState( levId:int )
 
 function ExitPlayingState()
 {
+    flapWidget.SetActive(false);
+    mouseMgr.SetActive(false);
+
     player.SetActive(false);
     goal.SetActive(false);
     mainPolygon.gameObject.SetActive(false);
@@ -646,7 +654,8 @@ function ExitPlayingState()
 	mirrorCount.gameObject.SetActive(false);
 
     // in case we're in reflect
-    BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
+    if( isReflecting )
+        BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
 
 	for( inst in objectInsts )
     {
@@ -654,6 +663,39 @@ function ExitPlayingState()
             inst.SetActive(false);
     }
 }
+
+class CornerFlapWidget extends MouseEventManager.RendererListener
+{
+    var onHover:GameObject;
+    var flap:GameObject;
+
+    function CornerFlapWidget(_flap:GameObject, _onHover:GameObject)
+    {
+        super(_flap.renderer);
+        flap = _flap;
+        onHover = _onHover;
+    }
+
+    function OnMouseEnter() : void
+    {
+        onHover.SetActive(true);
+    }
+
+    function OnMouseExit() : void
+    {
+        onHover.SetActive(false);
+    }
+
+    function SetActive(active:boolean) : void
+    {
+        flap.SetActive(active);
+        onHover.SetActive(false);
+    }
+}
+
+private var mouseMgr:MouseEventManager = null;
+private var mouseListeners = new List.<MouseEventManager.Listener>();
+private var flapWidget:CornerFlapWidget;
 
 function Awake()
 {
@@ -679,6 +721,19 @@ function Awake()
 	
 	rotationSounds.Init();
     convsInst = new Conveyors();
+
+    //----------------------------------------
+    //  Init refs
+    //----------------------------------------
+    var flap = GameObject.Find("cornerMenuFlap");
+    var label = GameObject.Find("cornerMenuFlapLabel");
+    flapWidget = new CornerFlapWidget( flap, label );
+    flapWidget.SetActive(false);
+
+    mouseMgr = new MouseEventManager();
+    mouseMgr.SetTargets(mouseListeners);
+    mouseListeners.Add(flapWidget);
+    mouseMgr.SetActive(false);
 }
 
 function Start()
@@ -686,8 +741,7 @@ function Start()
 	SetFadeAmount( 0 );
 	fadeStart = Time.time;
 	gamestate = 'startscreen';
-
-	mirrorCount.gameObject.SetActive(false);
+    ExitPlayingState();
 }
 
 function UpdateCollisionMesh()
@@ -819,24 +873,33 @@ function ExitReflectMode()
 	previewOutline.gameObject.SetActive(false);
 }
 
+function OnMenuClosed()
+{
+    if( gamestate == "menu" )
+    {
+        mirrorCount.Show();
+        gamestate = 'playing';
+        mouseMgr.SetActive(true);
+        flapWidget.SetActive(true);
+    }
+}
+
 private function UpdateMenu()
 {
     if( gamestate == 'playing' )
     {
-        if( Input.GetButtonDown("Menu") )
+        mouseMgr.Update();
+
+        // we only have one listener - so just check if there's any target
+        var flapClicked = Input.GetMouseButtonDown(0) && mouseMgr.GetCurrentTarget() != null;
+
+        if( Input.GetButtonDown("Menu") || flapClicked )
         {
             menu.EnterActive();
             mirrorCount.Hide();
             gamestate = 'menu';
-        }
-    }
-    else if( gamestate == 'menu' )
-    {
-        if( Input.GetButtonDown("Menu") || !menu.GetIsActive() )
-        {
-            menu.EnterHidden();
-            mirrorCount.Show();
-            gamestate = 'playing';
+            mouseMgr.SetActive(false);
+            flapWidget.SetActive(false);
         }
     }
 }
@@ -864,6 +927,7 @@ function Update()
 	level1TuteA.enabled = false;
 	level1TuteB.enabled = false;
 	level4Tute.enabled = false;
+    level2Tute.enabled = false;
 	
 	// handle system-wide keys
 	if( Input.GetButtonDown('MuteMusic') )
@@ -930,12 +994,10 @@ function Update()
 		level0Tute.enabled = (currLevId == 0);
 		level0TuteB.enabled = (currLevId == 0);
 		level1TuteA.enabled = currLevId == 1
-			&& (numReflectionsAllowed-numReflectionsDone > 0)
-			&& !isReflecting;
-		level1TuteB.enabled = currLevId == 1
-			&& isReflecting;
-		level4Tute.enabled = currLevId == 3
-			&& isReflecting;
+			&& (numReflectionsAllowed-numReflectionsDone > 0) && !isReflecting;
+		level1TuteB.enabled = currLevId == 1 && isReflecting;
+        level2Tute.enabled = currLevId == 2;
+		level4Tute.enabled = currLevId == 3 && isReflecting;
 
         if( Input.GetButtonDown('Reset') )
         {

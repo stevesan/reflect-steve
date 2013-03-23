@@ -6,6 +6,7 @@ var game:GameController = null;
 var flapAnim:tk2dAnimatedSprite = null;
 var music:MusicManager;
 var profile:Profile;
+var errorSound:AudioClip;
 
 private var state = "uninit";
 
@@ -64,15 +65,15 @@ function EnterActive()
         flapAnim.gameObject.SetActive(true);
         flapAnim.Play();
 
-/*
-        if( game.GetIsInLevel() )
+        var lev = game.GetCurrentLevelId();
+        if( profile.CanSkipLevel(lev) )
         {
-            if( !game.HasSeenLevel( game.GetCurrentLevelId()+1 ) )
-            {
-            }
+            GetItem("skip").text = "Skip Level";
         }
-        */
-        GetItem("skip").gameObject.SetActive(false);
+        else
+        {
+            GetItem("skip").text = "(Can't Skip)";
+        }
     }
 }
 
@@ -94,6 +95,8 @@ function EnterHidden()
 
         gameObject.SetActive(false);
         flapAnim.gameObject.SetActive(false);
+
+        game.OnMenuClosed();
     }
 }
 
@@ -107,23 +110,40 @@ function Update()
 
         if( Input.GetMouseButtonDown(0) && targetItem )
         {
-            if( targetItem.text.gameObject.name == "back" )
+            var clickedName = targetItem.text.gameObject.name;
+
+            if( clickedName == "back" )
             {
                 EnterHidden();
             }
-            else if( targetItem.text.gameObject.name == "music" )
+            else if( clickedName == "music" )
             {
                 music.OnToggleMuteMusic();
             }
-            else if( targetItem.text.gameObject.name == "reset" )
+            else if( clickedName == "reset" )
             {
                 game.ResetLevel();
             }
-            else if( targetItem.text.gameObject.name == "select" )
+            else if( clickedName == "select" )
             {
-                profile.OnSkipLevel(game.GetCurrentLevelId());
                 game.FadeToLevelSelect();
             }
+            else if( clickedName == "skip" )
+            {
+                if( profile.CanSkipLevel(game.GetCurrentLevelId()) )
+                {
+                    profile.OnSkipLevel(game.GetCurrentLevelId());
+                    game.FadeToLevelSelect();
+                }
+                else
+                {
+                    AudioSource.PlayClipAtPoint( errorSound, Camera.main.transform.position );
+                }
+            }
+        }
+        else if( Input.GetButtonDown("Menu") )
+        {
+            EnterHidden();
         }
     }
 }
