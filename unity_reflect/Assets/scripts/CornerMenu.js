@@ -5,6 +5,7 @@ private var mouseListeners = new List.<MouseEventManager.Listener>();
 var game:GameController = null;
 var flapAnim:tk2dAnimatedSprite = null;
 var music:MusicManager;
+var profile:Profile;
 
 private var state = "uninit";
 
@@ -120,6 +121,7 @@ function Update()
             }
             else if( targetItem.text.gameObject.name == "select" )
             {
+                profile.OnSkipLevel(game.GetCurrentLevelId());
                 game.FadeToLevelSelect();
             }
         }

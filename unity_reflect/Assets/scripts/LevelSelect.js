@@ -2,13 +2,13 @@
 
 import System.Collections.Generic;
 
-
 var levelNumber:GUIText = null;
 var notBeatErrorSound:AudioClip;
 var wsLevelNumberOffset = Vector3(0.0, -1.0, 0.0);
 var widgetSpacing = 1.0;
 var nextIcon:GameObject;
 var prevIcon:GameObject;
+var profile:Profile;
 
 //----------------------------------------
 //  Footprints generation
@@ -85,17 +85,6 @@ private var currentGroup = 0;
 private var keepGroupOnShow = false;
 private var selectedLevId = -1;
 
-private var level2group = [
-    0, 0, 0, 0,
-    1, 1, 1, 1,
-    2, 2, 2, 2, 2,
-    3, 3, 3,
-    4, 4, 4, 4,
-    5
-    ];
-
-private var numGroups = 6;
-
 class ArrowListener implements MouseEventManager.Listener
 {
     var arrow:GameObject;
@@ -127,10 +116,14 @@ function Awake()
     }
 
     // gather prefabs
-    for( var g = 0; g < numGroups; g++ )
+    for( var g = 0; g < profile.GetNumGroups(); g++ )
     {
         var prefabName = "levelwidget" + (g+1).ToString("0");
         var prefabXform = transform.Find(prefabName);
+        if( prefabXform == null )
+        {
+            Debug.LogError("could not find "+prefabName);
+        }
         var prefab = prefabXform.gameObject;
         if( prefab != null && prefab.GetComponent(LevelIcon) != null )
         {
@@ -145,11 +138,6 @@ function Start ()
 {
 }
 
-function GetGroupNum( levId:int )
-{
-    return level2group[levId];
-}
-
 function GetCurrentGroup()
 {
     return currentGroup;
@@ -157,53 +145,12 @@ function GetCurrentGroup()
 
 function GetFirstLevel()
 {
-    for( var lev = 0; lev < level2group.length; lev++ )
-    {
-        if( level2group[lev] == GetCurrentGroup() )
-            return lev;
-    }
+    return profile.GetFirstLevel( GetCurrentGroup() );
 }
 
 function GetLastLevel()
 {
-    for( var lev = level2group.length-1; lev >= 0; lev-- )
-    {
-        if( level2group[lev] == GetCurrentGroup() )
-            return lev;
-    }
-}
-
-function GetIsLevelLastOfGroup( levId:int )
-{
-    return levId >= (level2group.length-1)
-        || GetGroupNum(levId+1) != GetGroupNum(levId);
-}
-
-function GetUnfinishedLevelGroups()
-{
-    var groups = new HashSet.<int>();
-
-    for( var levId = 0; levId < level2group.length; levId++ )
-    {
-        if( !game.HasBeatLevel(levId) )
-            // level not beaten. So its group is unfinished
-            groups.Add( GetGroupNum(levId) );
-    }
-
-    for( var gnum in groups )
-        Debug.Log("not beat group "+gnum);
-
-    return groups;
-}
-
-function GetIsGroupFinished(group)
-{
-    for( var lev = 0; lev < level2group.length; lev++ )
-    {
-        if( level2group[lev] == group && !game.HasBeatLevel(lev) )
-            return false;
-    }
-    return true;
+    return profile.GetLastLevel( GetCurrentGroup() );
 }
 
 function OnGameScreenShow()
@@ -211,7 +158,7 @@ function OnGameScreenShow()
     state = "active";
 
     if( !keepGroupOnShow )
-        currentGroup = GetGroupNum( game.GetCurrentLevelId() );
+        currentGroup = profile.GetGroupNum( game.GetCurrentLevelId() );
     keepGroupOnShow = false;
 
 	// Compute some numbers
@@ -220,21 +167,7 @@ function OnGameScreenShow()
     var numLevs = lastLev - firstLev + 1;
     var prefab = widgetPrefabs[currentGroup];
 
-	var isGroupFinished = GetIsGroupFinished(currentGroup);
-	var lastShownLev = lastLev;
-
-	if( !isGroupFinished )
-	{
-		// shown up to the first unseen level
-		for( var lev = firstLev; lev <= lastLev; lev++ )
-		{
-			if( !game.HasSeenLevel(lev) )
-			{
-				lastShownLev = lev;
-				break;
-			}
-		}
-	}
+	var isGroupFinished = profile.GetIsGroupFinished(currentGroup);
 
 	//----------------------------------------
 	//  Create level icon widgets
@@ -249,8 +182,11 @@ function OnGameScreenShow()
 
     var totalWidth = widgetSpacing * (numLevs-1);
 
-    for( lev = firstLev; lev <= lastShownLev; lev++ )
+    for( var lev = firstLev; lev <= lastLev; lev++ )
     {
+        if( !profile.IsLevelUnlocked(lev) )
+            continue;
+
         var xFromCenter = -totalWidth/2.0 + (lev-firstLev)*widgetSpacing;
         var p0 = prefab.transform.position;
         var pos = Vector3( transform.position.x+xFromCenter, p0.y, p0.z );
@@ -258,7 +194,7 @@ function OnGameScreenShow()
         widget.transform.parent = transform;
         widget.SetActive(true);
         widget.GetComponent(LevelIcon).levelId = lev;
-        widget.GetComponent(LevelIcon).OnIsBeatenChanged( game.HasBeatLevel(lev) );
+        widget.GetComponent(LevelIcon).OnIsBeatenChanged( profile.HasBeatLevel(lev) );
         widgets.Add(widget);
 
         mouseListeners.Add( new IconMouseListener(widget.GetComponent(LevelIcon)) );
@@ -276,7 +212,7 @@ function OnGameScreenShow()
         mouseListeners.Add( new ArrowListener(prevIcon) );
     }
 
-    if( currentGroup < numGroups-1 )
+    if( currentGroup < profile.GetNumGroups()-1 )
     {
         nextIcon.SetActive(true);
         mouseListeners.Add( new ArrowListener(nextIcon) );
@@ -297,37 +233,48 @@ function OnGameScreenShow()
 		prevNode = widget.transform;
 	}
 
-	// last one, from last carrot to the right of the screen
-	if( isGroupFinished )
+    if( profile.HasBeatLevel(lastLev)
+            && GetCurrentGroup() == profile.GetNumGroups()-1 )
 	{
-		printsAnims.Add( printsGen.Create( this.transform, prevNode, printsEnd ) );
-	}
+        // last one, from last carrot to the right of the screen
+        var lastPrints = printsGen.Create( this.transform, prevNode, printsEnd );
+		printsAnims.Add( lastPrints );
 
-	// animate foot prints to the first level that has not been seen
+        if( profile.HasPlayedLevel(lastLev+1) )
+        {
+			// just show this one, don't play it
+			lastPrints.SetActive(true);
+			lastPrints.SendMessage("Stop");
+			lastPrints.SendMessage("SkipToEnd");
+        }
+        else
+        {
+			anim.SetActive(true);
+			anim.SendMessage("Play");
+        }
+	}
 
     // Toggle footprints
 
-    for( lev = firstLev; lev <= lastShownLev; lev++ )
+    for( lev = firstLev; lev <= lastLev; lev++ )
     {
+        if( !profile.IsLevelUnlocked(lev) )
+            continue;
+
 		anim = printsAnims[lev-firstLev];
 
-		if( game.HasSeenLevel(lev) )
+        if( !profile.HasPlayedLevel(lev) )
+        {
+			// play this one
+			anim.SetActive(true);
+			anim.SendMessage("Play");
+        }
+		else
 		{
 			// just show this one, don't play it
 			anim.SetActive(true);
 			anim.SendMessage("Stop");
 			anim.SendMessage("SkipToEnd");
-		}
-		else if( lev == lastShownLev )
-		{
-			// play this one
-			anim.SetActive(true);
-			anim.SendMessage("Play");
-		}
-		else
-		{
-			// haven't seen this - hide it
-			anim.SetActive(false);
 		}
     }
 }
@@ -398,9 +345,9 @@ function Update ()
 
         if( Input.GetButtonDown('ReflectToggle') )
         {
-            if( arrowTarget.arrow == nextIcon && currentGroup < numGroups-1 )
+            if( arrowTarget.arrow == nextIcon && currentGroup < profile.GetNumGroups()-1 )
             {
-                if( GetIsGroupFinished(currentGroup) )
+                if( profile.GetIsGroupFinished(currentGroup) )
                 {
                     currentGroup++;
                     selectedLevId = -1;
@@ -414,7 +361,7 @@ function Update ()
                     for( var w in widgets )
                     {
                         var c = w.GetComponent(LevelIcon);
-                        if( !game.HasBeatLevel(c.levelId) )
+                        if( !profile.HasBeatLevel(c.levelId) )
                             c.OnNotBeatError();
                     }
                     AudioSource.PlayClipAtPoint( notBeatErrorSound, Vector3(0,0,0) );

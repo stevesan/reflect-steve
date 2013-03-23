@@ -12,7 +12,8 @@ var hostcam : Camera;
 var snapReflectAngle = true;
 var snapReflectPosition = true;
 var levelSelectScreen:LevelSelect;
-var menu:CornerMenu = null;
+var menu:CornerMenu;
+var profile:Profile;
 
 // Controls how fast the preview spins
 private var previewRotateSpeed = 1.5*Mathf.PI;
@@ -236,21 +237,6 @@ function GetMirrorAngle() : float { return mirrorAngle; }
 
 function GetHostCam() : Camera { return hostcam; }
 
-function HasBeatLevel(id:int) : boolean
-{
-    return PlayerPrefs.GetInt("beatLevel"+id, 0) == 1;
-}
-
-function HasSeenLevel(id:int) : boolean
-{
-    return PlayerPrefs.GetInt("seenLevel"+id, 0) == 1;
-}
-
-function IsLevelUnlocked(id:int) : boolean
-{
-    return PlayerPrefs.GetInt("levelUnlocked"+id, 0) == 1;
-}
-
 function OnGetGoal()
 {
 	if( gamestate == 'playing' )
@@ -260,8 +246,7 @@ function OnGetGoal()
 			if( tracker != null )
 				tracker.PostEvent( "beatLevel", ""+currLevId );
 
-            PlayerPrefs.SetInt("beatLevel"+currLevId, 1);
-            PlayerPrefs.Save();
+            profile.OnBeatLevel(currLevId);
 
             // fireworks
             goal.GetComponent(Star).SetShown( false );
@@ -273,8 +258,8 @@ function OnGetGoal()
 
             // if last level of group, go to level select screen
             // also return if the next level is beaten already
-            if( levelSelectScreen.GetIsLevelLastOfGroup(currLevId)
-                    || HasBeatLevel(currLevId+1) )
+            if( profile.IsLastLevelOfGroup(currLevId)
+                    || profile.HasBeatLevel(currLevId+1) )
             {
                 FadeToLevelSelect();
             }
@@ -500,9 +485,6 @@ function EnterPlayingState( levId:int )
     gamestate = 'playing';
     menu.EnterHidden();
 
-	PlayerPrefs.SetInt("seenLevel"+levId, 1);
-	PlayerPrefs.Save();
-
     player.SetActive(true);
     goal.SetActive(true);
     mainPolygon.gameObject.SetActive(true);
@@ -521,7 +503,7 @@ function EnterPlayingState( levId:int )
     }
     numReflectionsDone = 0;
 	currLevId = levId;
-	PlayerPrefs.SetInt("currentLevelId", levId);
+    profile.OnPlayingLevel(levId);
 
 	currLevPoly = levels[levId].geo.Duplicate();
 	OnCollidingGeometryChanged();
@@ -904,11 +886,6 @@ function Update()
 		if( Input.GetButtonDown('ReflectToggle') || Input.GetButtonDown('NextLevel') )
         {
             FadeToLevelSelect();
-            /*
-			FadeToLevel( Mathf.Min( maxNumLevels-1, PlayerPrefs.GetInt("currentLevelId", 0)), false );
-			if( restartSnd != null )
-				AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
-                */
 		}
         else if( Input.GetButtonDown('LevelSelect') )
         {
@@ -917,14 +894,7 @@ function Update()
 
 //#if UNITY_EDITOR
         if( Input.GetButtonDown('Reset') )
-		{
-			for( var levId = 0; levId < levels.Count; levId++ )
-			{
-				PlayerPrefs.SetInt("seenLevel"+levId, 0);
-				PlayerPrefs.SetInt("beatLevel"+levId, 0);
-			}
-			PlayerPrefs.Save();
-		}
+            profile.Reset();
 //#endif
 	}
     else if( gamestate == 'levelselect' )
