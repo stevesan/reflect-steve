@@ -4,6 +4,7 @@
 //----------------------------------------
 #pragma strict
 
+var game:GameController;
 var text:GUIText;
 var icon:GameObject;
 
@@ -30,10 +31,17 @@ function Update ()
 
 function OnCountChanged(count:int)
 {
-	text.text = "x" + count;
-	icon.SetActive(true);
+    if( game.IsFreeMode() )
+    {
+        text.text = ":)";
+    }
+    else
+    {
+        text.text = "x" + count;
+    }
 
-	GetComponent(PositionAnimation).Play();
+    icon.SetActive(true);
+    GetComponent(PositionAnimation).Play();
 }
 
 function OnNotEnoughError()

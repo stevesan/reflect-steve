@@ -85,6 +85,9 @@ private var currentGroup = 0;
 private var keepGroupOnShow = false;
 private var selectedLevId = -1;
 
+private var storyItems = new List.<GameObject>();
+private var beatStoryItems = new List.<GameObject>();
+
 class ArrowListener implements MouseEventManager.Listener
 {
     var arrow:GameObject;
@@ -132,6 +135,12 @@ function Awake()
             prefab.SetActive(false);
         }
     }
+
+    for( var group = 0; group < profile.GetNumGroups(); group++ )
+    {
+        storyItems.Add(GetStoryItem(group, false));
+        beatStoryItems.Add(GetStoryItem(group, true));
+    }
 }
 
 function Start ()
@@ -156,7 +165,22 @@ function GetLastLevel()
 private function ActivateText()
 {
     var text = transform.Find("text").GetComponent(GUIText);
-    text.text = "If you get stuck, take a break!\nAll progress is auto-saved.";
+    if( profile.HasBeatGame() )
+    {
+        text.text = "You have finished the game - congrats!\nPress 'F' in-game for Free Reflection Mode";
+    }
+    else
+    {
+        text.text = "All progress is auto-saved\nGet all carrots to move on";
+    }
+}
+
+private function GetStoryItem(group:int, groupBeat:boolean) : GameObject
+{
+    var suffix = groupBeat ? "b" : "";
+    var name = "story"+group.ToString("00")+suffix;
+    Debug.Log(name);
+    return GameObject.Find(name);
 }
 
 function OnGameScreenShow()
@@ -288,6 +312,28 @@ function OnGameScreenShow()
 			anim.SendMessage("Stop");
 			anim.SendMessage("SkipToEnd");
 		}
+    }
+
+    //----------------------------------------
+    //  Story items
+    //----------------------------------------
+
+    for( var group = 0; group < profile.GetNumGroups(); group++ )
+    {
+        var i0 = storyItems[group];
+        var i1 = beatStoryItems[group];
+
+        if( group == GetCurrentGroup() )
+        {
+            var beat = profile.GetIsGroupFinished(GetCurrentGroup());
+            if( i0 != null ) i0.SetActive(!beat);
+            if( i1 != null ) i1.SetActive(beat);
+        }
+        else
+        {
+            if( i0 != null ) i0.SetActive(false);
+            if( i1 != null ) i1.SetActive(false);
+        }
     }
 }
 

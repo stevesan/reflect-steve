@@ -156,3 +156,12 @@ function SkipLevel(levId:int)
     }
 }
 
+function HasBeatGame()
+{
+    for( var lev = 0; lev < level2group.length; lev++ )
+    {
+        if( !HasBeatLevel(lev) )
+            return false;
+    }
+    return true;
+}

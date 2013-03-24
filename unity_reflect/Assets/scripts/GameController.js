@@ -19,6 +19,10 @@ var profile:Profile;
 private var previewRotateSpeed = 1.5*Mathf.PI;
 private var previewTranslateSpeed = 100.0;
 
+// For the unlocked "free mode"
+private var freeRotateSpeed = 0.5*Mathf.PI;
+var freeMode = false;
+
 //----------------------------------------
 //  Components instances we use
 //----------------------------------------
@@ -100,13 +104,14 @@ private var maxNumLevels = 21;
 //----------------------------------------
 //  Sounds
 //----------------------------------------
-var goalGetSound : AudioClip = null;
-var restartSnd : AudioClip = null;
-var startReflectSnd : AudioClip = null;
-var cancelReflectSnd : AudioClip = null;
-var confirmReflectSnd : AudioClip = null;
-var goalLockedSound: AudioClip = null;
-var maxedReflectionsSnd: AudioClip = null;
+var goalGetSound : AudioClip;
+var restartSnd : AudioClip;
+var startReflectSnd : AudioClip;
+var cancelReflectSnd : AudioClip;
+var confirmReflectSnd : AudioClip;
+var goalLockedSound: AudioClip;
+var maxedReflectionsSnd: AudioClip;
+var freeModeSnd : AudioClip;
 
 class RotationSounds
 {
@@ -172,6 +177,7 @@ private var gamestate:String;
 private var isFadingToLevelSelect : boolean = false;
 
 function GetState() : String { return gamestate; }
+function IsFreeMode() { return freeMode; }
 
 function GetIsInLevel() { return gamestate == 'playing'; }
 
@@ -779,27 +785,32 @@ function UpdateReflectionLine() : void
 	var mousePos = GetMouseXYWorldPos();
 	goalLineStart = mousePos;
 
-	if( snapReflectPosition ) 
-	{
-		goalLineStart.x = Mathf.Round(2.0*mousePos.x)/2.0;
-		goalLineStart.y = Mathf.Round(2.0*mousePos.y)/2.0;
-	}
+    if( freeMode )
+    {
+        lineStart = goalLineStart;
+    }
+    else
+    {
+        if( snapReflectPosition ) 
+        {
+            goalLineStart.x = Mathf.Round(2.0*mousePos.x)/2.0;
+            goalLineStart.y = Mathf.Round(2.0*mousePos.y)/2.0;
+        }
 
-	// move the mirror to this position at some speed
-	var delta = goalLineStart - lineStart;
-	var dist = delta.magnitude;
-	var maxMoveDist = Time.deltaTime * previewTranslateSpeed;
-	var maxDistFromGoal = 1.0;
-	if( dist < maxMoveDist )
-		lineStart = goalLineStart;
-	else if( dist > maxDistFromGoal )
-		// never lag behind too far
-		lineStart = goalLineStart - delta*maxDistFromGoal/dist;
-	else
-		lineStart += maxMoveDist * delta/dist;
+        // move the mirror to this position at some speed
+        var delta = goalLineStart - lineStart;
+        var dist = delta.magnitude;
+        var maxMoveDist = Time.deltaTime * previewTranslateSpeed;
+        var maxDistFromGoal = 1.0;
+        if( dist < maxMoveDist )
+            lineStart = goalLineStart;
+        else if( dist > maxDistFromGoal )
+            // never lag behind too far
+            lineStart = goalLineStart - delta*maxDistFromGoal/dist;
+        else
+            lineStart += maxMoveDist * delta/dist;
+    }
 
-	//if( goalMirrorAngle < 0 ) goalMirrorAngle += Mathf.PI;
-	//if( goalMirrorAngle >= Mathf.PI ) goalMirrorAngle -= Mathf.PI;
 	UpdateMirrorAngle();
 	lineEnd = lineStart + Vector2( Mathf.Cos(mirrorAngle), Mathf.Sin(mirrorAngle));
 
@@ -935,6 +946,13 @@ function Update()
 		BroadcastMessage( "OnToggleMuteMusic", SendMessageOptions.DontRequireReceiver );
     }
 
+    if( Input.GetButtonDown('FreeMode') && profile.HasBeatGame() )
+    {
+        freeMode = !freeMode;
+        mirrorCount.OnCountChanged(numReflectionsAllowed - numReflectionsDone);
+        AudioSource.PlayClipAtPoint( freeModeSnd, Camera.main.transform.position );
+    }
+
     UpdateMenu();
 
 	if( gamestate == 'startscreen' )
@@ -1047,14 +1065,28 @@ function Update()
 				//  Check for rotation input
 				//----------------------------------------
 				var wheel = Input.GetAxis("Mouse ScrollWheel");
-				if( Input.GetButtonDown('RotateMirrorCW') || wheel < 0 ) {
-					goalMirrorAngle -= Mathf.PI/4;
-					rotationSounds.Play(goalMirrorAngle);
+				if( Input.GetButtonDown('RotateMirrorCW') || wheel < 0 )
+                {
+                    if( !freeMode )
+                        goalMirrorAngle -= Mathf.PI/4;
+
+                    rotationSounds.Play(goalMirrorAngle);
 				}
-				else if( Input.GetButtonDown('RotateMirrorCCW') || wheel > 0 ) {
-					goalMirrorAngle += Mathf.PI/4;
-					rotationSounds.Play(goalMirrorAngle);
+				else if( Input.GetButtonDown('RotateMirrorCCW') || wheel > 0 )
+                {
+                    if( !freeMode )
+                        goalMirrorAngle += Mathf.PI/4;
+
+                    rotationSounds.Play(goalMirrorAngle);
 				}
+
+                if( freeMode )
+                {
+                    var rotSign = (Input.GetButton('RotateMirrorCW') || wheel < 0) ? -1
+                        : (Input.GetButton('RotateMirrorCCW') || wheel > 0) ? 1
+                        : 0;
+                    goalMirrorAngle += rotSign * freeRotateSpeed * Time.deltaTime;
+                }
 
 				//----------------------------------------
 				//  Animate and draw preview
@@ -1095,7 +1127,7 @@ function Update()
 					// confirmed
 					AudioSource.PlayClipAtPoint( confirmReflectSnd, hostcam.transform.position );
 
-					// IMPORTANT: make sure we snap to the 45-degree increments.
+					// IMPORTANT: make sure we snap to the goal state.
 					// Otherwise, it's possible for us the commit the in-motion shape..
 					mirrorAngle = goalMirrorAngle;
 					lineStart = goalLineStart;
@@ -1142,17 +1174,13 @@ function Update()
 
 				if( Input.GetButtonDown('ReflectToggle') )
 				{
+                    var hasEnough = numReflectionsDone < numReflectionsAllowed;
+
 				#if UNITY_EDITOR
-					if( numReflectionsDone >= numReflectionsAllowed && !debugUnlimited )
+					if( hasEnough || freeMode || debugUnlimited )
 				#else
-					if( numReflectionsDone >= numReflectionsAllowed )
+					if( hasEnough || freeMode )
 				#endif
-					{
-						// no more allowed
-						AudioSource.PlayClipAtPoint( maxedReflectionsSnd, hostcam.transform.position );
-						mirrorCount.OnNotEnoughError();
-					}
-					else
 					{
 						AudioSource.PlayClipAtPoint( startReflectSnd, hostcam.transform.position );
 						lineStart = GetMouseXYWorldPos();
@@ -1160,6 +1188,12 @@ function Update()
 						mirrorAngle = Mathf.PI / 2;
 						goalMirrorAngle = Mathf.PI / 2;
 						EnterReflectMode();
+					}
+					else
+					{
+						// no more allowed
+						AudioSource.PlayClipAtPoint( maxedReflectionsSnd, hostcam.transform.position );
+						mirrorCount.OnNotEnoughError();
 					}
 				}
 			}
