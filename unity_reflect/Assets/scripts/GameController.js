@@ -431,6 +431,8 @@ function PolysToStroke( polys:Mesh2D, vmax:float, width:float, buffer:MeshBuffer
 	}
 
 	// update mesh
+    // point at camera
+    buffer.SetAllNormals(Vector3(0,0,-1));
 	buffer.CopyToMesh( mesh );
 	mesh.RecalculateBounds();
 }
@@ -445,9 +447,8 @@ function OnCollidingGeometryChanged()
 
 	// update rendered fill mesh
 	ProGeo.TriangulateSimplePolygon( currLevPoly, mainPolygon.mesh, false );
-	SetNormalsAtCamera( mainPolygon.mesh );
+	mainPolygon.mesh.RecalculateNormals();
 	PolysToStroke( currLevPoly, 1.0, mainOutlineWidth, outlineBuffer, mainOutline.mesh );
-	SetNormalsAtCamera( mainOutline.mesh );
 }
 
 function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
@@ -486,7 +487,7 @@ function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
 
     conveyorsBuffer.CopyToMesh( conveyorsMesh.mesh );
     conveyorsMesh.mesh.RecalculateBounds();
-    SetNormalsAtCamera( conveyorsMesh.mesh );
+    conveyorsMesh.mesh.RecalculateNormals();
 }
 
 //----------------------------------------
@@ -534,11 +535,10 @@ function EnterPlayingState( levId:int )
 
 		// update rock render
 		ProGeo.TriangulateSimplePolygon( levels[levId].rockGeo, rockPolygon.mesh, false );
-		SetNormalsAtCamera( rockPolygon.mesh );
+		rockPolygon.mesh.RecalculateNormals();
 
 		// update the outline
 		PolysToStroke( levels[levId].rockGeo, 1.0, rockStrokeWidth, rockOutlineBuffer, rockOutline.mesh );
-		SetNormalsAtCamera( rockOutline.mesh );
 	}
 	else {
 		rockCollider.GetMesh().Clear();
@@ -758,11 +758,6 @@ function Start()
 
 function UpdateCollisionMesh()
 {
-}
-
-function SetNormalsAtCamera( mesh:Mesh )
-{
-	mesh.RecalculateNormals();
 }
 
 function GetMouseXYWorldPos() : Vector2
@@ -1115,7 +1110,7 @@ function Update()
 				}
 
                 ProGeo.TriangulateSimplePolygon( newShape, previewPolygon.mesh, false );
-                SetNormalsAtCamera( previewPolygon.mesh );
+                previewPolygon.mesh.RecalculateNormals();
 
                 // debug output all verts..
                 if( Input.GetButtonDown('DebugReset') && debugHost != null )
@@ -1123,7 +1118,6 @@ function Update()
 
                 // update the outline
                 PolysToStroke( newShape, 1.0, mainOutlineWidth, previewOutlineBuffer, previewOutline.mesh );
-                SetNormalsAtCamera( previewOutline.mesh );
 
                 //----------------------------------------
                 //  Check for confirm
