@@ -23,6 +23,12 @@ private var previewTranslateSpeed = 100.0;
 private var freeRotateSpeed = 0.5*Mathf.PI;
 var freeMode = false;
 
+#if UNITY_EDITOR
+private var isEditor = true;
+#else
+private var isEditor = false;
+#endif
+
 //----------------------------------------
 //  Components instances we use
 //----------------------------------------
@@ -946,7 +952,7 @@ function Update()
 		BroadcastMessage( "OnToggleMuteMusic", SendMessageOptions.DontRequireReceiver );
     }
 
-    if( Input.GetButtonDown('FreeMode') && profile.HasBeatGame() )
+    if( Input.GetButtonDown('FreeMode') && (profile.HasBeatGame() || isEditor) )
     {
         freeMode = !freeMode;
         mirrorCount.OnCountChanged(numReflectionsAllowed - numReflectionsDone);
