@@ -1,9 +1,10 @@
 
 TODO:
-- work out grid
+- implement the mirroring-objects idea
+- implement final level
+- reverb zones - definitely use this, to save on space and make Mark's life easier
+- how to play ending movie?
 - WAIT: Mark to fix some music stuff - worst case, fall back on looping single samples again
-	- look into unity reverb zones - do they sound OK?
-- ending movie?
 
 STORY/LYRICS:
 
@@ -72,10 +73,10 @@ DONE:
     - then after level 4, you go to level select, see the feet animate, and then 5 other carrots pop up. beating each level takes you to the next one, except the last one in the group takes you back to selection.
         use the vertical order of the SVG to determine "groups"
 			OK not really using this design anymore. 
-
 - flap menu
 	if level is beat, have "Level Select"
 	if not, have "Skip Level"
 - story items
 - implement game-end with option to enable free-reflection mode
 - make borders not stick out too much
+- grid stuff

@@ -4,18 +4,24 @@ import System.Collections.Generic;
 
 var levelNumber:GUIText = null;
 var notBeatErrorSound:AudioClip;
+
+// Offset of the numbers when you mouse over the carrots
 var wsLevelNumberOffset = Vector3(0.0, -1.0, 0.0);
+
 var widgetSpacing = 1.0;
 var nextIcon:GameObject;
 var prevIcon:GameObject;
 var profile:Profile;
 
 //----------------------------------------
-//  Footprints generation
+//  The foot prints going off screen
 //----------------------------------------
 var printsStart:Transform;
 var printsEnd:Transform;
 
+//----------------------------------------
+//  Manages the creation of foot print anims from one carrot to another
+//----------------------------------------
 class FootprintsPathGen
 {
 	var nodePrefab:GameObject;
@@ -108,6 +114,34 @@ class ArrowListener implements MouseEventManager.Listener
     function OnMouseEnter() : void { }
 
     function OnMouseExit() : void { }
+};
+
+class TrinketListener implements MouseEventManager.Listener
+{
+	var trinket:GameObject;
+	var text:GUIText;
+
+	function TrinketListener(_trinket)
+	{
+		this.trinket = _trinket;
+	}
+
+	function GetSpace() : String { return "world"; }
+
+	function GetBounds() : Bounds
+	{
+		return trinket.GetComponent(Renderer).bounds;
+	}
+
+    function OnMouseEnter() : void
+	{
+		text.text = "TODO";
+	}
+
+    function OnMouseExit() : void
+	{
+		text.text = "";
+	}
 };
 
 function Awake()

@@ -269,19 +269,7 @@ function OnGetGoal()
 			goalGetFx.Play();
 
             GetComponent(Connectable).TriggerEvent("OnBeatCurrentLevel");
-
-            // if last level of group, go to level select screen
-            // also return if the next level is beaten already
-            if( profile.IsLastLevelOfGroup(currLevId)
-                    || profile.HasBeatLevel(currLevId+1) )
-            {
-                FadeToLevelSelect();
-            }
-            else
-            {
-                // to next level
-			    FadeToLevel( (currLevId+1) % levels.Count, false );
-            }
+			FadeToLevelSelect();
 		}
 		else
 		{
