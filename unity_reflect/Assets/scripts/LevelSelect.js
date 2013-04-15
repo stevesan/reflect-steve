@@ -2,8 +2,80 @@
 
 import System.Collections.Generic;
 
+
+class ReflectItemsAnimation extends CodeAnimation
+{
+	var reflectOnSound:AudioClip;
+	var reflectOffSound:AudioClip;
+	private var screen:LevelSelect;
+
+	function ReflectItemsAnimation(_screen)
+	{
+		super();
+		screen = _screen;
+	}
+
+	function Update()
+	{
+		var step = 0;
+
+		if( CheckStep(step++, 1.0) )
+		{
+			if( JustStartedStep() )
+			{
+				screen.mirror.SetActive(false);
+				screen.upperGround.SetActive(false);
+				screen.skyDecor.gameObject.SetActive(true);
+				screen.skyDecor.SetLocalAlpha(1.0, true);
+			}
+		}
+		else if( CheckStep(step++, 0.5) )
+		{
+			if( JustStartedStep() )
+			{
+				screen.mirror.SetActive(true);
+				screen.upperGround.SetActive(true);
+				AudioSource.PlayClipAtPoint(reflectOnSound, Camera.main.transform.position );
+			}
+			var f = GetStepFraction();
+			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(f, true);
+
+			// make the ground fade in faster
+			var groundAlpha = Mathf.Min( f*2.0, 1.0 );
+			screen.upperGround.GetComponent(AlphaHierarchy).SetLocalAlpha(groundAlpha, true);
+			screen.skyDecor.SetLocalAlpha(1-groundAlpha, true);
+		}
+		else if( CheckStep(step++, 1.0) )
+		{
+			if( JustStartedStep() )
+			{
+				screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1.0, true);
+				screen.skyDecor.gameObject.SetActive(false);
+			}
+		}
+		else if( CheckStep(step++, 0.5) )
+		{
+			if( JustStartedStep() )
+			{
+				AudioSource.PlayClipAtPoint(reflectOffSound, Camera.main.transform.position );
+			}
+			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1-GetStepFraction(), true);
+		}
+		else if( CheckStep(step++, 0.0) )
+		{
+			screen.mirror.SetActive(false);
+		}
+		else
+			return false;
+
+		return true;
+	}
+}
+var itemsAnim = new ReflectItemsAnimation(this);
+
 var levelNumber:GUIText = null;
 var notBeatErrorSound:AudioClip;
+var skyDecor:AlphaHierarchy;
 
 // Offset of the numbers when you mouse over the carrots
 var wsLevelNumberOffset = Vector3(0.0, -1.0, 0.0);
@@ -12,6 +84,9 @@ var widgetSpacing = 1.0;
 var nextIcon:GameObject;
 var prevIcon:GameObject;
 var profile:Profile;
+
+var mirror:GameObject;
+var upperGround:GameObject;
 
 //----------------------------------------
 //  The foot prints going off screen
@@ -90,6 +165,7 @@ private var state = "hidden";
 private var currentGroup = 0;
 private var keepGroupOnShow = false;
 private var selectedLevId = -1;
+private var showTime = 0.0;
 
 private var storyItems = new List.<GameObject>();
 private var beatStoryItems = new List.<GameObject>();
@@ -219,7 +295,11 @@ private function GetStoryItem(group:int, groupBeat:boolean) : GameObject
 
 function OnGameScreenShow()
 {
+// STEVETEMP
+itemsAnim.Play();
+
     state = "active";
+	showTime = Time.time;
 
     ActivateText();
 
@@ -357,7 +437,7 @@ function OnGameScreenShow()
         var i0 = storyItems[group];
         var i1 = beatStoryItems[group];
 
-        if( group == GetCurrentGroup() )
+        if( false && group == GetCurrentGroup() )
         {
             var beat = profile.GetIsGroupFinished(GetCurrentGroup());
             if( i0 != null ) i0.SetActive(!beat);
@@ -393,6 +473,8 @@ function Update ()
 {
     if( state != "active" )
         return;
+
+	itemsAnim.Update();
 
     levelNumber.text = "";
 
