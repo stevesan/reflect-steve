@@ -102,9 +102,9 @@ var levelsText : TextAsset;
 
 // Use this to hide levels not ready for prime time..
 #if UNITY_EDITOR
-private var maxNumLevels = 21;
+private var maxNumLevels = 22;
 #else
-private var maxNumLevels = 21;
+private var maxNumLevels = 22;
 #endif
 
 //----------------------------------------
@@ -549,7 +549,8 @@ function EnterPlayingState( levId:int )
 	player.transform.position = levels[levId].playerPos;
 	player.GetComponent(Rigidbody).velocity = Vector3(0,0,0);
 	player.GetComponent(PlayerControl).Reset();
-    var goalPos = levels[levId].goalPos;
+
+	var goalPos = levels[levId].goalPos;
 	goal.transform.position = levels[levId].goalPos;
 	goal.GetComponent(Star).SetShown( true );
 

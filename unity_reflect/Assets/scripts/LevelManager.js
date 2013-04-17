@@ -158,15 +158,16 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 		}
 		else if( parts[0] == 'player' )
 			players.Add( ParseRect( parts ) );
-		else if( parts[0] == 'goal' )
-			goals.Add( ParseRectCenter( parts ) );
+		//else if( parts[0] == 'goal' )
+			//goals.Add( ParseRectCenter( parts ) );
 		else if( parts[0] == 'levelGeo' )
 			geos.Add( ReadSvgToMesh2D(parts, reader) );
 		else if( parts[0] == 'rockGeo' )
 			rockGeos.Add( ReadSvgToMesh2D(parts, reader) );
 		else if( parts[0] == 'conveyor' )
 			conveyors.Add( ReadConveyorToMesh2D(parts, reader) );
-		else {
+		else
+		{
 			// some other object type, like a key
 			var obj = new LevelObject();
 			obj.type = parts[0];
@@ -202,6 +203,7 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 		if( !found )
 			Debug.LogError('no player found for level '+infos.Count);
 
+/*
 		found = false;
 		for( pos in goals ) {
 			if( area.Contains( pos ) ) {
@@ -213,6 +215,7 @@ static function ParseLevels( reader:StringReader ) : List.<LevelInfo>
 		}
 		if( !found )
 			Debug.LogError('no goal found for level '+infos.Count);
+			*/
 
 		// level objects - don't care
 		for( lobj in objects ) {
