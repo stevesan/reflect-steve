@@ -48,7 +48,7 @@ var level2Tute : GUIText;
 var level4Tute : GUIText;
 
 var player : GameObject;
-var goal : GameObject;
+var carrotPrefab : GameObject;
 var keyPrefab : GameObject;
 var keyFx : GameObject;
 var ballKeyPrefab : GameObject;
@@ -136,7 +136,8 @@ class RotationSounds
 		}
 	}
 	
-	function Play(rads:float) {
+	function Play(rads:float)
+    {
 		rads -= Mathf.PI/2;	// we want the direction the mirror is "facing", not the line
 		var slice = Mathf.RoundToInt( rads/(Mathf.PI/4) );
 		while(slice < 0) slice += sources.length;
@@ -157,11 +158,6 @@ class RotationSounds
 	}
 }
 var rotationSounds = new RotationSounds();
-
-//----------------------------------------
-//  Particle FX
-//----------------------------------------
-var goalGetFx : ParticleSystem;
 
 //----------------------------------------
 //  Debug
@@ -192,7 +188,9 @@ function GetIsInLevel() { return gamestate == 'playing'; }
 //----------------------------------------
 private var numKeysGot = 0;
 private var numKeys = 0;
+private var numCarrotsGot = 0;
 private var objectInsts = new List.<GameObject>();
+private var carrotRefs = new List.<Star>();
 
 class Conveyors
 {
@@ -251,29 +249,29 @@ function GetMirrorAngle() : float { return mirrorAngle; }
 
 function GetHostCam() : Camera { return hostcam; }
 
-function OnGetGoal()
+function GetAllKeysGot() { return numKeysGot == numKeys; }
+
+function OnTouchCarrot(carrot:Star)
 {
 	if( gamestate == 'playing' )
     {
-		if( numKeysGot == numKeys )
+		if( GetAllKeysGot() )
         {
-			if( tracker != null )
-				tracker.PostEvent( "beatLevel", ""+currLevId );
+            numCarrotsGot++;
 
-            profile.OnBeatLevel(currLevId);
+            if( numCarrotsGot == carrotRefs.Count )
+            {
+                if( tracker != null )
+                    tracker.PostEvent( "beatLevel", ""+currLevId );
 
-            // fireworks
-            goal.GetComponent(Star).SetShown( false );
-			AudioSource.PlayClipAtPoint( goalGetSound, hostcam.transform.position );
-			goalGetFx.transform.position = goal.transform.position;
-			goalGetFx.Play();
+                profile.OnBeatLevel(currLevId);
 
-            GetComponent(Connectable).TriggerEvent("OnBeatCurrentLevel");
-			FadeToLevelSelect();
+                GetComponent(Connectable).TriggerEvent("OnBeatCurrentLevel");
+                FadeToLevelSelect();
+            }
 		}
 		else
 		{
-			AudioSource.PlayClipAtPoint( goalLockedSound, hostcam.transform.position );
 			BroadcastMessage("OnTouchLockedGoal", this, SendMessageOptions.DontRequireReceiver);
 		}
 	}
@@ -325,9 +323,13 @@ function FadeToLevelSelect()
 	doFastFade = false;
 }
 
-function UpdateGoalLocked()
+function OnKeysGotChanged()
 {
-	goal.GetComponent(Star).SetLocked( numKeysGot < numKeys );
+    for( var carrot:Star in carrotRefs )
+    {
+        if( carrot != null )
+            carrot.SetLocked( !GetAllKeysGot() );
+    }
 }
 
 function GetCurrentLevelId() { return currLevId; }
@@ -341,7 +343,8 @@ function OnGetKey( keyObj:GameObject )
 	if( gamestate == 'playing' )
     {
         numKeysGot++;
-        UpdateGoalLocked();
+
+        OnKeysGotChanged();
 
         if( numKeysGot >= numKeys )
             BroadcastMessage("OnUnlockedGoalByKey", this, SendMessageOptions.DontRequireReceiver);
@@ -489,7 +492,6 @@ function EnterPlayingState( levId:int )
     menu.EnterHidden();
 
     player.SetActive(true);
-    goal.SetActive(true);
     mainPolygon.gameObject.SetActive(true);
     mainOutline.gameObject.SetActive(true);
     rockPolygon.gameObject.SetActive(true);
@@ -550,10 +552,6 @@ function EnterPlayingState( levId:int )
 	player.GetComponent(Rigidbody).velocity = Vector3(0,0,0);
 	player.GetComponent(PlayerControl).Reset();
 
-	var goalPos = levels[levId].goalPos;
-	goal.transform.position = levels[levId].goalPos;
-	goal.GetComponent(Star).SetShown( true );
-
 	// move the background to the area's center
 	background.transform.position = levels[levId].areaCenter;
 	background.transform.position.z = 10;
@@ -572,10 +570,7 @@ function EnterPlayingState( levId:int )
 	//  Spawn objects
 	//----------------------------------------
 	
-	numKeysGot = 0;
 	numKeys = 0;
-	for( inst in objectInsts )
-		Destroy(inst);
 	objectInsts.Clear();
 
 	// disable the prefabs
@@ -598,6 +593,8 @@ function EnterPlayingState( levId:int )
 	}
 	
 	// spawn all objects
+    carrotRefs.Clear();
+    carrotPrefab.SetActive(false);
 
 	for( lobj in levels[levId].objects ) {
 		var obj:GameObject = null;
@@ -607,6 +604,11 @@ function EnterPlayingState( levId:int )
 			numKeys++;
 			obj = Instantiate( keyPrefab, lobj.pos, keyPrefab.transform.rotation );
 		}
+        else if( lobj.type == 'goal' )
+        {
+            obj = Instantiate( carrotPrefab, lobj.pos, carrotPrefab.transform.rotation );
+            carrotRefs.Add(obj.GetComponent(Star));
+        }
 		else if( lobj.type == 'ballKey' ) {
 			numKeys++;
 			obj = Instantiate( ballKeyPrefab, lobj.pos, ballKeyPrefab.transform.rotation );
@@ -629,7 +631,9 @@ function EnterPlayingState( levId:int )
 	}
 
 	// update goal locked state
-	UpdateGoalLocked();
+	numKeysGot = 0;
+	OnKeysGotChanged();
+    numCarrotsGot = 0;
 
 	// put up correct status text
 	levelNumber.text = 'Moment '+(currLevId+1)+ '/'+levels.Count;
@@ -644,7 +648,6 @@ function ExitPlayingState()
     mouseMgr.SetActive(false);
 
     player.SetActive(false);
-    goal.SetActive(false);
     mainPolygon.gameObject.SetActive(false);
     mainOutline.gameObject.SetActive(false);
     rockPolygon.gameObject.SetActive(false);
@@ -659,10 +662,9 @@ function ExitPlayingState()
         BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
 
 	for( inst in objectInsts )
-    {
-        if( inst != null )
-            inst.SetActive(false);
-    }
+		Destroy(inst);
+    objectInsts.Clear();
+    carrotRefs.Clear();
 }
 
 class CornerFlapWidget extends MouseEventManager.RendererListener
@@ -912,6 +914,7 @@ function ResetLevel()
         if( restartSnd != null )
             AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
 
+        ExitPlayingState();
         FadeToLevel( currLevId, true );
 
         BroadcastMessage("OnResetLevel", this, SendMessageOptions.DontRequireReceiver);

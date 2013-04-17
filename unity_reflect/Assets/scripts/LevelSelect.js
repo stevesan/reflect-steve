@@ -109,10 +109,10 @@ class FootprintsPathGen
 
 	private var instances = new List.<GameObject>();
 
-	function Create( topParent:Transform, start:Transform, end:Transform) : GameObject
+	function Create( topParent:Transform, start:Vector3, end:Vector3) : GameObject
 	{
-		var p0 = start.position + startOffset;
-		var p1 = end.position + endOffset;
+		var p0 = start + startOffset;
+		var p1 = end + endOffset;
 		var midPos = 0.5 * (p0+p1) + midOffset;
 
 		var curve = GameObject.Instantiate( curvePrefab.gameObject, p0, Quaternion.identity );
@@ -134,7 +134,7 @@ class FootprintsPathGen
 		node.name = "002";
 		node.transform.parent = curve.transform;
 
-		var prints = GameObject.Instantiate( printsPrefab.gameObject, start.position, Quaternion.identity );
+		var prints = GameObject.Instantiate( printsPrefab.gameObject, start, Quaternion.identity );
 		instances.Add(prints);
 		prints.GetComponent(Footprints).curveGen.curve = curve.GetComponent(SubdivisionCurve);
 		prints.transform.parent = topParent;
@@ -362,7 +362,7 @@ itemsAnim.Play();
         mouseListeners.Add( new ArrowListener(prevIcon) );
     }
 
-    if( currentGroup < profile.GetNumGroups()-1 )
+    if( currentGroup < profile.GetNumGroups()-1 && profile.GetIsGroupFinished(GetCurrentGroup()) )
     {
         nextIcon.SetActive(true);
         mouseListeners.Add( new ArrowListener(nextIcon) );
@@ -374,20 +374,22 @@ itemsAnim.Play();
 
 	// create footprint paths
 	printsAnims.Clear();
-	var prevNode = printsStart;
+	var prevPos = printsStart.position;
 
 	for( widget in widgets )
 	{
-		var anim = printsGen.Create( this.transform, prevNode, widget.transform);
+        var currPos = widget.transform.position;
+        currPos.y = prevPos.y;
+		var anim = printsGen.Create( this.transform, prevPos, currPos);
 		printsAnims.Add(anim);
-		prevNode = widget.transform;
+		prevPos = currPos;
 	}
 
     if( profile.GetIsGroupFinished(GetCurrentGroup())
             && GetCurrentGroup() != profile.GetNumGroups()-1 )
 	{
         // last one, from last carrot to the right of the screen
-        var lastPrints = printsGen.Create( this.transform, prevNode, printsEnd );
+        var lastPrints = printsGen.Create( this.transform, prevPos, printsEnd.position );
 		printsAnims.Add( lastPrints );
 
         if( profile.HasPlayedLevel(lastLev+1) )

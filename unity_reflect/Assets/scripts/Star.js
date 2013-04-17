@@ -1,8 +1,13 @@
 #pragma strict
 @script RequireComponent( Collider )
 
+var getFx : ParticleSystem;
+var getSound : AudioClip;
+var lockedSound: AudioClip;
+
 var lockSprite:Renderer;
 var starSprite:Renderer;
+var game:GameController;
 
 function Start () {
 
@@ -31,7 +36,18 @@ function OnTriggerEnter(other : Collider) : void
 	var player = other.GetComponent(PlayerControl);
 	if( player != null )
 	{
-		if( transform.parent != null )
-			transform.parent.gameObject.SendMessage( 'OnGetGoal' );
+        game.OnTouchCarrot(this);
+
+        if( !game.GetAllKeysGot() )
+        {
+            AudioSource.PlayClipAtPoint( lockedSound, Camera.main.transform.position );
+        }
+        else
+        {
+            AudioSource.PlayClipAtPoint( getSound, Camera.main.transform.position );
+			getFx.transform.position = transform.position;
+			getFx.Play();
+            Destroy(this.gameObject);
+        }
 	}
 }
