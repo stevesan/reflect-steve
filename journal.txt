@@ -1,9 +1,9 @@
 
 TODO:
 - implement the mirroring-objects idea
-- implement final level
 - reverb zones - definitely use this, to save on space and make Mark's life easier
 - how to play ending movie?
+
 - WAIT: Mark to fix some music stuff - worst case, fall back on looping single samples again
 
 STORY/LYRICS:
@@ -80,3 +80,4 @@ DONE:
 - implement game-end with option to enable free-reflection mode
 - make borders not stick out too much
 - grid stuff
+- implement final level

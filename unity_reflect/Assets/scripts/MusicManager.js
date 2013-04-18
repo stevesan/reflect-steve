@@ -5,6 +5,8 @@ import System.Xml;
 // Pretty specific code for Mark's reflection music concept
 
 var configXml:TextAsset;
+var debugText:GUIText;
+var reverb:GameObject;
 
 class FadeableSource
 {
@@ -87,7 +89,7 @@ static var allReleaseTime = 2.0;
 		isMuted = false;
 	}
 	
-	function ReadXML( node:XmlReader )
+	function ReadXML( node:XmlReader, parent:Transform )
 	{
 		if( node == null ) return;
 		
@@ -97,23 +99,31 @@ static var allReleaseTime = 2.0;
         else
         {
             var obj = new GameObject();
+			obj.transform.parent = parent;
+			obj.transform.localPosition = Vector3(0,0,0);
+			obj.name = "normalClip";
             var src = obj.AddComponent(AudioSource);
             src.clip = normalClip;
             src.loop = true;
             normal = new FadeableSource(src, allAttackTime, allReleaseTime, allMaxVolume);
         }
 		
+		/*
 		var fxClip = Resources.Load(node.GetAttribute("fx")) as AudioClip;
 		if( fxClip == null )
 			Debug.LogError("Could not load "+node.GetAttribute("fx"));
         else
         {
             obj = new GameObject();
+			obj.transform.parent = parent;
+			obj.transform.localPosition = Vector3(0,0,0);
+			obj.name = "fxClip";
             src = obj.AddComponent(AudioSource);
             src.clip = fxClip;
             src.loop = true;
             fx = new FadeableSource(src, allAttackTime, allReleaseTime, allMaxVolume );
         }
+		*/
 	}
 	
 	function OnLevelStart()
@@ -121,29 +131,32 @@ static var allReleaseTime = 2.0;
 		normal.Play();
 		normal.SetLevel(0.0);
 		normal.FadeIn();
+		normal.SetStopOnFadeOut(false);
 		
+		/*
 		fx.Play();
 		fx.SetLevel(0.0);
-
-		normal.SetStopOnFadeOut(false);
 		fx.SetStopOnFadeOut(false);
+		*/
 	}
 	
 	function OnLevelEnd()
 	{
 		normal.FadeOut();
-		fx.FadeOut();
 		normal.SetStopOnFadeOut(true);
+		/*
+		fx.FadeOut();
 		fx.SetStopOnFadeOut(true);
+		*/
 	}
 	
 	function Update(dt:float)
 	{
 		normal.Update(dt);
-		fx.Update(dt);
+		//fx.Update(dt);
 	}
 	
-	function ChangeFX( useFX:boolean ) {
+	function SetUseFX( useFX:boolean ) {
 		if( useFX ) {
 			normal.FadeOut();
 			fx.FadeIn();
@@ -158,7 +171,7 @@ static var allReleaseTime = 2.0;
 	{
 		var maxVol = (isMuted ? 0.0 : 1.0);
 		normal.SetMaxVolume(maxVol);
-		fx.SetMaxVolume(maxVol);
+		//fx.SetMaxVolume(maxVol);
 	}
 	
 	function ToggleIsMuted()
@@ -172,11 +185,11 @@ class ClipGroup
 {
 	var clips = new List.<MusicClip>();
 
-	function ReadXML( node:XmlReader )
+	function ReadXML( node:XmlReader, parent:Transform )
 	{
 		while( node.ReadToFollowing("clip") ) {
 			var clip = new MusicClip();
-			clip.ReadXML(node);
+			clip.ReadXML(node, parent);
 			clips.Add(clip);
 			
 			//TEMP
@@ -198,9 +211,9 @@ class ClipGroup
 		}
 	}
 	
-	function ChangeFX(useFX:boolean) {
+	function SetUseFX(useFX:boolean) {
 		for( var clip:MusicClip in clips ) {
-			clip.ChangeFX(useFX);
+			clip.SetUseFX(useFX);
 		}
 	}
 	
@@ -221,19 +234,21 @@ class ClipGroup
 private var groups = new List.<ClipGroup>();
 private var currGroup = -1;
 
-function Start () {
+function Start ()
+{
 	var reader = XmlReader.Create( new StringReader( configXml.text ) );
 	while( reader.ReadToFollowing( 'group' ) )
 	{
-		Debug.Log('found song group' );
 		var newGroup = new ClipGroup();
-		newGroup.ReadXML( reader );
+		newGroup.ReadXML( reader, this.transform );
 		groups.Add(newGroup);
 	}
 	
 	// immediately play group 0
 	groups[0].OnLevelStart();
 	currGroup = 0;
+
+	reverb.SetActive(false);
 }
 
 function Update () {
@@ -243,11 +258,11 @@ function Update () {
 }
 
 
-function OnLevelChanged( game:GameController )
+function OnLevelChanged( game:GameObject )
 {
-	var newLevId:int = game.GetCurrentLevelId();
-	var newGroup = newLevId / 2;	// new group every other level
-	Debug.Log("new group = "+newGroup);
+	var newLevId:int = game.GetComponent(GameController).GetCurrentLevelId();
+	var newGroup = newLevId % groups.Count;
+	Debug.Log("new lev = " + newLevId + " new group = "+newGroup);
 	if( newGroup >= groups.Count ) newGroup = groups.Count-1;
 	if( newGroup != currGroup ) {
 		if( currGroup != -1 )
@@ -256,16 +271,22 @@ function OnLevelChanged( game:GameController )
 		groups[currGroup].OnLevelStart();
 		Debug.Log("Starting group "+currGroup);
 	}
+
+	debugText.text = "group "+currGroup + "/"+groups.Count;
 }
 
-function OnEnterReflectMode( game:GameController )
+function OnEnterReflectMode( game:GameObject )
 {
-	groups[currGroup].ChangeFX(true);
+	//groups[currGroup].SetUseFX(true);
+	reverb.SetActive(true);
 }
 
-function OnExitReflectMode( game:GameController )
+function OnExitReflectMode( game:GameObject )
 {
-	groups[currGroup].ChangeFX(false);
+	//groups[currGroup].SetUseFX(false);
+	reverb.SetActive(false);
+
+	// TODO move reverber slowly towards this, to gradually incrase reverb to max
 }
 
 function OnToggleMuteMusic()

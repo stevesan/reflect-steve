@@ -486,7 +486,8 @@ function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
 //----------------------------------------
 function EnterPlayingState( levId:int )
 {
-    BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
+		currLevId = levId;
+
     fadeStart = Time.time;
     gamestate = 'playing';
     menu.EnterHidden();
@@ -510,7 +511,6 @@ function EnterPlayingState( levId:int )
         ExitReflectMode();
     }
     numReflectionsDone = 0;
-	currLevId = levId;
     profile.OnPlayingLevel(levId);
 
 	currLevPoly = levels[levId].geo.Duplicate();
@@ -627,7 +627,6 @@ function EnterPlayingState( levId:int )
 		obj.SetActive(true);
 		Utils.ShowAll( obj );
 		objectInsts.Add( obj );
-		Debug.Log('spawned '+lobj.type+' at '+lobj.pos);
 	}
 
 	// update goal locked state
@@ -640,6 +639,9 @@ function EnterPlayingState( levId:int )
 	
 	if( tracker != null )
 		tracker.PostEvent( "startLevel", ""+levId );
+
+	BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
+	GetComponent(Connectable).TriggerEvent("OnLevelChanged");
 }
 
 function ExitPlayingState()
@@ -914,7 +916,6 @@ function ResetLevel()
         if( restartSnd != null )
             AudioSource.PlayClipAtPoint( restartSnd, hostcam.transform.position );
 
-        ExitPlayingState();
         FadeToLevel( currLevId, true );
 
         BroadcastMessage("OnResetLevel", this, SendMessageOptions.DontRequireReceiver);
@@ -984,9 +985,10 @@ function Update()
 		if( alpha >= 1.0 )
         {
             // done fading
+			ExitPlayingState();
+
             if( isFadingToLevelSelect )
             {
-                ExitPlayingState();
                 gamestate = 'levelselect';
                 isFadingToLevelSelect = false;
             }
@@ -1021,11 +1023,9 @@ function Update()
 #if UNITY_EDITOR
         else if( Input.GetButtonDown('NextLevel') ) {
             FadeToLevel( (currLevId+1)%levels.Count, true );
-            BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
         }
         else if( Input.GetButtonDown('PrevLevel') ) {
             FadeToLevel( (levels.Count+currLevId-1)%levels.Count, true );
-            BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
         }
 #endif
         else if(currLevPoly != null )
