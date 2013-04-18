@@ -6,7 +6,8 @@ import System.Xml;
 
 var configXml:TextAsset;
 var debugText:GUIText;
-var reverb:GameObject;
+var reverb:AudioReverbZone;
+private var reverbZoneDist = new SlidingValue();
 
 class FadeableSource
 {
@@ -17,8 +18,13 @@ class FadeableSource
 	var maxVolume:float;
 	var src:AudioSource;
 	var stopOnFadeOut:boolean;
+
+    private var fadedLevel = new SlidingValue();
+    var fadeTargetLevel:float;
+    var fadeSpeed:float;
 	
-	function FadeableSource( _src:AudioSource, _attack:float, _release:float, _maxVolume:float ) {
+	function FadeableSource( _src:AudioSource, _attack:float, _release:float, _maxVolume:float )
+    {
 		attack = _attack;
 		release = _release;
 		src = _src;
@@ -39,6 +45,13 @@ class FadeableSource
 	function FadeIn() {
 		state = "attack";
 	}
+
+    function FadeTo(targetLevel:float, secs:float)
+    {
+        fadedLevel.Set(level);
+        fadedLevel.SlideTo( targetLevel, secs );
+        state = "fade";
+    }
 	
 	function FadeOut() {
 		state = "release";
@@ -50,19 +63,29 @@ class FadeableSource
 
 	function GetLevel():float { return level; }
 	
-	function Update( dt:float ) {
-		if( state == "attack" ) {
-			if( attack <= 0.0 ) level = 1.0;
-			else level += dt/attack;
-			if( level >= 1.0 ) {
+	function Update( dt:float )
+    {
+		if( state == "attack" )
+        {
+			if( attack <= 0.0 )
+                level = 1.0;
+			else
+                level += dt/attack;
+
+			if( level >= 1.0 )
+            {
 				state = "sustain";
 				level = 1.0;
 			}
 		}
-		else if( state == "release" ) {
-			if( release <= 0 ) level = 0.0;
-			else level -= dt/release;
-			if( level <= 0.0 ) {
+		else if( state == "release" )
+        {
+			if( release <= 0 )
+                level = 0.0;
+			else
+                level -= dt/release;
+			if( level <= 0.0 )
+            {
 				state = "stopped";
 				level = 0.0;
 				
@@ -70,6 +93,17 @@ class FadeableSource
 					src.Stop();
 			}
 		}
+        else if( state == "fade" )
+        {
+            fadedLevel.Update(dt);
+            level = fadedLevel.Get();
+
+            if( !fadedLevel.GetIsSliding() )
+            {
+                state = "sustain";
+            }
+        }
+
 		src.volume = level * maxVolume;
 	}
 }
@@ -248,13 +282,19 @@ function Start ()
 	groups[0].OnLevelStart();
 	currGroup = 0;
 
-	reverb.SetActive(false);
+    reverbZoneDist.Set(reverb.maxDistance);
+    reverbZoneDist.SetSpeed(reverb.maxDistance/0.5);
 }
 
-function Update () {
-	for( var group in groups ) {
+function Update ()
+{
+	for( var group in groups )
+    {
 		group.Update(Time.deltaTime);
 	}
+
+    reverbZoneDist.Update(Time.deltaTime);
+    reverb.gameObject.transform.localPosition.x = reverbZoneDist.Get();
 }
 
 
@@ -278,15 +318,21 @@ function OnLevelChanged( game:GameObject )
 function OnEnterReflectMode( game:GameObject )
 {
 	//groups[currGroup].SetUseFX(true);
-	reverb.SetActive(true);
+
+    reverbZoneDist.SlideTo(0.0);
+
+    for( var clip in groups[currGroup].clips )
+        clip.normal.FadeTo(0.5, 0.5);
 }
 
 function OnExitReflectMode( game:GameObject )
 {
 	//groups[currGroup].SetUseFX(false);
-	reverb.SetActive(false);
 
-	// TODO move reverber slowly towards this, to gradually incrase reverb to max
+    reverbZoneDist.SlideTo(reverb.maxDistance);
+
+    for( var clip in groups[currGroup].clips )
+        clip.normal.FadeTo(1.0, 1.0);
 }
 
 function OnToggleMuteMusic()
