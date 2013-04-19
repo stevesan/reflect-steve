@@ -3,7 +3,7 @@
 import System.Collections.Generic;
 
 
-class ReflectItemsAnimation extends CodeAnimation
+class ReflectItemsAnimation extends SlicedAnimation
 {
 	var reflectOnSound:AudioClip;
 	var reflectOffSound:AudioClip;
@@ -17,11 +17,11 @@ class ReflectItemsAnimation extends CodeAnimation
 
 	function Update()
 	{
-		var step = 0;
+		BeginUpdate();
 
-		if( CheckStep(step++, 1.0) )
+		if( CheckSlice(1.0) )
 		{
-			if( JustStartedStep() )
+			if( JustStartedSlice() )
 			{
 				screen.mirror.SetActive(false);
 				screen.upperGround.SetActive(false);
@@ -29,15 +29,15 @@ class ReflectItemsAnimation extends CodeAnimation
 				screen.skyDecor.SetLocalAlpha(1.0, true);
 			}
 		}
-		else if( CheckStep(step++, 0.5) )
+		else if( CheckSlice(0.5) )
 		{
-			if( JustStartedStep() )
+			if( JustStartedSlice() )
 			{
 				screen.mirror.SetActive(true);
 				screen.upperGround.SetActive(true);
 				AudioSource.PlayClipAtPoint(reflectOnSound, Camera.main.transform.position );
 			}
-			var f = GetStepFraction();
+			var f = GetSliceFraction();
 			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(f, true);
 
 			// make the ground fade in faster
@@ -45,30 +45,28 @@ class ReflectItemsAnimation extends CodeAnimation
 			screen.upperGround.GetComponent(AlphaHierarchy).SetLocalAlpha(groundAlpha, true);
 			screen.skyDecor.SetLocalAlpha(1-groundAlpha, true);
 		}
-		else if( CheckStep(step++, 1.0) )
+		else if( CheckSlice(1.0) )
 		{
-			if( JustStartedStep() )
+			if( JustStartedSlice() )
 			{
 				screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1.0, true);
 				screen.skyDecor.gameObject.SetActive(false);
 			}
 		}
-		else if( CheckStep(step++, 0.5) )
+		else if( CheckSlice(0.5) )
 		{
-			if( JustStartedStep() )
+			if( JustStartedSlice() )
 			{
 				AudioSource.PlayClipAtPoint(reflectOffSound, Camera.main.transform.position );
 			}
-			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1-GetStepFraction(), true);
+			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1-GetSliceFraction(), true);
 		}
-		else if( CheckStep(step++, 0.0) )
+		else if( CheckSlice(0.0) )
 		{
 			screen.mirror.SetActive(false);
 		}
-		else
-			return false;
 
-		return true;
+		EndUpdate();
 	}
 }
 var itemsAnim = new ReflectItemsAnimation(this);
