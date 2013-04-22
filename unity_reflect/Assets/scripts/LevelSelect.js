@@ -279,7 +279,7 @@ private function ActivateText()
     }
     else
     {
-        text.text = "All progress is auto-saved\nGet all carrots to move on";
+        text.text = "All progress is auto-saved\nIf you get stuck, take a break :)";
     }
 }
 
