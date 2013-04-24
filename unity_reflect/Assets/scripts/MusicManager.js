@@ -5,9 +5,10 @@ import System.Xml;
 // Pretty specific code for Mark's reflection music concept
 
 var configXml:TextAsset;
-var debugText:GUIText;
 var reverb:AudioReverbZone;
 private var reverbZoneDist = new SlidingValue();
+private var maxMusicVolume = new SlidingValue();
+private var isMuted = false;
 
 class FadeableSource
 {
@@ -200,19 +201,6 @@ static var allReleaseTime = 2.0;
 			normal.FadeIn();
 		}
 	}
-	
-	function OnIsMutedChanged()
-	{
-		var maxVol = (isMuted ? 0.0 : 1.0);
-		normal.SetMaxVolume(maxVol);
-		//fx.SetMaxVolume(maxVol);
-	}
-	
-	function ToggleIsMuted()
-	{
-		isMuted = !isMuted;
-		OnIsMutedChanged();
-	}
 }
 
 class ClipGroup
@@ -256,13 +244,6 @@ class ClipGroup
 			clip.Update(dt);
 		}		
 	}
-	
-	function ToggleIsMuted()
-	{
-		for( var clip:MusicClip in clips ) {
-			clip.ToggleIsMuted();
-		}		
-	}
 }
 
 private var groups = new List.<ClipGroup>();
@@ -270,6 +251,14 @@ private var currGroup = -1;
 
 function Start ()
 {
+    // Hook up events
+    var cons = GameController.Singleton.GetComponent(Connectable);
+    cons.AddListener(this.gameObject, "OnEnterPlayingState");
+    cons.AddListener(this.gameObject, "OnExitPlayingState");
+    cons.AddListener(this.gameObject, "OnEnterReflectMode");
+    cons.AddListener(this.gameObject, "OnExitReflectMode");
+
+    // Read music spec
 	var reader = XmlReader.Create( new StringReader( configXml.text ) );
 	while( reader.ReadToFollowing( 'group' ) )
 	{
@@ -284,6 +273,9 @@ function Start ()
 
     reverbZoneDist.Set(reverb.maxDistance);
     reverbZoneDist.SetSpeed(reverb.maxDistance/0.5);
+
+    maxMusicVolume.Set(1.0);
+    maxMusicVolume.SetSpeed(1.0/2.0);
 }
 
 function Update ()
@@ -295,15 +287,20 @@ function Update ()
 
     reverbZoneDist.Update(Time.deltaTime);
     reverb.gameObject.transform.localPosition.x = reverbZoneDist.Get();
+
+    maxMusicVolume.Update(Time.deltaTime);
+    var maxVol = (isMuted ? 0.0 : maxMusicVolume.Get());
+    for( var clip in groups[currGroup].clips )
+        clip.normal.SetMaxVolume(maxVol);
 }
 
 
-function OnLevelChanged( game:GameObject )
+function OnEnterPlayingState( game:GameObject )
 {
 	var newLevId:int = game.GetComponent(GameController).GetCurrentLevelId();
 	var newGroup = newLevId % groups.Count;
-	Debug.Log("new lev = " + newLevId + " new group = "+newGroup);
-	if( newGroup >= groups.Count ) newGroup = groups.Count-1;
+	if( newGroup >= groups.Count )
+        newGroup = groups.Count-1;
 	if( newGroup != currGroup ) {
 		if( currGroup != -1 )
 			groups[currGroup].OnLevelEnd();
@@ -312,13 +309,16 @@ function OnLevelChanged( game:GameObject )
 		Debug.Log("Starting group "+currGroup);
 	}
 
-	debugText.text = "group "+currGroup + "/"+groups.Count;
+    maxMusicVolume.SlideTo(0.5);
+}
+
+function OnExitPlayingState( game:GameObject )
+{
+    maxMusicVolume.SlideTo(1.0);
 }
 
 function OnEnterReflectMode( game:GameObject )
 {
-	//groups[currGroup].SetUseFX(true);
-
     reverbZoneDist.SlideTo(0.0);
 
     for( var clip in groups[currGroup].clips )
@@ -327,17 +327,13 @@ function OnEnterReflectMode( game:GameObject )
 
 function OnExitReflectMode( game:GameObject )
 {
-	//groups[currGroup].SetUseFX(false);
-
     reverbZoneDist.SlideTo(reverb.maxDistance);
 
     for( var clip in groups[currGroup].clips )
-        clip.normal.FadeTo(1.0, 1.0);
+        clip.normal.FadeTo(1.0, 0.5);
 }
 
 function OnToggleMuteMusic()
 {
-	for( var group in groups ) {
-		group.ToggleIsMuted();
-	}
+    isMuted = !isMuted;
 }

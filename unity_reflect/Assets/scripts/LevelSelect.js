@@ -296,7 +296,7 @@ private function GetStoryItem(group:int, groupBeat:boolean) : GameObject
 function OnGameScreenShow()
 {
 // STEVETEMP
-itemsAnim.Play();
+//itemsAnim.Play();
 
     state = "active";
 	showTime = Time.time;

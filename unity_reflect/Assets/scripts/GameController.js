@@ -642,6 +642,7 @@ function EnterPlayingState( levId:int )
 
 	BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
 	GetComponent(Connectable).TriggerEvent("OnLevelChanged");
+	GetComponent(Connectable).TriggerEvent("OnEnterPlayingState");
 }
 
 function ExitPlayingState()
@@ -667,6 +668,8 @@ function ExitPlayingState()
 		Destroy(inst);
     objectInsts.Clear();
     carrotRefs.Clear();
+
+	GetComponent(Connectable).TriggerEvent("OnExitPlayingState");
 }
 
 class CornerFlapWidget extends MouseEventManager.RendererListener
