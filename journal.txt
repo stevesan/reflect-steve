@@ -1,8 +1,8 @@
 
 TODO:
+- page turn sound
+- fix reverb zones sounding terrible on windows?
 - implement the mirroring-objects idea
-- reverb zones - definitely use this, to save on space and make Mark's life easier
-- how to play ending movie?
 
 - WAIT: Mark to fix some music stuff - worst case, fall back on looping single samples again
 
@@ -81,3 +81,5 @@ DONE:
 - make borders not stick out too much
 - grid stuff
 - implement final level
+- reverb zones - definitely use this, to save on space and make Mark's life easier
+- how to play ending movie?

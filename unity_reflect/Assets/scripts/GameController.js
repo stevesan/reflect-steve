@@ -17,7 +17,7 @@ var profile:Profile;
 
 // Controls how fast the preview spins
 private var previewRotateSpeed = 1.5*Mathf.PI;
-private var previewTranslateSpeed = 100.0;
+private var previewTranslateSpeed = 15.0;
 
 // For the unlocked "free mode"
 private var freeRotateSpeed = 0.5*Mathf.PI;
