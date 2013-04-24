@@ -257,6 +257,7 @@ function Start ()
     cons.AddListener(this.gameObject, "OnExitPlayingState");
     cons.AddListener(this.gameObject, "OnEnterReflectMode");
     cons.AddListener(this.gameObject, "OnExitReflectMode");
+    cons.AddListener(this.gameObject, "OnToggleMuteMusic");
 
     // Read music spec
 	var reader = XmlReader.Create( new StringReader( configXml.text ) );
@@ -275,7 +276,7 @@ function Start ()
     reverbZoneDist.SetSpeed(reverb.maxDistance/0.5);
 
     maxMusicVolume.Set(1.0);
-    maxMusicVolume.SetSpeed(1.0/2.0);
+    maxMusicVolume.SetSpeed(1.0/1.0);
 }
 
 function Update ()

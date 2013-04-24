@@ -1,5 +1,7 @@
 
 TODO:
+- bug: music doesn't soften on reset
+- bug: initial music soften is delayed..
 - page turn sound
 - fix reverb zones sounding terrible on windows?
 - implement the mirroring-objects idea

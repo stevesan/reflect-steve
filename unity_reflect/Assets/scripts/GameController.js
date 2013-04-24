@@ -940,7 +940,7 @@ function Update()
 	// handle system-wide keys
 	if( Input.GetButtonDown('MuteMusic') )
 	{
-		BroadcastMessage( "OnToggleMuteMusic", SendMessageOptions.DontRequireReceiver );
+        GetComponent(Connectable).TriggerEvent("OnToggleMuteMusic");
     }
 
     if( Input.GetButtonDown('FreeMode') && (profile.HasBeatGame() || isEditor) )
