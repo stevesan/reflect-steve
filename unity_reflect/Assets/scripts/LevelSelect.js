@@ -2,77 +2,6 @@
 
 import System.Collections.Generic;
 
-
-class ReflectItemsAnimation extends CodeAnimation
-{
-	var reflectOnSound:AudioClip;
-	var reflectOffSound:AudioClip;
-	private var screen:LevelSelect;
-
-	function ReflectItemsAnimation(_screen)
-	{
-		super();
-		screen = _screen;
-	}
-
-	function Update()
-	{
-		var step = 0;
-
-		if( CheckStep(step++, 1.0) )
-		{
-			if( JustStartedStep() )
-			{
-				screen.mirror.SetActive(false);
-				screen.upperGround.SetActive(false);
-				screen.skyDecor.gameObject.SetActive(true);
-				screen.skyDecor.SetLocalAlpha(1.0, true);
-			}
-		}
-		else if( CheckStep(step++, 0.5) )
-		{
-			if( JustStartedStep() )
-			{
-				screen.mirror.SetActive(true);
-				screen.upperGround.SetActive(true);
-				AudioSource.PlayClipAtPoint(reflectOnSound, Camera.main.transform.position );
-			}
-			var f = GetStepFraction();
-			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(f, true);
-
-			// make the ground fade in faster
-			var groundAlpha = Mathf.Min( f*2.0, 1.0 );
-			screen.upperGround.GetComponent(AlphaHierarchy).SetLocalAlpha(groundAlpha, true);
-			screen.skyDecor.SetLocalAlpha(1-groundAlpha, true);
-		}
-		else if( CheckStep(step++, 1.0) )
-		{
-			if( JustStartedStep() )
-			{
-				screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1.0, true);
-				screen.skyDecor.gameObject.SetActive(false);
-			}
-		}
-		else if( CheckStep(step++, 0.5) )
-		{
-			if( JustStartedStep() )
-			{
-				AudioSource.PlayClipAtPoint(reflectOffSound, Camera.main.transform.position );
-			}
-			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1-GetStepFraction(), true);
-		}
-		else if( CheckStep(step++, 0.0) )
-		{
-			screen.mirror.SetActive(false);
-		}
-		else
-			return false;
-
-		return true;
-	}
-}
-var itemsAnim = new ReflectItemsAnimation(this);
-
 var levelNumber:GUIText = null;
 var notBeatErrorSound:AudioClip;
 var skyDecor:AlphaHierarchy;
@@ -156,6 +85,7 @@ var printsGen = new FootprintsPathGen();
 
 private var game:GameController = null;
 private var widgetPrefabs = new List.<GameObject>();
+var gifts = new List.<GameObject>();
 
 private var widgets = new List.<GameObject>();
 private var printsAnims = new List.<GameObject>();
@@ -169,6 +99,21 @@ private var showTime = 0.0;
 
 private var storyItems = new List.<GameObject>();
 private var beatStoryItems = new List.<GameObject>();
+
+function FindGifts(group) : GameObject
+{
+	var xform = transform.Find("gifts"+group);
+	if( xform != null )
+	{
+		Debug.Log("Found "+xform.gameObject.name);
+		return xform.gameObject;
+	}
+	else
+	{
+		Debug.Log("could not find gifts"+group);
+		return null;
+	}
+}
 
 class ArrowListener implements MouseEventManager.Listener
 {
@@ -220,6 +165,79 @@ class TrinketListener implements MouseEventManager.Listener
 	}
 };
 
+class ReflectItemsAnimation extends SlicedAnimation
+{
+	var reflectOnSound:AudioClip;
+	var reflectOffSound:AudioClip;
+	private var screen:LevelSelect;
+
+	function ReflectItemsAnimation(_screen)
+	{
+		super();
+		screen = _screen;
+	}
+
+	function Update()
+	{
+		BeginUpdate();
+
+		if( CheckSlice(1.0) )
+		{
+			if( JustStartedSlice() )
+			{
+				screen.mirror.SetActive(false);
+				screen.upperGround.SetActive(false);
+				screen.skyDecor.gameObject.SetActive(true);
+				screen.skyDecor.SetLocalAlpha(1.0, true);
+			}
+		}
+		else if( CheckSlice(0.5) )
+		{
+			var gifts = screen.gifts[ screen.GetCurrentGroup() ];
+			Utils.Assert(gifts != null);
+
+			if( JustStartedSlice() )
+			{
+				screen.mirror.SetActive(true);
+				screen.upperGround.SetActive(true);
+				AudioSource.PlayClipAtPoint(reflectOnSound, Camera.main.transform.position );
+				gifts.SetActive(true);
+			}
+			var f = GetSliceFraction();
+			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(f, true);
+
+			// make the ground fade in faster
+			var groundAlpha = Mathf.Min( f*2.0, 1.0 );
+			screen.upperGround.GetComponent(AlphaHierarchy).SetLocalAlpha(groundAlpha, true);
+			screen.skyDecor.SetLocalAlpha(1-groundAlpha, true);
+			gifts.GetComponent(AlphaHierarchy).SetLocalAlpha(groundAlpha, true);
+		}
+		else if( CheckSlice(1.0) )
+		{
+			if( JustStartedSlice() )
+			{
+				screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1.0, true);
+				screen.skyDecor.gameObject.SetActive(false);
+			}
+		}
+		else if( CheckSlice(0.5) )
+		{
+			if( JustStartedSlice() )
+			{
+				AudioSource.PlayClipAtPoint(reflectOffSound, Camera.main.transform.position );
+			}
+			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1-GetSliceFraction(), true);
+		}
+		else if( CheckSlice(0.0) )
+		{
+			screen.mirror.SetActive(false);
+		}
+
+		EndUpdate();
+	}
+}
+var itemsAnim = new ReflectItemsAnimation(this);
+
 function Awake()
 {
     game = GameObject.Find("gameController").GetComponent(GameController);
@@ -230,27 +248,38 @@ function Awake()
 
     // gather prefabs
     for( var g = 0; g < profile.GetNumGroups(); g++ )
-    {
-        var prefabName = "levelwidget" + (g+1).ToString("0");
-        var prefabXform = transform.Find(prefabName);
-        if( prefabXform == null )
-        {
-            Debug.LogError("could not find "+prefabName);
-        }
-        var prefab = prefabXform.gameObject;
-        if( prefab != null && prefab.GetComponent(LevelIcon) != null )
-        {
-            Debug.Log("found " + prefabName);
-            widgetPrefabs.Add(prefab);
-            prefab.SetActive(false);
-        }
-    }
+	{
+		var prefabName = "levelwidget" + (g+1).ToString("0");
+		var prefabXform = transform.Find(prefabName);
+		if( prefabXform == null )
+		{
+			Debug.LogError("could not find "+prefabName);
+		}
+		var prefab = prefabXform.gameObject;
+		if( prefab != null && prefab.GetComponent(LevelIcon) != null )
+		{
+			widgetPrefabs.Add(prefab);
+			prefab.SetActive(false);
+		}
 
+		var gift = FindGifts(g);
+		if(gift != null )
+		{
+			gifts.Add(gift);
+			gift.SetActive(false);
+		}
+	}
+
+/*
     for( var group = 0; group < profile.GetNumGroups(); group++ )
     {
         storyItems.Add(GetStoryItem(group, false));
         beatStoryItems.Add(GetStoryItem(group, true));
     }
+	*/
+
+	upperGround.SetActive(false);
+	mirror.SetActive(false);
 }
 
 function Start ()
@@ -281,7 +310,7 @@ private function ActivateText()
     }
     else
     {
-        text.text = "All progress is auto-saved\nGet all carrots to move on";
+        text.text = "All progress is auto-saved\nIf you get stuck, take a break :)";
     }
 }
 
@@ -295,6 +324,11 @@ private function GetStoryItem(group:int, groupBeat:boolean) : GameObject
 
 function OnGameScreenShow()
 {
+	// hide all story items
+	for( var gift in gifts )
+	{
+		gift.SetActive(false);
+	}
 // STEVETEMP
 //itemsAnim.Play();
 
@@ -434,6 +468,7 @@ function OnGameScreenShow()
     //  Story items
     //----------------------------------------
 
+/*
     for( var group = 0; group < profile.GetNumGroups(); group++ )
     {
         var i0 = storyItems[group];
@@ -451,6 +486,7 @@ function OnGameScreenShow()
             if( i1 != null ) i1.SetActive(false);
         }
     }
+	*/
 }
 
 function OnGameScreenHidden()
