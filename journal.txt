@@ -1,12 +1,12 @@
 
 TODO:
-- bug: music doesn't soften on reset
-- bug: initial music soften is delayed..
-- page turn sound
-- fix reverb zones sounding terrible on windows?
+- sound for land
+- sound for bubble key fall, collide
+- page flap menu sound
 - implement the mirroring-objects idea
 
 - WAIT: Mark to fix some music stuff - worst case, fall back on looping single samples again
+- LOW: fix reverb zones sounding terrible on windows?
 
 STORY/LYRICS:
 
@@ -85,3 +85,5 @@ DONE:
 - implement final level
 - reverb zones - definitely use this, to save on space and make Mark's life easier
 - how to play ending movie?
+- bug: music doesn't soften on reset
+- bug: initial music soften is delayed..

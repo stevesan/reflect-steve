@@ -276,7 +276,7 @@ function Start ()
     reverbZoneDist.SetSpeed(reverb.maxDistance/0.5);
 
     maxMusicVolume.Set(1.0);
-    maxMusicVolume.SetSpeed(1.0/1.0);
+    maxMusicVolume.SetSpeed(0.5);
 }
 
 function Update ()

@@ -33,9 +33,23 @@ function Start ()
 
 function Hide()
 {
-    BroadcastMessage("OnGameScreenHide", SendMessageOptions.DontRequireReceiver);
     state = "fadeout";
     fadeOutAnim.Play();
+    BroadcastMessage("OnGameScreenHide", SendMessageOptions.DontRequireReceiver);
+}
+
+function Show()
+{
+	state = "fadein";
+	fadeInAnim.Play();
+
+	for( var child:Transform in transform )
+	{
+		child.gameObject.SetActive(true);
+	}
+
+	GetComponent(AlphaHierarchy).SetLocalAlpha(0.0, true);
+	BroadcastMessage("OnGameScreenShow", SendMessageOptions.DontRequireReceiver);
 }
 
 function Update ()
@@ -44,25 +58,14 @@ function Update ()
     {
         if( game.GetState() != showingGameState )
         {
-            BroadcastMessage("OnGameScreenHide", SendMessageOptions.DontRequireReceiver);
-            state = "fadeout";
-            fadeOutAnim.Play();
+			Hide();
         }
     }
     else if( state == "hidden" )
     {
         if( game.GetState() == showingGameState )
         {
-            state = "fadein";
-            fadeInAnim.Play();
-
-            for( var child:Transform in transform )
-            {
-                child.gameObject.SetActive(true);
-            }
-
-            BroadcastMessage("OnGameScreenShow", SendMessageOptions.DontRequireReceiver);
-            GetComponent(AlphaHierarchy).SetLocalAlpha(0.0, true);
+			Show();
         }
     }
     else if( state == "fadeout" )
@@ -89,9 +92,12 @@ function Update ()
 
         if( game.GetState() != showingGameState )
         {
-            state = "fadeout";
-            BroadcastMessage("OnGameScreenHide", SendMessageOptions.DontRequireReceiver);
-            fadeOutAnim.Play();
+			Hide();
         }
+        else if( fadeInAnim.GetFraction() >= 1.0 )
+		{
+			state = "shown";
+            BroadcastMessage("OnGameScreenShown", SendMessageOptions.DontRequireReceiver);
+		}
     }
 }

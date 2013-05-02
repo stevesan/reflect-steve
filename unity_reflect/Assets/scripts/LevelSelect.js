@@ -3,8 +3,10 @@
 import System.Collections.Generic;
 
 var levelNumber:GUIText = null;
+var mainText:GUIText = null;
 var notBeatErrorSound:AudioClip;
 var skyDecor:AlphaHierarchy;
+var enterLevelSound:AudioClip;
 
 // Offset of the numbers when you mouse over the carrots
 var wsLevelNumberOffset = Vector3(0.0, -1.0, 0.0);
@@ -97,6 +99,8 @@ private var keepGroupOnShow = false;
 private var selectedLevId = -1;
 private var showTime = 0.0;
 
+var giftTextEnabled = false;
+
 private var storyItems = new List.<GameObject>();
 private var beatStoryItems = new List.<GameObject>();
 
@@ -137,63 +141,82 @@ class ArrowListener implements MouseEventManager.Listener
     function OnMouseExit() : void { }
 };
 
-class TrinketListener implements MouseEventManager.Listener
+class GiftListener implements MouseEventManager.Listener
 {
-	var trinket:GameObject;
+	var gift:Gift;
 	var text:GUIText;
+	var parent:LevelSelect;
 
-	function TrinketListener(_trinket)
+	function GiftListener(_gift, _text, _parent)
 	{
-		this.trinket = _trinket;
+		this.gift = _gift;
+		this.text = _text;
+		this.parent = _parent;
 	}
 
 	function GetSpace() : String { return "world"; }
 
 	function GetBounds() : Bounds
 	{
-		return trinket.GetComponent(Renderer).bounds;
+		return gift.GetComponent(Renderer).bounds;
 	}
 
     function OnMouseEnter() : void
 	{
-		text.text = "TODO";
+		if( this.parent.giftTextEnabled )
+		{
+			text.text = gift.subtitle;
+			gift.gameObject.GetComponent(tk2dSprite).color.a = 0.7;
+		}
 	}
 
     function OnMouseExit() : void
 	{
 		text.text = "";
+		gift.gameObject.GetComponent(tk2dSprite).color.a = 1.0;
 	}
 };
 
-class ReflectItemsAnimation extends SlicedAnimation
+class ShowGiftsAnim extends SlicedAnimation
 {
 	var reflectOnSound:AudioClip;
 	var reflectOffSound:AudioClip;
 	private var screen:LevelSelect;
 
-	function ReflectItemsAnimation(_screen)
+	function ShowGiftsAnim(_screen:LevelSelect)
 	{
+		Debug.Log("called, screen name = " + _screen.gameObject.name);
 		super();
-		screen = _screen;
+		this.screen = _screen;
+		Utils.Assert( this.screen != null );
+		Debug.Log("called, screen name = " + screen.gameObject.name);
 	}
 
 	function Update()
 	{
+		Utils.Assert(this.screen != null);
+
+		if( screen.GetCurrentGroup() >= screen.gifts.Count )
+			return;
+
 		BeginUpdate();
+
+		var gifts = screen.gifts[ screen.GetCurrentGroup() ];
 
 		if( CheckSlice(1.0) )
 		{
 			if( JustStartedSlice() )
 			{
+				screen.giftTextEnabled = false;
 				screen.mirror.SetActive(false);
 				screen.upperGround.SetActive(false);
+				gifts.SetActive(false);
 				screen.skyDecor.gameObject.SetActive(true);
 				screen.skyDecor.SetLocalAlpha(1.0, true);
 			}
 		}
 		else if( CheckSlice(0.5) )
 		{
-			var gifts = screen.gifts[ screen.GetCurrentGroup() ];
 			Utils.Assert(gifts != null);
 
 			if( JustStartedSlice() )
@@ -207,7 +230,7 @@ class ReflectItemsAnimation extends SlicedAnimation
 			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(f, true);
 
 			// make the ground fade in faster
-			var groundAlpha = Mathf.Min( f*2.0, 1.0 );
+			var groundAlpha = Mathf.Min( f*1.0, 1.0 );
 			screen.upperGround.GetComponent(AlphaHierarchy).SetLocalAlpha(groundAlpha, true);
 			screen.skyDecor.SetLocalAlpha(1-groundAlpha, true);
 			gifts.GetComponent(AlphaHierarchy).SetLocalAlpha(groundAlpha, true);
@@ -225,6 +248,7 @@ class ReflectItemsAnimation extends SlicedAnimation
 			if( JustStartedSlice() )
 			{
 				AudioSource.PlayClipAtPoint(reflectOffSound, Camera.main.transform.position );
+				screen.giftTextEnabled = true;
 			}
 			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1-GetSliceFraction(), true);
 		}
@@ -236,7 +260,7 @@ class ReflectItemsAnimation extends SlicedAnimation
 		EndUpdate();
 	}
 }
-var itemsAnim = new ReflectItemsAnimation(this);
+//var giftsAnim:ShowGiftsAnim = null;
 
 function Awake()
 {
@@ -270,14 +294,6 @@ function Awake()
 		}
 	}
 
-/*
-    for( var group = 0; group < profile.GetNumGroups(); group++ )
-    {
-        storyItems.Add(GetStoryItem(group, false));
-        beatStoryItems.Add(GetStoryItem(group, true));
-    }
-	*/
-
 	upperGround.SetActive(false);
 	mirror.SetActive(false);
 }
@@ -303,23 +319,19 @@ function GetLastLevel()
 
 private function ActivateText()
 {
-    var text = transform.Find("text").GetComponent(GUIText);
+	if( mainText == null )
+		mainText = transform.Find("text").GetComponent(GUIText);
+
     if( profile.HasBeatGame() )
-    {
-        text.text = "You have finished the game - congrats!\nPress 'F' in-game for Free Reflection Mode";
-    }
+        mainText.text = "You have finished the game - congrats!\nTry replaying levels and pressing F in-game..";
     else
-    {
-        text.text = "All progress is auto-saved\nIf you get stuck, take a break :)";
-    }
+        mainText.text = "All progress is auto-saved\nIf you get stuck, take a break";
 }
 
-private function GetStoryItem(group:int, groupBeat:boolean) : GameObject
+function OnGameScreenShown()
 {
-    var suffix = groupBeat ? "b" : "";
-    var name = "story"+group.ToString("00")+suffix;
-    Debug.Log(name);
-    return GameObject.Find(name);
+	//giftsAnim = new ShowGiftsAnim(this);
+	//giftsAnim.Play();
 }
 
 function OnGameScreenShow()
@@ -329,23 +341,20 @@ function OnGameScreenShow()
 	{
 		gift.SetActive(false);
 	}
-// STEVETEMP
-//itemsAnim.Play();
 
-    state = "active";
-	showTime = Time.time;
-
-    ActivateText();
-
-    if( !keepGroupOnShow )
-    {
+	if( state != "switchGroup" )
+	{
         var lastPlayedLev = profile.GetLastPlayedLevel();
         if( lastPlayedLev == -1 )
             currentGroup = 0;
         else
             currentGroup = profile.GetGroupNum( lastPlayedLev );
-    }
-    keepGroupOnShow = false;
+	}
+
+    state = "shown";
+	showTime = Time.time;
+
+    ActivateText();
 
 	// Compute some numbers
     var firstLev = GetFirstLevel();
@@ -358,6 +367,7 @@ function OnGameScreenShow()
 	//----------------------------------------
 
     mouseMgr = new MouseEventManager();
+    mouseListeners.Clear();
     mouseMgr.SetTargets(mouseListeners);
 
     // hide prefabs
@@ -401,6 +411,18 @@ function OnGameScreenShow()
         nextIcon.SetActive(true);
         mouseListeners.Add( new ArrowListener(nextIcon) );
     }
+
+	//----------------------------------------
+	//  Gift listeners
+	//----------------------------------------
+	if( GetCurrentGroup() < gifts.Count )
+	{
+		for( var itemXform:Transform in gifts[GetCurrentGroup()].transform )
+		{
+			//mouseListeners.Add( new GiftListener(itemXform.gameObject.GetComponent(Gift), mainText, this ));
+		}
+	}
+	giftTextEnabled = false;
 
 	//----------------------------------------
 	//  Footprints
@@ -464,35 +486,10 @@ function OnGameScreenShow()
 		}
     }
 
-    //----------------------------------------
-    //  Story items
-    //----------------------------------------
-
-/*
-    for( var group = 0; group < profile.GetNumGroups(); group++ )
-    {
-        var i0 = storyItems[group];
-        var i1 = beatStoryItems[group];
-
-        if( false && group == GetCurrentGroup() )
-        {
-            var beat = profile.GetIsGroupFinished(GetCurrentGroup());
-            if( i0 != null ) i0.SetActive(!beat);
-            if( i1 != null ) i1.SetActive(beat);
-        }
-        else
-        {
-            if( i0 != null ) i0.SetActive(false);
-            if( i1 != null ) i1.SetActive(false);
-        }
-    }
-	*/
 }
 
 function OnGameScreenHidden()
 {
-    state = "inactive";
-
     // destroy all level widgets
     for( var widget in widgets )
     {
@@ -509,25 +506,28 @@ function OnGameScreenHidden()
 
 function Update ()
 {
-    if( state != "active" )
+    if( state != "shown" )
         return;
 
-	itemsAnim.Update();
+/*
+	if( giftsAnim != null )
+		giftsAnim.Update();
+		*/
 
     levelNumber.text = "";
 
     mouseMgr.Update();
-    var currTarget = mouseMgr.GetCurrentTarget() as IconMouseListener;
+    var iconTarget = mouseMgr.GetCurrentTarget() as IconMouseListener;
     var arrowTarget = mouseMgr.GetCurrentTarget() as ArrowListener;
 
-    if( currTarget != null )
+    if( iconTarget != null )
     {
-        var targetLevId = currTarget.icon.levelId;
+        var targetLevId = iconTarget.icon.levelId;
 
         // show the number
         levelNumber.text = "" + (targetLevId+1);
-        var wsTextPos = currTarget.icon.transform.position;
-        wsTextPos.y = currTarget.GetBounds().max.y + 0.5;
+        var wsTextPos = iconTarget.icon.transform.position;
+        wsTextPos.y = iconTarget.GetBounds().max.y + 0.5;
         var textPos = Camera.main.WorldToViewportPoint( wsTextPos );
         levelNumber.transform.position.x = textPos.x;
         levelNumber.transform.position.y = textPos.y;
@@ -538,7 +538,8 @@ function Update ()
             // hide, and make sure to start the selected level once hidden
             selectedLevId = targetLevId;
             GetComponent(GameScreen).Hide();
-            state = "hiding";
+			AudioSource.PlayClipAtPoint( enterLevelSound, Vector3(0,0,0) );
+            state = "fadingToLevel";
         }
     }
     else if( arrowTarget != null )
@@ -563,9 +564,8 @@ function Update ()
                 {
                     currentGroup++;
                     selectedLevId = -1;
-                    keepGroupOnShow = true;
                     GetComponent(GameScreen).Hide();
-                    state = "hiding";
+                    state = "switchGroup";
                 }
                 else
                 {
@@ -583,9 +583,8 @@ function Update ()
             {
                 currentGroup--;
                 selectedLevId = -1;
-                keepGroupOnShow = true;
                 GetComponent(GameScreen).Hide();
-                state = "hiding";
+                state = "switchGroup";
             }
         }
     }
