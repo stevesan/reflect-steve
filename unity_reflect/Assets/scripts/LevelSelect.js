@@ -2,6 +2,8 @@
 
 import System.Collections.Generic;
 
+static var main:LevelSelect = null;
+
 var levelNumber:GUIText = null;
 var mainText:GUIText = null;
 var notBeatErrorSound:AudioClip;
@@ -247,7 +249,10 @@ private var giftsAnim:ShowGiftsAnim = null;
 
 function Awake()
 {
-    game = GameObject.Find("gameController").GetComponent(GameController);
+	Utils.Assert( LevelSelect.main == null );
+	LevelSelect.main = this;
+	
+    game = GameController.Singleton;
     if( game == null )
     {
         Debug.LogError("could not find gameController!");
@@ -290,6 +295,7 @@ function Awake()
 function Start ()
 {
 	OnGameScreenHidden();
+	currentGroup = GetLastPlayedGroup();
 }
 
 function GetCurrentGroup()
@@ -315,7 +321,7 @@ private function ActivateText()
     if( profile.HasBeatGame() )
         mainText.text = "You have finished the game - congrats!\nTry replaying levels and pressing F in-game..";
     else
-        mainText.text = "All progress is auto-saved\nIf you get stuck, take a break";
+        mainText.text = "(All progress is auto-saved)\n(If you get stuck, take a break)";
 }
 
 // Called when fade is done
@@ -325,15 +331,20 @@ function OnGameScreenShown()
 	//giftsAnim.Play();
 }
 
+function GetLastPlayedGroup()
+{
+	var lastPlayedLev = profile.GetLastPlayedLevel();
+	if( lastPlayedLev == -1 )
+		return 0;
+	else
+		return profile.GetGroupNum( lastPlayedLev );
+}
+
 function OnGameScreenShow()
 {
 	if( state != "switchGroup" )
 	{
-        var lastPlayedLev = profile.GetLastPlayedLevel();
-        if( lastPlayedLev == -1 )
-            currentGroup = 0;
-        else
-            currentGroup = profile.GetGroupNum( lastPlayedLev );
+		currentGroup = GetLastPlayedGroup();
 	}
 
     state = "shown";
@@ -492,8 +503,14 @@ function OnGameScreenHidden()
 	HideAllGiftCrap();
 	giftsAnim = null;
 
-	if( selectedLevId != -1 )
+	if( state == "fadingToLevel" && selectedLevId != -1 )
+	{
 		game.OnStartLevel(selectedLevId);
+	}
+	else if( state == "switchGroup" )
+	{
+		game.OnEnterGroup(currentGroup);
+	}
 
 }
 
@@ -567,8 +584,8 @@ function Update ()
                 {
                     currentGroup++;
                     selectedLevId = -1;
-                    GetComponent(GameScreen).Hide();
                     state = "switchGroup";
+                    GetComponent(GameScreen).Hide();
                 }
                 else
                 {
@@ -586,8 +603,8 @@ function Update ()
             {
                 currentGroup--;
                 selectedLevId = -1;
-                GetComponent(GameScreen).Hide();
                 state = "switchGroup";
+                GetComponent(GameScreen).Hide();
             }
         }
     }

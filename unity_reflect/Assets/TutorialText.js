@@ -13,6 +13,9 @@ function Start ()
     cons.AddListener(this.gameObject, "OnEnterReflectMode", "OnRelevantStateChanged");
     cons.AddListener(this.gameObject, "OnExitReflectMode", "OnRelevantStateChanged");
     cons.AddListener(this.gameObject, "OnGetMirror", "OnRelevantStateChanged");
+
+	// Kick off to start
+	OnRelevantStateChanged(GameController.Singleton.gameObject);
 }
 
 private function OnRelevantStateChanged(gameObj:GameObject)

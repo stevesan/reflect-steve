@@ -872,6 +872,11 @@ function OnStartLevel(num:int)
     EnterPlayingState( num );
 }
 
+function OnEnterGroup(num:int)
+{
+	gamestate = "titlecard";
+}
+
 function EnterReflectMode()
 {
 	isReflecting = true;
