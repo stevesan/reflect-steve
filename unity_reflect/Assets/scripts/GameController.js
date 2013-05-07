@@ -40,12 +40,6 @@ var tracker:Tracking = null;
 var mirrorCount : MirrorCount;
 private var ssMirrorCountOffset = Vector2(20, 0);	// pixels
 var levelNumber : GUIText;
-var level0Tute : GUIText;
-var level0TuteB : GUIText;
-var level1TuteA : GUIText;
-var level1TuteB : GUIText;
-var level2Tute : GUIText;
-var level4Tute : GUIText;
 
 var player : GameObject;
 var carrotPrefab : GameObject;
@@ -243,6 +237,10 @@ function GetLevel() : LevelInfo { return levels[currLevId]; }
 function GetLevels() : List.<LevelInfo> { return levels; }
 
 function GetIsReflecting() : boolean { return isReflecting; }
+function GetHasMirrors() : boolean
+{
+	return (numReflectionsAllowed-numReflectionsDone) > 0;
+}
 function GetMirrorPos() : Vector2 { return lineStart; }
 function GetMirrorAngle() : float { return mirrorAngle; }
 
@@ -282,6 +280,7 @@ function OnGetMirror( mirror:Mirror )
     {
 		numReflectionsAllowed++;
 		mirrorCount.OnCountChanged(numReflectionsAllowed - numReflectionsDone);
+		GetComponent(Connectable).TriggerEvent("OnGetMirror");
 	}
 }
 
@@ -868,7 +867,7 @@ class ReflectEventDetails
 	}
 };
 
-function StartLevel(num:int)
+function OnStartLevel(num:int)
 {
     EnterPlayingState( num );
 }
@@ -943,12 +942,6 @@ function ResetLevel()
 
 function Update()
 {
-	level0Tute.enabled = false;
-	level0TuteB.enabled = false;
-	level1TuteA.enabled = false;
-	level1TuteB.enabled = false;
-	level4Tute.enabled = false;
-    level2Tute.enabled = false;
 	
 	// handle system-wide keys
 	if( Input.GetButtonDown('MuteMusic') )
@@ -1022,14 +1015,6 @@ function Update()
 		var inTime = (doFastFade ? fastFadeInTime : fadeInTime);
 		alpha = Mathf.Clamp( (Time.time-fadeStart) / inTime, 0.0, 1.0 );
 		SetFadeAmount( alpha );
-
-		level0Tute.enabled = (currLevId == 0);
-		level0TuteB.enabled = (currLevId == 0);
-		level1TuteA.enabled = currLevId == 1
-			&& (numReflectionsAllowed-numReflectionsDone > 0) && !isReflecting;
-		level1TuteB.enabled = currLevId == 1 && isReflecting;
-        level2Tute.enabled = currLevId == 2;
-		level4Tute.enabled = currLevId == 3 && isReflecting;
 
         if( Input.GetButtonDown('Reset') )
         {

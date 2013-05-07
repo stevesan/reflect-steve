@@ -87,7 +87,7 @@ var printsGen = new FootprintsPathGen();
 
 private var game:GameController = null;
 private var widgetPrefabs = new List.<GameObject>();
-var gifts = new List.<GameObject>();
+var groupGifts = new List.<GameObject>();
 
 private var widgets = new List.<GameObject>();
 private var printsAnims = new List.<GameObject>();
@@ -103,21 +103,6 @@ var giftTextEnabled = false;
 
 private var storyItems = new List.<GameObject>();
 private var beatStoryItems = new List.<GameObject>();
-
-function FindGifts(group) : GameObject
-{
-	var xform = transform.Find("gifts"+group);
-	if( xform != null )
-	{
-		Debug.Log("Found "+xform.gameObject.name);
-		return xform.gameObject;
-	}
-	else
-	{
-		Debug.Log("could not find gifts"+group);
-		return null;
-	}
-}
 
 class ArrowListener implements MouseEventManager.Listener
 {
@@ -179,29 +164,27 @@ class GiftListener implements MouseEventManager.Listener
 
 class ShowGiftsAnim extends SlicedAnimation
 {
-	var reflectOnSound:AudioClip;
-	var reflectOffSound:AudioClip;
 	private var screen:LevelSelect;
 
 	function ShowGiftsAnim(_screen:LevelSelect)
 	{
-		Debug.Log("called, screen name = " + _screen.gameObject.name);
 		super();
+		//Debug.Log("!! called, screen name = " + _screen.gameObject.name);
 		this.screen = _screen;
 		Utils.Assert( this.screen != null );
-		Debug.Log("called, screen name = " + screen.gameObject.name);
+		//Debug.Log("!! called, screen name = " + screen.gameObject.name);
 	}
 
 	function Update()
 	{
 		Utils.Assert(this.screen != null);
 
-		if( screen.GetCurrentGroup() >= screen.gifts.Count )
+		if( screen.GetCurrentGroup() >= screen.groupGifts.Count )
 			return;
 
 		BeginUpdate();
 
-		var gifts = screen.gifts[ screen.GetCurrentGroup() ];
+		var gifts = screen.groupGifts[ screen.GetCurrentGroup() ];
 
 		if( CheckSlice(1.0) )
 		{
@@ -223,7 +206,7 @@ class ShowGiftsAnim extends SlicedAnimation
 			{
 				screen.mirror.SetActive(true);
 				screen.upperGround.SetActive(true);
-				AudioSource.PlayClipAtPoint(reflectOnSound, Camera.main.transform.position );
+				AudioSource.PlayClipAtPoint(GameController.Singleton.startReflectSnd, Camera.main.transform.position );
 				gifts.SetActive(true);
 			}
 			var f = GetSliceFraction();
@@ -247,7 +230,7 @@ class ShowGiftsAnim extends SlicedAnimation
 		{
 			if( JustStartedSlice() )
 			{
-				AudioSource.PlayClipAtPoint(reflectOffSound, Camera.main.transform.position );
+				AudioSource.PlayClipAtPoint(GameController.Singleton.cancelReflectSnd, Camera.main.transform.position );
 				screen.giftTextEnabled = true;
 			}
 			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1-GetSliceFraction(), true);
@@ -260,7 +243,7 @@ class ShowGiftsAnim extends SlicedAnimation
 		EndUpdate();
 	}
 }
-//var giftsAnim:ShowGiftsAnim = null;
+private var giftsAnim:ShowGiftsAnim = null;
 
 function Awake()
 {
@@ -272,27 +255,33 @@ function Awake()
 
     // gather prefabs
     for( var g = 0; g < profile.GetNumGroups(); g++ )
-	{
-		var prefabName = "levelwidget" + (g+1).ToString("0");
-		var prefabXform = transform.Find(prefabName);
-		if( prefabXform == null )
 		{
-			Debug.LogError("could not find "+prefabName);
-		}
-		var prefab = prefabXform.gameObject;
-		if( prefab != null && prefab.GetComponent(LevelIcon) != null )
-		{
-			widgetPrefabs.Add(prefab);
-			prefab.SetActive(false);
-		}
+			// gather widgets/icons
 
-		var gift = FindGifts(g);
-		if(gift != null )
-		{
-			gifts.Add(gift);
-			gift.SetActive(false);
+			var prefabName = "levelwidget" + (g+1).ToString("0");
+			var prefabXform = transform.Find(prefabName);
+			if( prefabXform == null )
+			{
+				Debug.LogError("could not find "+prefabName);
+			}
+			var prefab = prefabXform.gameObject;
+			if( prefab != null && prefab.GetComponent(LevelIcon) != null )
+			{
+				widgetPrefabs.Add(prefab);
+				prefab.SetActive(false);
+			}
+
+			// Gift group
+
+			var giftXform = transform.Find("gifts"+g);
+			if( giftXform != null )
+			{
+				Debug.Log("Found "+giftXform.gameObject.name);
+				var gift = giftXform.gameObject;
+				groupGifts.Add(gift);
+				gift.SetActive(false);
+			}
 		}
-	}
 
 	upperGround.SetActive(false);
 	mirror.SetActive(false);
@@ -300,6 +289,7 @@ function Awake()
 
 function Start ()
 {
+	OnGameScreenHidden();
 }
 
 function GetCurrentGroup()
@@ -328,6 +318,7 @@ private function ActivateText()
         mainText.text = "All progress is auto-saved\nIf you get stuck, take a break";
 }
 
+// Called when fade is done
 function OnGameScreenShown()
 {
 	//giftsAnim = new ShowGiftsAnim(this);
@@ -336,12 +327,6 @@ function OnGameScreenShown()
 
 function OnGameScreenShow()
 {
-	// hide all story items
-	for( var gift in gifts )
-	{
-		gift.SetActive(false);
-	}
-
 	if( state != "switchGroup" )
 	{
         var lastPlayedLev = profile.GetLastPlayedLevel();
@@ -415,14 +400,18 @@ function OnGameScreenShow()
 	//----------------------------------------
 	//  Gift listeners
 	//----------------------------------------
-	if( GetCurrentGroup() < gifts.Count )
+	/*
+	if( GetCurrentGroup() < groupGifts.Count )
 	{
-		for( var itemXform:Transform in gifts[GetCurrentGroup()].transform )
+		for( var itemXform:Transform in groupGifts[GetCurrentGroup()].transform )
 		{
-			//mouseListeners.Add( new GiftListener(itemXform.gameObject.GetComponent(Gift), mainText, this ));
+			mouseListeners.Add( new GiftListener(itemXform.gameObject.GetComponent(Gift), mainText, this ));
 		}
 	}
+	*/
 	giftTextEnabled = false;
+
+	HideAllGiftCrap();
 
 	//----------------------------------------
 	//  Footprints
@@ -490,18 +479,32 @@ function OnGameScreenShow()
 
 function OnGameScreenHidden()
 {
-    // destroy all level widgets
-    for( var widget in widgets )
-    {
-        Destroy(widget);
-    }
+	// destroy all level widgets
+	for( var widget in widgets )
+	{
+		Destroy(widget);
+	}
 
-    widgets.Clear();
-    mouseListeners.Clear();
+	widgets.Clear();
+	mouseListeners.Clear();
 	printsGen.Clear();
 
-    if( selectedLevId != -1 )
-        game.StartLevel(selectedLevId);
+	HideAllGiftCrap();
+	giftsAnim = null;
+
+	if( selectedLevId != -1 )
+		game.OnStartLevel(selectedLevId);
+
+}
+
+function HideAllGiftCrap()
+{
+	for( var gifts in groupGifts )
+	{
+		gifts.SetActive(false);
+	}
+	mirror.SetActive(false);
+	upperGround.SetActive(false);
 }
 
 function Update ()
@@ -512,8 +515,8 @@ function Update ()
 /*
 	if( giftsAnim != null )
 		giftsAnim.Update();
-		*/
 
+*/
     levelNumber.text = "";
 
     mouseMgr.Update();
