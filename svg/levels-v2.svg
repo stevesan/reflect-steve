@@ -141,9 +141,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="149.96797"
-     inkscape:cy="-518.02632"
+     inkscape:zoom="4"
+     inkscape:cx="119.69896"
+     inkscape:cy="-57.19969"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -270,7 +270,7 @@
        inkscape:connector-curvature="0" />
     <path
        style="fill:#ffffff;fill-opacity:1;stroke:none"
-       d="m 0,215 100,0 0,35 -10,0 0,10 -10,0 0,10 -10,0 0,15 -20,0 0,-15 -10,0 0,15 -20,0 0,-15 -20,0 0,-20 85,0 0,-10 -85,0 z"
+       d="m 0,215 100,0 0,35 -10,0 0,10 -10,0 0,10 -10,0 0,15 -20,0 0,-15 -10,0 0,15 -20,0 0,-15 -20,0 0,-20 80,0 0,-10 -80,0 z"
        id="path4482"
        gameObjType="levelGeo"
        inkscape:connector-curvature="0"
@@ -1768,7 +1768,7 @@
        id="rect4096"
        height="10"
        x="-10"
-       y="705"
+       y="710"
        width="10" />
   </g>
 </svg>

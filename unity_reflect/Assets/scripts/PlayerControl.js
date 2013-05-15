@@ -8,6 +8,7 @@ var inputEnabled = true;
 
 var jumpSnd : AudioClip;
 var landFx : ParticleSystem;
+var landSound : AudioClip;
 var jumpFx : ParticleSystem;
 
 // above this Y-speed, the land sound will NOT play
@@ -315,6 +316,10 @@ function FixedUpdate()
 		if( landFx != null ) {
 			landFx.transform.position = transform.position + landFxOffset;
 			landFx.Play();
+		}
+		if( landSound != null )
+		{
+			AudioSource.PlayClipAtPoint( landSound, transform.position );
 		}
 	}
 	prevYSpeed = rigidbody.velocity.y;

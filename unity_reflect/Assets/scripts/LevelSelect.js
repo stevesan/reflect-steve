@@ -321,7 +321,9 @@ private function ActivateText()
     if( profile.HasBeatGame() )
         mainText.text = "You have finished the game - congrats!\nTry replaying levels and pressing F in-game..";
     else
-        mainText.text = "(All progress is auto-saved)\n(If you get stuck, take a break)";
+        //mainText.text = "(All progress is auto-saved)\n(If you get stuck, take a break)";
+		// Steve: Actually, let's try it without the text.
+		mainText.text = "";
 }
 
 // Called when fade is done
@@ -535,6 +537,10 @@ function Update ()
 
 */
     levelNumber.text = "";
+
+	// Don't respond to mouse for a little bit, to avoid accidental clicks
+	if( (Time.time-showTime) < 0.1 )
+		return;
 
     mouseMgr.Update();
     var iconTarget = mouseMgr.GetCurrentTarget() as IconMouseListener;
