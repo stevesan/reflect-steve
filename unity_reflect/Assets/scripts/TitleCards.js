@@ -12,7 +12,7 @@ private var group2text = [
 
 function Start()
 {
-
+	GetComponent(GUIText).enabled = false;
 }
 
 function Update()
@@ -20,8 +20,15 @@ function Update()
 
 }
 
+function OnGameScreenHidden()
+{
+	GetComponent(GUIText).enabled = false;
+}
+
 function OnGameScreenShow()
 {
+	GetComponent(GUIText).enabled = true;
+
 	var group = LevelSelect.main.GetCurrentGroup();
 	if( group < group2text.length )
 		GetComponent(GUIText).text = group2text[group] + "\n\n\n(click)";
