@@ -6,6 +6,7 @@ static var main:LevelSelect = null;
 
 var levelNumber:GUIText = null;
 var mainText:GUIText = null;
+var giftText:GUIText = null;
 var notBeatErrorSound:AudioClip;
 var skyDecor:AlphaHierarchy;
 var enterLevelSound:AudioClip;
@@ -89,7 +90,7 @@ var printsGen = new FootprintsPathGen();
 
 private var game:GameController = null;
 private var widgetPrefabs = new List.<GameObject>();
-var groupGifts = new List.<GameObject>();
+var giftGroups = new List.<GameObject>();
 
 private var widgets = new List.<GameObject>();
 private var printsAnims = new List.<GameObject>();
@@ -136,6 +137,10 @@ class GiftListener implements MouseEventManager.Listener
 
 	function GiftListener(_gift, _text, _parent)
 	{
+		Utils.Assert(_gift != null);
+		Utils.Assert(_text != null);
+		Utils.Assert(_parent != null);
+
 		this.gift = _gift;
 		this.text = _text;
 		this.parent = _parent;
@@ -145,7 +150,7 @@ class GiftListener implements MouseEventManager.Listener
 
 	function GetBounds() : Bounds
 	{
-		return gift.GetComponent(Renderer).bounds;
+		return gift.gameObject.GetComponent(Renderer).bounds;
 	}
 
     function OnMouseEnter() : void
@@ -181,12 +186,12 @@ class ShowGiftsAnim extends SlicedAnimation
 	{
 		Utils.Assert(this.screen != null);
 
-		if( screen.GetCurrentGroup() >= screen.groupGifts.Count )
+		if( screen.GetCurrentGroup() >= screen.giftGroups.Count )
 			return;
 
 		BeginUpdate();
 
-		var gifts = screen.groupGifts[ screen.GetCurrentGroup() ];
+		var gifts = screen.giftGroups[ screen.GetCurrentGroup() ];
 
 		if( CheckSlice(1.0) )
 		{
@@ -260,33 +265,33 @@ function Awake()
 
     // gather prefabs
     for( var g = 0; g < profile.GetNumGroups(); g++ )
+	{
+		// gather widgets/icons
+
+		var prefabName = "levelwidget" + (g+1).ToString("0");
+		var prefabXform = transform.Find(prefabName);
+		if( prefabXform == null )
 		{
-			// gather widgets/icons
-
-			var prefabName = "levelwidget" + (g+1).ToString("0");
-			var prefabXform = transform.Find(prefabName);
-			if( prefabXform == null )
-			{
-				Debug.LogError("could not find "+prefabName);
-			}
-			var prefab = prefabXform.gameObject;
-			if( prefab != null && prefab.GetComponent(LevelIcon) != null )
-			{
-				widgetPrefabs.Add(prefab);
-				prefab.SetActive(false);
-			}
-
-			// Gift group
-
-			var giftXform = transform.Find("gifts"+g);
-			if( giftXform != null )
-			{
-				Debug.Log("Found "+giftXform.gameObject.name);
-				var gift = giftXform.gameObject;
-				groupGifts.Add(gift);
-				gift.SetActive(false);
-			}
+			Debug.LogError("could not find "+prefabName);
 		}
+		var prefab = prefabXform.gameObject;
+		if( prefab != null && prefab.GetComponent(LevelIcon) != null )
+		{
+			widgetPrefabs.Add(prefab);
+			prefab.SetActive(false);
+		}
+
+		// Gift groups
+
+		var giftsXform = transform.Find("gifts"+g);
+		if( giftsXform != null )
+		{
+			Debug.Log("Found "+giftsXform.gameObject.name);
+			var group = giftsXform.gameObject;
+			giftGroups.Add(group);
+			group.SetActive(false);
+		}
+	}
 
 	upperGround.SetActive(false);
 	mirror.SetActive(false);
@@ -311,19 +316,6 @@ function GetFirstLevel()
 function GetLastLevel()
 {
     return profile.GetLastLevel( GetCurrentGroup() );
-}
-
-private function ActivateText()
-{
-	if( mainText == null )
-		mainText = transform.Find("text").GetComponent(GUIText);
-
-    if( profile.HasBeatGame() )
-        mainText.text = "You have finished the game - congrats!\nTry replaying levels and pressing F in-game..";
-    else
-        //mainText.text = "(All progress is auto-saved)\n(If you get stuck, take a break)";
-		// Steve: Actually, let's try it without the text.
-		mainText.text = "";
 }
 
 // Called when fade is done
@@ -352,8 +344,6 @@ function OnGameScreenShow()
     state = "shown";
 	showTime = Time.time;
 
-    ActivateText();
-
 	// Compute some numbers
     var firstLev = GetFirstLevel();
     var lastLev = GetLastLevel();
@@ -368,12 +358,13 @@ function OnGameScreenShow()
     mouseListeners.Clear();
     mouseMgr.SetTargets(mouseListeners);
 
-    // hide prefabs
+    // hide all widget prefabs
     for( var p in widgetPrefabs )
         p.SetActive(false);
 
     var totalWidth = widgetSpacing * (numLevs-1);
 
+	// Create carrots
     for( var lev = firstLev; lev <= lastLev; lev++ )
     {
         if( !profile.IsLevelUnlocked(lev) )
@@ -413,18 +404,34 @@ function OnGameScreenShow()
 	//----------------------------------------
 	//  Gift listeners
 	//----------------------------------------
-	/*
-	if( GetCurrentGroup() < groupGifts.Count )
-	{
-		for( var itemXform:Transform in groupGifts[GetCurrentGroup()].transform )
-		{
-			mouseListeners.Add( new GiftListener(itemXform.gameObject.GetComponent(Gift), mainText, this ));
-		}
-	}
-	*/
-	giftTextEnabled = false;
 
 	HideAllGiftCrap();
+	giftText.text = "";
+
+	if( profile.HasBeatGame() )
+	{
+		if( GetCurrentGroup() < giftGroups.Count )
+		{
+			giftGroups[GetCurrentGroup()].SetActive(true);
+
+			for( var itemXform:Transform in giftGroups[GetCurrentGroup()].transform )
+			{
+				Debug.Log(itemXform.gameObject.name);
+				mouseListeners.Add( new GiftListener(itemXform.gameObject.GetComponent(Gift), giftText, this ));
+			}
+			giftTextEnabled = true;
+			mainText.text = "";
+		}
+		else
+		{
+        	mainText.text = "You have finished the game - congrats!\nTry replaying levels and pressing F in-game";
+		}
+	}
+	else
+	{
+		mainText.text = "";
+		giftTextEnabled = false;
+	}
 
 	//----------------------------------------
 	//  Footprints
@@ -518,10 +525,11 @@ function OnGameScreenHidden()
 
 function HideAllGiftCrap()
 {
-	for( var gifts in groupGifts )
+	for( var gifts in giftGroups )
 	{
 		gifts.SetActive(false);
 	}
+
 	mirror.SetActive(false);
 	upperGround.SetActive(false);
 }

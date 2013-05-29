@@ -945,6 +945,7 @@ function ResetLevel()
     }
 }
 
+
 function Update()
 {
 	
@@ -1171,12 +1172,12 @@ function Update()
 					UpdateConveyorVisuals( currConveyors );
 				}
 			}
-			else {
-
+			else
+			{
 				if( Input.GetButtonDown('ReflectToggle') )
 				{
-				// TEMP
-			Instantiate( mirrorPrefab, player.transform.position+Vector3(0,1,0), mirrorPrefab.transform.rotation );
+					// TEMP
+					//Instantiate( mirrorPrefab, player.transform.position+Vector3(0,1,0), mirrorPrefab.transform.rotation );
 
                     var hasEnough = numReflectionsDone < numReflectionsAllowed;
 

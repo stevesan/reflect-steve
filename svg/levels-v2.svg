@@ -141,11 +141,11 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4"
-     inkscape:cx="119.69896"
-     inkscape:cy="-57.19969"
+     inkscape:zoom="2.8284271"
+     inkscape:cx="442.632"
+     inkscape:cy="-165.42476"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="true"
      inkscape:window-width="1280"
      inkscape:window-height="752"
@@ -1024,7 +1024,7 @@
     <rect
        width="10"
        y="350"
-       x="430"
+       x="435"
        height="10"
        id="rect3515"
        style="fill:#00a3ff;fill-opacity:1;stroke:none"
@@ -1655,18 +1655,6 @@
        x="370"
        y="240"
        width="10" />
-    <text
-       sodipodi:linespacing="125%"
-       id="text3409"
-       y="340"
-       x="365"
-       style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       xml:space="preserve"><tspan
-         style="font-size:24px;fill:#ff0000;fill-opacity:1"
-         y="340"
-         x="365"
-         id="tspan3411"
-         sodipodi:role="line">needs work</tspan></text>
     <rect
        maxReflections="0"
        gameObjType="levelArea"
