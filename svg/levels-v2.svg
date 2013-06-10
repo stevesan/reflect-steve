@@ -141,9 +141,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.8284271"
-     inkscape:cx="442.632"
-     inkscape:cy="-165.42476"
+     inkscape:zoom="2"
+     inkscape:cx="140.37396"
+     inkscape:cy="-424.82347"
      inkscape:document-units="px"
      inkscape:current-layer="layer2"
      showgrid="true"
@@ -949,14 +949,6 @@
        x="160"
        y="580"
        width="10" />
-    <rect
-       width="10"
-       y="610"
-       x="140"
-       height="10"
-       id="rect3535"
-       style="fill:#00a3ff;fill-opacity:1;stroke:none"
-       gameObjType="key" />
     <rect
        width="10"
        y="580"
