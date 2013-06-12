@@ -465,9 +465,10 @@ function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
 //----------------------------------------
 //  Sets up the playing level
 //----------------------------------------
-function InitPlaying( levId:int, fadeIn:boolean )
+function InitPlaying( levId:int )
 {
 	currLevId = levId;
+    gamestate = "playing";
 
     menu.EnterHidden();
     ExitReflectMode();
@@ -620,11 +621,6 @@ function InitPlaying( levId:int, fadeIn:boolean )
 	GetComponent(Connectable).TriggerEvent("OnEnterPlayingState");
 }
 
-function InitPlaying( levId:int )
-{
-	InitPlaying(levId, true);
-}
-
 function DeinitPlayObjects()
 {
     flapWidget.SetActive(false);
@@ -744,7 +740,6 @@ function OnCurtainsClosed()
     if( gamestate == "cuedLevelStart" )
     {
         InitPlaying(goalLevId);
-        gamestate = "playing";
         FadeCurtains.main.Open();
     }
     else if( gamestate == "fadingToLevelSelect" )
@@ -911,12 +906,9 @@ function ResetLevel()
     if( gamestate == 'playing' || gamestate == 'menu' )
     {
 		DeinitPlayObjects();
-		InitPlaying( currLevId, false );
-
+		InitPlaying( currLevId );
         BroadcastMessage("OnResetLevel", this, SendMessageOptions.DontRequireReceiver);
-
-        if( tracker != null )
-            tracker.PostEvent( "resetLevel", ""+currLevId );
+        if( tracker != null ) tracker.PostEvent( "resetLevel", ""+currLevId );
     }
 }
 
@@ -1102,9 +1094,6 @@ function Update()
 			{
 				if( Input.GetButtonDown('ReflectToggle') )
 				{
-					// TEMP
-					//Instantiate( mirrorPrefab, player.transform.position+Vector3(0,1,0), mirrorPrefab.transform.rotation );
-
                     var hasEnough = numReflectionsDone < numReflectionsAllowed;
 
 				#if UNITY_EDITOR
