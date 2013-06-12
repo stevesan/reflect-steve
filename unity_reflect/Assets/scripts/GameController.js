@@ -87,7 +87,6 @@ var fastFadeOutTime = 0.25;
 var fastFadeInTime = 0.25;
 private var doFastFade = false;
 private var origLightIntensity : float;
-private var fadeStart : float;
 
 //----------------------------------------
 //  Assets
@@ -169,6 +168,7 @@ private var goalLevId : int = 0;	// which level we're fading into
 private var currLevPoly : Mesh2D = null;	// current effective geometry
 private var currConveyors : List.<Mesh2D> = null;
 private var gamestate:String;
+private var preFadeState:String;
 private var postFadeState:String;
 
 function GetState() : String { return gamestate; }
@@ -262,9 +262,8 @@ function OnTouchCarrot(carrot:Star)
                     tracker.PostEvent( "beatLevel", ""+currLevId );
 
                 profile.OnBeatLevel(currLevId);
-
                 GetComponent(Connectable).TriggerEvent("OnBeatCurrentLevel");
-                FadeToLevelSelect();
+                FadeToState('levelselect');
             }
 		}
 		else
@@ -290,46 +289,28 @@ function OnGetMirror( mirror:Mirror )
 function SetFadeAmount( t:float )
 {
 	// get rid of all this...should just use AlphaHierarchy instead
+    /*
 	GetComponent(FadeAmount).SetFadeAmount(t);
 	mainLight.intensity = t * origLightIntensity;
 	levelNumber.GetComponent(GUITextFade).SetFadeAmount(t);
 
 	GetComponent(AlphaHierarchy).SetLocalAlpha(t, true);
+    */
 }
 
 function FadeToLevel( levId:int, fast:boolean )
 {
 	// fade into next level
-	gamestate = 'fadingOut';
-	fadeStart = Time.time;
 	goalLevId = levId;
-	doFastFade = fast;
-    postFadeState = 'playing';
-
-	if( isReflecting )
-		ExitReflectMode();
+    FadeToState('playing');
 }
 
-function FadeToLevelSelect()
+function FadeToState(newState:String)
 {
-    if( menu.GetIsActive() )
-        menu.EnterHidden();
-    
+    preFadeState = gamestate;
+    postFadeState = newState;
+    FadeCurtains.main.Close();
     gamestate = 'fadingOut';
-    fadeStart = Time.time;
-    postFadeState = 'levelselect';
-	doFastFade = false;
-}
-
-function FadeToTitleCard()
-{
-    if( menu.GetIsActive() )
-        menu.EnterHidden();
-    
-    gamestate = 'fadingOut';
-    fadeStart = Time.time;
-	postFadeState = 'titlecard';
-	doFastFade = false;
 }
 
 function OnKeysGotChanged()
@@ -497,10 +478,6 @@ function EnterPlayingState( levId:int, fadeIn:boolean )
 {
 	currLevId = levId;
 
-	if( fadeIn )
-	{
-		fadeStart = Time.time;
-	}
     gamestate = 'playing';
     menu.EnterHidden();
 
@@ -656,6 +633,8 @@ function EnterPlayingState( levId:int, fadeIn:boolean )
 	BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
 	GetComponent(Connectable).TriggerEvent("OnLevelChanged");
 	GetComponent(Connectable).TriggerEvent("OnEnterPlayingState");
+
+    FadeCurtains.main.Open();
 }
 
 function EnterPlayingState( levId:int )
@@ -679,8 +658,9 @@ function ExitPlayingState()
 	mirrorCount.gameObject.SetActive(false);
 
     // in case we're in reflect
-    if( isReflecting )
-        BroadcastMessage("OnExitReflectMode", this, SendMessageOptions.DontRequireReceiver);
+
+	if( isReflecting )
+		ExitReflectMode();
 
 	for( inst in objectInsts )
 		Destroy(inst);
@@ -732,7 +712,7 @@ function Awake()
 	}
 	else
 	{
-		Singleton = this.GetComponent(GameController);
+		Singleton = this;
 
 		// build from the text file
 		var reader = new StringReader( levelsText.text );
@@ -764,14 +744,50 @@ function Awake()
 
 function Start()
 {
-	SetFadeAmount( 0 );
-	fadeStart = Time.time;
+	SetFadeAmount( 1 );
 	gamestate = 'startscreen';
     ExitPlayingState();
+
+    Utils.Connect( this, FadeCurtains.main, "OnCurtainsOpened" );
+    Utils.Connect( this, FadeCurtains.main, "OnCurtainsClosed" );
+    FadeCurtains.main.Open();
 }
 
-function UpdateCollisionMesh()
+function OnCurtainsOpened()
 {
+}
+
+function OnCurtainsClosed()
+{
+    // Exit old
+
+    if( menu.GetIsActive() )
+        menu.EnterHidden();
+
+    if( preFadeState == 'playing' )
+        ExitPlayingState();
+    else if( preFadeState == 'titlecard' )
+        TitleCards.main.Hide();
+    else if( preFadeState == 'levelselect' )
+        LevelSelect.main.Hide();
+
+    // Enter
+
+    gamestate = postFadeState;
+
+    Debug.Log("closed to "+gamestate);
+
+    if( gamestate == 'playing' )
+        EnterPlayingState(goalLevId);
+    else if( gamestate == 'titlecard' )
+        TitleCards.main.Show();
+    else if( gamestate == 'levelselect' )
+        LevelSelect.main.Show();
+
+    // Close curtains
+    // Except keep curtains closed during titlecards
+    if( gamestate != 'titlecard' )
+        FadeCurtains.main.Open();
 }
 
 function GetMouseXYWorldPos() : Vector2
@@ -874,7 +890,7 @@ function OnStartLevel(num:int)
 
 function OnEnterGroup(num:int)
 {
-	gamestate = "titlecard";
+    FadeToState('titlecard');
 }
 
 function EnterReflectMode()
@@ -932,9 +948,6 @@ function ResetLevel()
 {
     if( gamestate == 'playing' || gamestate == 'menu' )
     {
-		if( isReflecting )
-			ExitReflectMode();
-
 		ExitPlayingState();
 		EnterPlayingState( currLevId, false );
 
@@ -966,25 +979,22 @@ function Update()
 
 	if( gamestate == 'startscreen' )
 	{
-		// fading in
-		SetFadeAmount(1.0);
-
 		// clear the other text objects
 		levelNumber.text = '';
 
 		if( Input.GetButtonDown('ReflectToggle') || Input.GetButtonDown('NextLevel') )
         {
-            FadeToTitleCard();
+            FadeToState('titlecard');
 		}
         else if( Input.GetButtonDown('LevelSelect') )
         {
-            FadeToLevelSelect();
+            FadeToState('levelselect');
         }
 
-//#if UNITY_EDITOR
+#if UNITY_EDITOR
         if( Input.GetButtonDown('Reset') )
             profile.Reset();
-//#endif
+#endif
 	}
     else if( gamestate == 'levelselect' )
     {
@@ -994,41 +1004,22 @@ function Update()
 	{
 		if( Input.GetButtonDown('ReflectToggle') )
 		{
-			gamestate = 'levelselect';
+            Debug.Log("fdsfds");
+            FadeToState('levelselect');
 		}
 	}
 	else if( gamestate == 'fadingOut' )
     {
-		var outTime = (doFastFade ? fastFadeOutTime : fadeOutTime);
-		var alpha = Mathf.Clamp( (Time.time-fadeStart) / outTime, 0.0, 1.0 );
-		SetFadeAmount( 1-alpha );
-
-		if( alpha >= 1.0 )
-        {
-            // done fading
-			ExitPlayingState();
-
-			if( postFadeState == 'playing' )
-                EnterPlayingState( goalLevId );
-			else
-				gamestate = postFadeState;
-        }
 	}
 	else if( gamestate == 'playing' )
     {
-
-		// fade in initially - just keep updating this
-		var inTime = (doFastFade ? fastFadeInTime : fadeInTime);
-		alpha = Mathf.Clamp( (Time.time-fadeStart) / inTime, 0.0, 1.0 );
-		SetFadeAmount( alpha );
-
         if( Input.GetButtonDown('Reset') )
         {
             ResetLevel();
         }
         else if( Input.GetButtonDown('LevelSelect') )
         {
-            FadeToLevelSelect();
+            FadeToState('levelselect');
         }
 #if UNITY_EDITOR
         else if( Input.GetButtonDown('NextLevel') ) {

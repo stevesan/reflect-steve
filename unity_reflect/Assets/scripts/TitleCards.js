@@ -1,5 +1,7 @@
 #pragma strict
 
+public static var main:TitleCards;
+
 private var group2text = [
 "I was lost, but had to keep moving.",
 "I was alone, with only myself to rely on.",
@@ -9,6 +11,11 @@ private var group2text = [
 "I had a feeling that this was it...",
 "But will I ever know for sure?"
 ];
+
+function Awake()
+{
+    main = this;
+}
 
 function Start()
 {
@@ -20,12 +27,12 @@ function Update()
 
 }
 
-function OnGameScreenHidden()
+function Hide()
 {
 	GetComponent(GUIText).enabled = false;
 }
 
-function OnGameScreenShow()
+function Show()
 {
 	GetComponent(GUIText).enabled = true;
 

@@ -299,7 +299,7 @@ function Awake()
 
 function Start ()
 {
-	OnGameScreenHidden();
+    Hide();
 	currentGroup = GetLastPlayedGroup();
 }
 
@@ -318,13 +318,6 @@ function GetLastLevel()
     return profile.GetLastLevel( GetCurrentGroup() );
 }
 
-// Called when fade is done
-function OnGameScreenShown()
-{
-	//giftsAnim = new ShowGiftsAnim(this);
-	//giftsAnim.Play();
-}
-
 function GetLastPlayedGroup()
 {
 	var lastPlayedLev = profile.GetLastPlayedLevel();
@@ -334,7 +327,7 @@ function GetLastPlayedGroup()
 		return profile.GetGroupNum( lastPlayedLev );
 }
 
-function OnGameScreenShow()
+function Show()
 {
 	if( state != "switchGroup" )
 	{
@@ -497,7 +490,7 @@ function OnGameScreenShow()
 
 }
 
-function OnGameScreenHidden()
+function Hide()
 {
 	// destroy all level widgets
 	for( var widget in widgets )

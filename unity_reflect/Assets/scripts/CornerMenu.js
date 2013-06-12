@@ -126,14 +126,14 @@ function Update()
             }
             else if( clickedName == "select" )
             {
-                game.FadeToLevelSelect();
+                game.FadeToState('levelselect');
             }
             else if( clickedName == "skip" )
             {
                 if( profile.CanSkipLevel(game.GetCurrentLevelId()) )
                 {
                     profile.OnSkipLevel(game.GetCurrentLevelId());
-                    game.FadeToLevelSelect();
+                    game.FadeToState('levelselect');
                 }
                 else
                 {
