@@ -97,15 +97,15 @@ private var printsAnims = new List.<GameObject>();
 private var mouseMgr:MouseEventManager = null;
 private var mouseListeners = new List.<MouseEventManager.Listener>();
 private var state = "hidden";
-private var currentGroup = 0;
+private var currentGroup = -1;
 private var keepGroupOnShow = false;
-private var selectedLevId = -1;
 private var showTime = 0.0;
 
 var giftTextEnabled = false;
 
 private var storyItems = new List.<GameObject>();
 private var beatStoryItems = new List.<GameObject>();
+private var showTitleCard = false;
 
 class ArrowListener implements MouseEventManager.Listener
 {
@@ -297,10 +297,77 @@ function Awake()
 	mirror.SetActive(false);
 }
 
-function Start ()
+function Start()
 {
-    Hide();
+    DeinitObjects();
 	currentGroup = GetLastPlayedGroup();
+ 
+    Utils.Connect( this, FadeCurtains.main, "OnCurtainsClosed" );
+}
+
+function DeinitObjects()
+{
+    // destroy all level widgets
+    for( var widget in widgets )
+    {
+        Destroy(widget);
+    }
+
+    widgets.Clear();
+    mouseListeners.Clear();
+    printsGen.Clear();
+
+    HideGifts();
+    giftsAnim = null;
+
+    //----------------------------------------
+    //  Just disable all children..screw it
+    //----------------------------------------
+    for( var child:Transform in transform )
+    {
+        child.gameObject.SetActive(false);
+    }
+}
+
+function SwitchGroups()
+{
+    FadeCurtains.main.Close();
+    state = "switchingGroups";
+}
+
+function OnCurtainsClosed()
+{
+    if( state == "cued" || state == "switchingGroups" )
+    {
+        DeinitObjects();
+
+        if( showTitleCard )
+        {
+            state = "titlecard";
+            TitleCards.main.Show();
+        }
+        else
+        {
+            showTitleCard = true;
+            InitObjects();
+            state = "shown";
+        }
+        FadeCurtains.main.Open();
+    }
+    else if( state == "titlecard" )
+    {
+        // show actual level select screen
+        TitleCards.main.Hide();
+        InitObjects();
+        state = "shown";
+        FadeCurtains.main.Open();
+    }
+    else if( state == "fadingToLevel" )
+    {
+        DeinitObjects();
+        state = "hidden";
+        // game is already cued to take over from here
+    }
 }
 
 function GetCurrentGroup()
@@ -327,15 +394,24 @@ function GetLastPlayedGroup()
 		return profile.GetGroupNum( lastPlayedLev );
 }
 
-function Show()
+function CueToShow(showTitleCard:boolean)
 {
-	if( state != "switchGroup" )
-	{
-		currentGroup = GetLastPlayedGroup();
-	}
+    if( state == "hidden" )
+    {
+        state = "cued";
+        this.showTitleCard = showTitleCard;
+    }
+}
 
+private function InitObjects()
+{
     state = "shown";
 	showTime = Time.time;
+
+    for( var child:Transform in transform )
+    {
+        child.gameObject.SetActive(true);
+    }
 
 	// Compute some numbers
     var firstLev = GetFirstLevel();
@@ -398,7 +474,7 @@ function Show()
 	//  Gift listeners
 	//----------------------------------------
 
-	HideAllGiftCrap();
+	HideGifts();
 	giftText.text = "";
 
 	if( profile.HasBeatGame() )
@@ -490,33 +566,7 @@ function Show()
 
 }
 
-function Hide()
-{
-	// destroy all level widgets
-	for( var widget in widgets )
-	{
-		Destroy(widget);
-	}
-
-	widgets.Clear();
-	mouseListeners.Clear();
-	printsGen.Clear();
-
-	HideAllGiftCrap();
-	giftsAnim = null;
-
-	if( state == "fadingToLevel" && selectedLevId != -1 )
-	{
-		game.OnStartLevel(selectedLevId);
-	}
-	else if( state == "switchGroup" )
-	{
-		game.OnEnterGroup(currentGroup);
-	}
-
-}
-
-function HideAllGiftCrap()
+function HideGifts()
 {
 	for( var gifts in giftGroups )
 	{
@@ -527,91 +577,89 @@ function HideAllGiftCrap()
 	upperGround.SetActive(false);
 }
 
-function Update ()
+function Update()
 {
-    if( state != "shown" )
-        return;
-
-/*
-	if( giftsAnim != null )
-		giftsAnim.Update();
-
-*/
-    levelNumber.text = "";
-
-	// Don't respond to mouse for a little bit, to avoid accidental clicks
-	if( (Time.time-showTime) < 0.1 )
-		return;
-
-    mouseMgr.Update();
-    var iconTarget = mouseMgr.GetCurrentTarget() as IconMouseListener;
-    var arrowTarget = mouseMgr.GetCurrentTarget() as ArrowListener;
-
-    if( iconTarget != null )
+    if( state == "titlecard" )
     {
-        var targetLevId = iconTarget.icon.levelId;
-
-        // show the number
-        levelNumber.text = "" + (targetLevId+1);
-        var wsTextPos = iconTarget.icon.transform.position;
-        wsTextPos.y = iconTarget.GetBounds().max.y + 0.5;
-        var textPos = Camera.main.WorldToViewportPoint( wsTextPos );
-        levelNumber.transform.position.x = textPos.x;
-        levelNumber.transform.position.y = textPos.y;
-
-        if( Input.GetButtonDown('ReflectToggle') )
+        if( Input.GetMouseButtonDown(0) )
         {
-            // clicked a carrot.
-            // hide, and make sure to start the selected level once hidden
-            selectedLevId = targetLevId;
-            GetComponent(GameScreen).Hide();
-			AudioSource.PlayClipAtPoint( enterLevelSound, Vector3(0,0,0) );
-            state = "fadingToLevel";
+            FadeCurtains.main.Close();
         }
     }
-    else if( arrowTarget != null )
+    else if( state == "shown" )
     {
-        // show text above the arrow
-        if( arrowTarget.arrow == nextIcon )
-            levelNumber.text = ">>";
-        else 
-            levelNumber.text = "<<";
+        levelNumber.text = "";
 
-        wsTextPos = arrowTarget.arrow.transform.position;
-        wsTextPos.y = arrowTarget.GetBounds().max.y + 0.5;
-        textPos = Camera.main.WorldToViewportPoint( wsTextPos );
-        levelNumber.transform.position.x = textPos.x;
-        levelNumber.transform.position.y = textPos.y;
+        // Don't respond to mouse for a little bit, to avoid accidental clicks
+        if( (Time.time-showTime) < 0.1 )
+            return;
 
-        if( Input.GetButtonDown('ReflectToggle') )
+        mouseMgr.Update();
+        var iconTarget = mouseMgr.GetCurrentTarget() as IconMouseListener;
+        var arrowTarget = mouseMgr.GetCurrentTarget() as ArrowListener;
+
+        if( iconTarget != null )
         {
-            if( arrowTarget.arrow == nextIcon && currentGroup < profile.GetNumGroups()-1 )
+            var targetLevId = iconTarget.icon.levelId;
+
+            // show the number
+            levelNumber.text = "" + (targetLevId+1);
+            var wsTextPos = iconTarget.icon.transform.position;
+            wsTextPos.y = iconTarget.GetBounds().max.y + 0.5;
+            var textPos = Camera.main.WorldToViewportPoint( wsTextPos );
+            levelNumber.transform.position.x = textPos.x;
+            levelNumber.transform.position.y = textPos.y;
+
+            if( Input.GetButtonDown('ReflectToggle') )
             {
-                if( profile.GetIsGroupFinished(currentGroup) )
-                {
-                    currentGroup++;
-                    selectedLevId = -1;
-                    state = "switchGroup";
-                    GetComponent(GameScreen).Hide();
-                }
-                else
-                {
-                    // shake the unbeat icons so player knows
-                    for( var w in widgets )
-                    {
-                        var c = w.GetComponent(LevelIcon);
-                        if( !profile.HasBeatLevel(c.levelId) )
-                            c.OnNotBeatError();
-                    }
-                    AudioSource.PlayClipAtPoint( notBeatErrorSound, Vector3(0,0,0) );
-                }
+                // clicked a carrot.
+                // hide, and make sure to start the selected level once hidden
+                game.CueLevelStart(targetLevId);
+                FadeCurtains.main.Close();
+                AudioSource.PlayClipAtPoint( enterLevelSound, Vector3(0,0,0) );
+                state = "fadingToLevel";
             }
-            else if( arrowTarget.arrow == prevIcon && currentGroup > 0 )
+        }
+        else if( arrowTarget != null )
+        {
+            // show text above the arrow
+            if( arrowTarget.arrow == nextIcon )
+                levelNumber.text = ">>";
+            else 
+                levelNumber.text = "<<";
+
+            wsTextPos = arrowTarget.arrow.transform.position;
+            wsTextPos.y = arrowTarget.GetBounds().max.y + 0.5;
+            textPos = Camera.main.WorldToViewportPoint( wsTextPos );
+            levelNumber.transform.position.x = textPos.x;
+            levelNumber.transform.position.y = textPos.y;
+
+            if( Input.GetButtonDown('ReflectToggle') )
             {
-                currentGroup--;
-                selectedLevId = -1;
-                state = "switchGroup";
-                GetComponent(GameScreen).Hide();
+                if( arrowTarget.arrow == nextIcon && currentGroup < profile.GetNumGroups()-1 )
+                {
+                    if( profile.GetIsGroupFinished(currentGroup) )
+                    {
+                        currentGroup++;
+                        SwitchGroups();
+                    }
+                    else
+                    {
+                        // shake the unbeat icons so player knows
+                        for( var w in widgets )
+                        {
+                            var c = w.GetComponent(LevelIcon);
+                            if( !profile.HasBeatLevel(c.levelId) )
+                                c.OnNotBeatError();
+                        }
+                        AudioSource.PlayClipAtPoint( notBeatErrorSound, Vector3(0,0,0) );
+                    }
+                }
+                else if( arrowTarget.arrow == prevIcon && currentGroup > 0 )
+                {
+                    currentGroup--;
+                    SwitchGroups();
+                }
             }
         }
     }

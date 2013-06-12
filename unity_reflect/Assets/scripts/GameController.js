@@ -49,6 +49,7 @@ var ballKeyPrefab : GameObject;
 var mirrorPrefab : GameObject = null;
 var background : GameObject;
 var safeArea : SafeArea;
+var startscreen:GameObject;
 
 //----------------------------------------
 //  Objects for level geometry/UI
@@ -258,12 +259,10 @@ function OnTouchCarrot(carrot:Star)
 
             if( numCarrotsGot == carrotRefs.Count )
             {
-                if( tracker != null )
-                    tracker.PostEvent( "beatLevel", ""+currLevId );
-
+                if( tracker != null ) tracker.PostEvent( "beatLevel", ""+currLevId );
                 profile.OnBeatLevel(currLevId);
                 GetComponent(Connectable).TriggerEvent("OnBeatCurrentLevel");
-                FadeToState('levelselect');
+                FadeToLevelSelect(false);
             }
 		}
 		else
@@ -298,19 +297,11 @@ function SetFadeAmount( t:float )
     */
 }
 
-function FadeToLevel( levId:int, fast:boolean )
+function FadeToLevelSelect(showTitleCard)
 {
-	// fade into next level
-	goalLevId = levId;
-    FadeToState('playing');
-}
-
-function FadeToState(newState:String)
-{
-    preFadeState = gamestate;
-    postFadeState = newState;
+    LevelSelect.main.CueToShow(showTitleCard);
+    gamestate = 'fadingToLevelSelect';
     FadeCurtains.main.Close();
-    gamestate = 'fadingOut';
 }
 
 function OnKeysGotChanged()
@@ -474,12 +465,12 @@ function UpdateConveyorVisuals( conveyors:List.<Mesh2D> )
 //----------------------------------------
 //  Sets up the playing level
 //----------------------------------------
-function EnterPlayingState( levId:int, fadeIn:boolean )
+function InitPlaying( levId:int, fadeIn:boolean )
 {
 	currLevId = levId;
 
-    gamestate = 'playing';
     menu.EnterHidden();
+    ExitReflectMode();
 
     player.SetActive(true);
     mainPolygon.gameObject.SetActive(true);
@@ -495,10 +486,6 @@ function EnterPlayingState( levId:int, fadeIn:boolean )
 
 	levId = Mathf.Clamp( levId, 0, levels.Count-1 );
 	
-    if( isReflecting )
-	{
-        ExitReflectMode();
-    }
     numReflectionsDone = 0;
     profile.OnPlayingLevel(levId);
 
@@ -519,7 +506,8 @@ function EnterPlayingState( levId:int, fadeIn:boolean )
 		// update the outline
 		PolysToStroke( levels[levId].rockGeo, 1.0, rockStrokeWidth, rockOutlineBuffer, rockOutline.mesh );
 	}
-	else {
+	else
+    {
 		rockCollider.GetMesh().Clear();
 		rockCollider.OnMeshChanged();
 		rockPolygon.mesh.Clear();
@@ -528,9 +516,8 @@ function EnterPlayingState( levId:int, fadeIn:boolean )
 
     // get conveyors
     currConveyors = new List.<Mesh2D>();
-    for( conv in levels[levId].conveyors ) {
+    for( conv in levels[levId].conveyors )
         currConveyors.Add( conv.Duplicate() );
-    }
     conveyorsMesh.mesh.Clear();
     UpdateConveyorVisuals( currConveyors );
     convsInst.Reset( currConveyors, conveyorsStrokeWidth/2.0 );
@@ -551,9 +538,6 @@ function EnterPlayingState( levId:int, fadeIn:boolean )
 
 	// move camera to see the level
 	hostcam.transform.position = Utils.ToVector3( levels[levId].areaCenter, hostcam.transform.position.z );
-
-	//Debug.Log('spawned player at '+player.transform.position);
-	//Debug.Log('level area center at '+levels[levId].areaCenter);
 
 	//----------------------------------------
 	//  Spawn objects
@@ -585,7 +569,8 @@ function EnterPlayingState( levId:int, fadeIn:boolean )
     carrotRefs.Clear();
     carrotPrefab.SetActive(false);
 
-	for( lobj in levels[levId].objects ) {
+	for( lobj in levels[levId].objects )
+    {
 		var obj:GameObject = null;
 
 		// spawn key or ballkey
@@ -633,16 +618,14 @@ function EnterPlayingState( levId:int, fadeIn:boolean )
 	BroadcastMessage("OnLevelChanged", this, SendMessageOptions.DontRequireReceiver);
 	GetComponent(Connectable).TriggerEvent("OnLevelChanged");
 	GetComponent(Connectable).TriggerEvent("OnEnterPlayingState");
-
-    FadeCurtains.main.Open();
 }
 
-function EnterPlayingState( levId:int )
+function InitPlaying( levId:int )
 {
-	EnterPlayingState(levId, true);
+	InitPlaying(levId, true);
 }
 
-function ExitPlayingState()
+function DeinitPlayObjects()
 {
     flapWidget.SetActive(false);
     mouseMgr.SetActive(false);
@@ -661,6 +644,9 @@ function ExitPlayingState()
 
 	if( isReflecting )
 		ExitReflectMode();
+
+    if( menu.GetIsActive() )
+        menu.EnterHidden();
 
 	for( inst in objectInsts )
 		Destroy(inst);
@@ -746,48 +732,27 @@ function Start()
 {
 	SetFadeAmount( 1 );
 	gamestate = 'startscreen';
-    ExitPlayingState();
+    DeinitPlayObjects();
+    startscreen.SetActive(true);
 
-    Utils.Connect( this, FadeCurtains.main, "OnCurtainsOpened" );
     Utils.Connect( this, FadeCurtains.main, "OnCurtainsClosed" );
     FadeCurtains.main.Open();
 }
 
-function OnCurtainsOpened()
-{
-}
-
 function OnCurtainsClosed()
 {
-    // Exit old
-
-    if( menu.GetIsActive() )
-        menu.EnterHidden();
-
-    if( preFadeState == 'playing' )
-        ExitPlayingState();
-    else if( preFadeState == 'titlecard' )
-        TitleCards.main.Hide();
-    else if( preFadeState == 'levelselect' )
-        LevelSelect.main.Hide();
-
-    // Enter
-
-    gamestate = postFadeState;
-
-    Debug.Log("closed to "+gamestate);
-
-    if( gamestate == 'playing' )
-        EnterPlayingState(goalLevId);
-    else if( gamestate == 'titlecard' )
-        TitleCards.main.Show();
-    else if( gamestate == 'levelselect' )
-        LevelSelect.main.Show();
-
-    // Close curtains
-    // Except keep curtains closed during titlecards
-    if( gamestate != 'titlecard' )
+    if( gamestate == "cuedLevelStart" )
+    {
+        InitPlaying(goalLevId);
+        gamestate = "playing";
         FadeCurtains.main.Open();
+    }
+    else if( gamestate == "fadingToLevelSelect" )
+    {
+        DeinitPlayObjects();
+        startscreen.SetActive(false);
+        gamestate = "levelselect";
+    }
 }
 
 function GetMouseXYWorldPos() : Vector2
@@ -883,14 +848,11 @@ class ReflectEventDetails
 	}
 };
 
-function OnStartLevel(num:int)
+function CueLevelStart(levId:int)
 {
-    EnterPlayingState( num );
-}
-
-function OnEnterGroup(num:int)
-{
-    FadeToState('titlecard');
+    Utils.Assert( gamestate == "levelselect" );
+    gamestate = "cuedLevelStart";
+    goalLevId = levId;
 }
 
 function EnterReflectMode()
@@ -948,8 +910,8 @@ function ResetLevel()
 {
     if( gamestate == 'playing' || gamestate == 'menu' )
     {
-		ExitPlayingState();
-		EnterPlayingState( currLevId, false );
+		DeinitPlayObjects();
+		InitPlaying( currLevId, false );
 
         BroadcastMessage("OnResetLevel", this, SendMessageOptions.DontRequireReceiver);
 
@@ -982,34 +944,15 @@ function Update()
 		// clear the other text objects
 		levelNumber.text = '';
 
-		if( Input.GetButtonDown('ReflectToggle') || Input.GetButtonDown('NextLevel') )
+		if( Input.GetButtonDown('ReflectToggle') )
         {
-            FadeToState('titlecard');
-		}
-        else if( Input.GetButtonDown('LevelSelect') )
-        {
-            FadeToState('levelselect');
+            FadeToLevelSelect(true);
         }
 
 #if UNITY_EDITOR
         if( Input.GetButtonDown('Reset') )
             profile.Reset();
 #endif
-	}
-    else if( gamestate == 'levelselect' )
-    {
-		// wait for events from levelselect
-    }
-	else if( gamestate == 'titlecard' )
-	{
-		if( Input.GetButtonDown('ReflectToggle') )
-		{
-            Debug.Log("fdsfds");
-            FadeToState('levelselect');
-		}
-	}
-	else if( gamestate == 'fadingOut' )
-    {
 	}
 	else if( gamestate == 'playing' )
     {
@@ -1019,17 +962,9 @@ function Update()
         }
         else if( Input.GetButtonDown('LevelSelect') )
         {
-            FadeToState('levelselect');
+            FadeToLevelSelect(false);
         }
-#if UNITY_EDITOR
-        else if( Input.GetButtonDown('NextLevel') ) {
-            FadeToLevel( (currLevId+1)%levels.Count, true );
-        }
-        else if( Input.GetButtonDown('PrevLevel') ) {
-            FadeToLevel( (levels.Count+currLevId-1)%levels.Count, true );
-        }
-#endif
-        else if(currLevPoly != null )
+        else if( currLevPoly != null )
         {
             //currLevPoly.DebugDraw( Color.blue, 0.0 );
 
