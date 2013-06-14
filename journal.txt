@@ -1,11 +1,12 @@
 
 TODO:
+
+- repro bug with last level, going back to level select..
 - sound for bubble key fall, collide
 	like a "ding" sound
 - page flap menu sound
 
 - WAIT: Mark to fix some music stuff - worst case, fall back on looping single samples again
-- LOW: fix reverb zones sounding terrible on windows?
 
 STORY/LYRICS:
 
@@ -88,3 +89,5 @@ DONE:
 - bug: initial music soften is delayed..
 - sound for land
 - implement start screen idea
+- LOW: fix reverb zones sounding terrible on windows?
+    eh lowering the volume helped enough
