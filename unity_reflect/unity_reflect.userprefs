@@ -1,15 +1,8 @@
 ﻿<Properties>
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\scripts\Profile.js">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/scripts/ReflectingWidget.js">
     <Files>
-      <File FileName="Assets\scripts\Footprints.js" Line="1" Column="1" />
-      <File FileName="Assets\scripts\UnityUtils\CollisionState.js" Line="1" Column="1" />
-      <File FileName="Assets\scripts\UnityUtils\Math2D.js" Line="1" Column="1" />
-      <File FileName="Assets\scripts\UnityUtils\RigidbodyNeverSleep.js" Line="1" Column="1" />
-      <File FileName="Assets\scripts\UnityUtils\SnowflakeSystem.js" Line="1" Column="1" />
-      <File FileName="Assets\scripts\LevelIcon.js" Line="1" Column="1" />
-      <File FileName="Assets\scripts\LevelSelect.js" Line="1" Column="1" />
-      <File FileName="Assets\scripts\Profile.js" Line="103" Column="1" />
+      <File FileName="Assets/scripts/ReflectingWidget.js" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
