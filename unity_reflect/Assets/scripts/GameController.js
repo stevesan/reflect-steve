@@ -262,7 +262,15 @@ function OnTouchCarrot(carrot:Star)
                 if( tracker != null ) tracker.PostEvent( "beatLevel", ""+currLevId );
                 profile.OnBeatLevel(currLevId);
                 GetComponent(Connectable).TriggerEvent("OnBeatCurrentLevel");
-                FadeToLevelSelect(false);
+
+#if UNITY_EDITOR
+                    FadeToEnding();
+#else
+                if( profile.HasBeatGame() )
+                    FadeToEnding();
+                else
+                    FadeToLevelSelect(false);
+#endif
             }
 		}
 		else
@@ -302,6 +310,19 @@ function FadeToLevelSelect(showTitleCard)
     LevelSelect.main.CueToShow(showTitleCard);
     gamestate = 'fadingToLevelSelect';
     FadeCurtains.main.Close();
+}
+
+function FadeToEnding()
+{
+    Ending.main.CueToShow();
+    gamestate = 'fadingToEnding';
+    FadeCurtains.main.Close();
+}
+
+function OnEndingDone()
+{
+    Utils.Assert( gamestate == "ending" );
+    FadeToLevelSelect(false);
 }
 
 function OnKeysGotChanged()
@@ -747,6 +768,11 @@ function OnCurtainsClosed()
         DeinitPlayObjects();
         startscreen.SetActive(false);
         gamestate = "levelselect";
+    }
+    else if( gamestate == "fadingToEnding" )
+    {
+        DeinitPlayObjects();
+        gamestate = "ending";
     }
 }
 
