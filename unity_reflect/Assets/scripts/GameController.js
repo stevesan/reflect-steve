@@ -477,6 +477,7 @@ function InitPlaying( levId:int )
 {
 	currLevId = levId;
     gamestate = "playing";
+    freeMode = false;
 
     menu.EnterHidden();
     ExitReflectMode();

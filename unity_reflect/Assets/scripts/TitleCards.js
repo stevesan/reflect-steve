@@ -19,7 +19,7 @@ function Awake()
 
 function Start()
 {
-	GetComponent(GUIText).enabled = false;
+    Hide();
 }
 
 function Update()
@@ -38,5 +38,5 @@ function Show()
 
 	var group = LevelSelect.main.GetCurrentGroup();
 	if( group < group2text.length )
-		GetComponent(GUIText).text = group2text[group] + "\n\n\n(click)";
+		GetComponent(GUIText).text = group2text[group] + "\n\n(click)";
 }

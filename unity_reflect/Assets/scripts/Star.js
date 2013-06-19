@@ -10,24 +10,42 @@ var starSprite:Renderer;
 var game:GameController;
 
 var altTextures:Texture[];
+var altScales:float[];
+
+private var origTexture:Texture;
 
 function Start()
 {
+    origTexture = null;
 }
 
 function Update()
 {
     if( Input.GetButtonDown("FreeMode") && (Profile.main.HasBeatGame() || Application.isEditor) )
     {
-        var levId = GameController.Singleton.GetCurrentLevelId();
-        var altId = 0;
-        starSprite.material.mainTexture = altTextures[levId % altTextures.length];
+        if( origTexture == null )
+        {
+            Utils.Assert( altTextures.length == altScales.length );
+            origTexture = starSprite.material.mainTexture;
+            var levId = GameController.Singleton.GetCurrentLevelId();
+            var altId = levId % altTextures.length;
+            starSprite.material.mainTexture = altTextures[altId];
+            var s = altScales[altId];
+            starSprite.transform.localScale = Vector3( s, s, 1 );
+        }
+        else
+        {
+            starSprite.material.mainTexture = origTexture;
+            origTexture = null;
+            starSprite.transform.localScale = Vector3( 1, 1, 1 );
+        }
     }
 }
 
 function SetLocked( locked:boolean )
 {
 	lockSprite.enabled = locked;
+    starSprite.enabled = !locked;
 }
 
 function OnUnlockedGoalByKey()

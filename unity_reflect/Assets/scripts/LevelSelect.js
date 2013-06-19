@@ -6,7 +6,6 @@ static var main:LevelSelect = null;
 
 var levelNumber:GUIText = null;
 var mainText:GUIText = null;
-var giftText:GUIText = null;
 var notBeatErrorSound:AudioClip;
 var skyDecor:AlphaHierarchy;
 var enterLevelSound:AudioClip;
@@ -18,9 +17,6 @@ var widgetSpacing = 1.0;
 var nextIcon:GameObject;
 var prevIcon:GameObject;
 var profile:Profile;
-
-var mirror:GameObject;
-var upperGround:GameObject;
 
 //----------------------------------------
 //  The foot prints going off screen
@@ -90,7 +86,6 @@ var printsGen = new FootprintsPathGen();
 
 private var game:GameController = null;
 private var widgetPrefabs = new List.<GameObject>();
-var giftGroups = new List.<GameObject>();
 
 private var widgets = new List.<GameObject>();
 private var printsAnims = new List.<GameObject>();
@@ -100,8 +95,6 @@ private var state = "hidden";
 private var currentGroup = -1;
 private var keepGroupOnShow = false;
 private var showTime = 0.0;
-
-var giftTextEnabled = false;
 
 private var storyItems = new List.<GameObject>();
 private var beatStoryItems = new List.<GameObject>();
@@ -128,129 +121,6 @@ class ArrowListener implements MouseEventManager.Listener
 
     function OnMouseExit() : void { }
 };
-
-class GiftListener implements MouseEventManager.Listener
-{
-	var gift:Gift;
-	var text:GUIText;
-	var parent:LevelSelect;
-
-	function GiftListener(_gift, _text, _parent)
-	{
-		Utils.Assert(_gift != null);
-		Utils.Assert(_text != null);
-		Utils.Assert(_parent != null);
-
-		this.gift = _gift;
-		this.text = _text;
-		this.parent = _parent;
-	}
-
-	function GetSpace() : String { return "world"; }
-
-	function GetBounds() : Bounds
-	{
-		return gift.gameObject.GetComponent(Renderer).bounds;
-	}
-
-    function OnMouseEnter() : void
-	{
-		if( this.parent.giftTextEnabled )
-		{
-			text.text = gift.subtitle;
-			gift.gameObject.GetComponent(tk2dSprite).color.a = 0.7;
-		}
-	}
-
-    function OnMouseExit() : void
-	{
-		text.text = "";
-		gift.gameObject.GetComponent(tk2dSprite).color.a = 1.0;
-	}
-};
-
-class ShowGiftsAnim extends SlicedAnimation
-{
-	private var screen:LevelSelect;
-
-	function ShowGiftsAnim(_screen:LevelSelect)
-	{
-		super();
-		//Debug.Log("!! called, screen name = " + _screen.gameObject.name);
-		this.screen = _screen;
-		Utils.Assert( this.screen != null );
-		//Debug.Log("!! called, screen name = " + screen.gameObject.name);
-	}
-
-	function Update()
-	{
-		Utils.Assert(this.screen != null);
-
-		if( screen.GetCurrentGroup() >= screen.giftGroups.Count )
-			return;
-
-		BeginUpdate();
-
-		var gifts = screen.giftGroups[ screen.GetCurrentGroup() ];
-
-		if( CheckSlice(1.0) )
-		{
-			if( JustStartedSlice() )
-			{
-				screen.giftTextEnabled = false;
-				screen.mirror.SetActive(false);
-				screen.upperGround.SetActive(false);
-				gifts.SetActive(false);
-				screen.skyDecor.gameObject.SetActive(true);
-				screen.skyDecor.SetLocalAlpha(1.0, true);
-			}
-		}
-		else if( CheckSlice(0.5) )
-		{
-			Utils.Assert(gifts != null);
-
-			if( JustStartedSlice() )
-			{
-				screen.mirror.SetActive(true);
-				screen.upperGround.SetActive(true);
-				AudioSource.PlayClipAtPoint(GameController.Singleton.startReflectSnd, Camera.main.transform.position );
-				gifts.SetActive(true);
-			}
-			var f = GetSliceFraction();
-			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(f, true);
-
-			// make the ground fade in faster
-			var groundAlpha = Mathf.Min( f*1.0, 1.0 );
-			screen.upperGround.GetComponent(AlphaHierarchy).SetLocalAlpha(groundAlpha, true);
-			screen.skyDecor.SetLocalAlpha(1-groundAlpha, true);
-			gifts.GetComponent(AlphaHierarchy).SetLocalAlpha(groundAlpha, true);
-		}
-		else if( CheckSlice(1.0) )
-		{
-			if( JustStartedSlice() )
-			{
-				screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1.0, true);
-				screen.skyDecor.gameObject.SetActive(false);
-			}
-		}
-		else if( CheckSlice(0.5) )
-		{
-			if( JustStartedSlice() )
-			{
-				AudioSource.PlayClipAtPoint(GameController.Singleton.cancelReflectSnd, Camera.main.transform.position );
-				screen.giftTextEnabled = true;
-			}
-			screen.mirror.GetComponent(AlphaHierarchy).SetLocalAlpha(1-GetSliceFraction(), true);
-		}
-		else if( CheckSlice(0.0) )
-		{
-			screen.mirror.SetActive(false);
-		}
-
-		EndUpdate();
-	}
-}
-private var giftsAnim:ShowGiftsAnim = null;
 
 function Awake()
 {
@@ -280,21 +150,7 @@ function Awake()
 			widgetPrefabs.Add(prefab);
 			prefab.SetActive(false);
 		}
-
-		// Gift groups
-
-		var giftsXform = transform.Find("gifts"+g);
-		if( giftsXform != null )
-		{
-			Debug.Log("Found "+giftsXform.gameObject.name);
-			var group = giftsXform.gameObject;
-			giftGroups.Add(group);
-			group.SetActive(false);
-		}
 	}
-
-	upperGround.SetActive(false);
-	mirror.SetActive(false);
 }
 
 function Start()
@@ -316,9 +172,6 @@ function DeinitObjects()
     widgets.Clear();
     mouseListeners.Clear();
     printsGen.Clear();
-
-    HideGifts();
-    giftsAnim = null;
 
     //----------------------------------------
     //  Just disable all children..screw it
@@ -474,32 +327,13 @@ private function InitObjects()
 	//  Gift listeners
 	//----------------------------------------
 
-	HideGifts();
-	giftText.text = "";
-
 	if( profile.HasBeatGame() )
 	{
-		if( GetCurrentGroup() < giftGroups.Count )
-		{
-			giftGroups[GetCurrentGroup()].SetActive(true);
-
-			for( var itemXform:Transform in giftGroups[GetCurrentGroup()].transform )
-			{
-				Debug.Log(itemXform.gameObject.name);
-				mouseListeners.Add( new GiftListener(itemXform.gameObject.GetComponent(Gift), giftText, this ));
-			}
-			giftTextEnabled = true;
-			mainText.text = "";
-		}
-		else
-		{
-        	mainText.text = "You have finished the game - congrats!\nTry replaying levels and pressing F in-game";
-		}
+        mainText.text = "You have finished the game - congrats!\nTry replaying levels and pressing F in-game";
 	}
 	else
 	{
 		mainText.text = "";
-		giftTextEnabled = false;
 	}
 
 	//----------------------------------------
@@ -564,17 +398,6 @@ private function InitObjects()
 		}
     }
 
-}
-
-function HideGifts()
-{
-	for( var gifts in giftGroups )
-	{
-		gifts.SetActive(false);
-	}
-
-	mirror.SetActive(false);
-	upperGround.SetActive(false);
 }
 
 function Update()
