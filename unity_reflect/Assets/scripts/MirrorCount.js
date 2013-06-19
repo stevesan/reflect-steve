@@ -6,6 +6,7 @@
 
 var game:GameController;
 var text:GUIText;
+var textZ = 0.1f;
 var icon:GameObject;
 
 var ssTextOffset = Vector2(40, 0);
@@ -20,8 +21,9 @@ function Update ()
 {
     var wsOffset = GetComponent(PositionAnimation).GetCurrentOffset();
 
-	text.gameObject.transform.position = Camera.main.ScreenToViewportPoint(
-			Input.mousePosition + ssTextOffset + wsOffset*50.0);
+	text.transform.position = Camera.main.ScreenToViewportPoint(
+			Input.mousePosition + ssTextOffset + wsOffset*50.0 );
+    text.transform.position.z = textZ;
 	var z = icon.transform.position.z;
 	icon.transform.position =
         Camera.main.ScreenToWorldPoint( Input.mousePosition + ssIconOffset )

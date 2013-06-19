@@ -1,9 +1,12 @@
 #pragma strict
+
 import System.Collections.Generic; // for List
 import System.IO;
 import System.Xml;
+
 // Pretty specific code for Mark's reflection music concept
 
+static var main:MusicManager;
 var configXml:TextAsset;
 var reverb:AudioReverbZone;
 private var reverbZoneDist = new SlidingValue();
@@ -249,6 +252,12 @@ class ClipGroup
 private var groups = new List.<ClipGroup>();
 private var currGroup = -1;
 
+function Awake()
+{
+    Utils.Assert( main == null );
+    main = this;
+}
+
 function Start ()
 {
     // Hook up events
@@ -332,6 +341,12 @@ function OnExitReflectMode( game:GameObject )
 
     for( var clip in groups[currGroup].clips )
         clip.normal.FadeTo(1.0, 0.5);
+}
+
+function FadeOut()
+{
+    for( var clip in groups[currGroup].clips )
+        clip.normal.FadeTo(0.0, 0.5);
 }
 
 function OnToggleMuteMusic()

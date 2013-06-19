@@ -9,16 +9,20 @@ var lockSprite:Renderer;
 var starSprite:Renderer;
 var game:GameController;
 
-function Start () {
+var altTextures:Texture[];
 
+function Start()
+{
 }
 
-function Update () {
-
-}
-
-function SetShown( shown:boolean ) {
-	starSprite.enabled = shown;
+function Update()
+{
+    if( Input.GetButtonDown("FreeMode") && (Profile.main.HasBeatGame() || Application.isEditor) )
+    {
+        var levId = GameController.Singleton.GetCurrentLevelId();
+        var altId = 0;
+        starSprite.material.mainTexture = altTextures[levId % altTextures.length];
+    }
 }
 
 function SetLocked( locked:boolean )
@@ -50,4 +54,9 @@ function OnTriggerEnter(other : Collider) : void
             Destroy(this.gameObject);
         }
 	}
+}
+
+function OnDestroy()
+{
+    DestroyImmediate(starSprite.renderer.material);
 }

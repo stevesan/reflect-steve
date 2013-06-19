@@ -23,12 +23,6 @@ private var previewTranslateSpeed = 15.0;
 private var freeRotateSpeed = 0.5*Mathf.PI;
 var freeMode = false;
 
-#if UNITY_EDITOR
-private var isEditor = true;
-#else
-private var isEditor = false;
-#endif
-
 //----------------------------------------
 //  Components instances we use
 //----------------------------------------
@@ -95,11 +89,7 @@ private var origLightIntensity : float;
 var levelsText : TextAsset;
 
 // Use this to hide levels not ready for prime time..
-#if UNITY_EDITOR
 private var maxNumLevels = 22;
-#else
-private var maxNumLevels = 22;
-#endif
 
 //----------------------------------------
 //  Sounds
@@ -263,14 +253,11 @@ function OnTouchCarrot(carrot:Star)
                 profile.OnBeatLevel(currLevId);
                 GetComponent(Connectable).TriggerEvent("OnBeatCurrentLevel");
 
-#if UNITY_EDITOR
-                    FadeToEnding();
-#else
-                if( profile.HasBeatGame() )
+                if( profile.HasBeatGame() && currLevId == (maxNumLevels-1) )
+                    // just beat last level
                     FadeToEnding();
                 else
                     FadeToLevelSelect(false);
-#endif
             }
 		}
 		else
@@ -772,6 +759,7 @@ function OnCurtainsClosed()
     else if( gamestate == "fadingToEnding" )
     {
         DeinitPlayObjects();
+        startscreen.SetActive(false);
         gamestate = "ending";
     }
 }
@@ -948,7 +936,7 @@ function Update()
         GetComponent(Connectable).TriggerEvent("OnToggleMuteMusic");
     }
 
-    if( Input.GetButtonDown('FreeMode') && (profile.HasBeatGame() || isEditor) )
+    if( Input.GetButtonDown('FreeMode') && (profile.HasBeatGame() || Application.isEditor) )
     {
         freeMode = !freeMode;
         mirrorCount.OnCountChanged(numReflectionsAllowed - numReflectionsDone);
@@ -966,14 +954,20 @@ function Update()
         {
             FadeToLevelSelect(true);
         }
-
 #if UNITY_EDITOR
         if( Input.GetButtonDown('Reset') )
             profile.Reset();
+        if( Input.GetButtonDown('NextLevel') )
+            FadeToEnding();
 #endif
 	}
 	else if( gamestate == 'playing' )
     {
+#if UNITY_EDITOR
+        if( Input.GetButtonDown('NextLevel') )
+            FadeToEnding();
+#endif
+
         if( Input.GetButtonDown('Reset') )
         {
             ResetLevel();

@@ -1,5 +1,7 @@
 #pragma strict
 
+public static var main:Profile = null;
+
 //----------------------------------------
 //  A single player's profile. Their progression state, etc.
 //  Handles everything about levels, groups, unlocking levels, skipping, etc.
@@ -136,6 +138,12 @@ function HasPlayedLevel(levId:int)
 function OnSkipLevel(levId:int)
 {
     MaybeUnlockNextLevel(levId);
+}
+
+function Awake()
+{
+    Utils.Assert( main == null );
+    main = this;
 }
 
 function Reset()
