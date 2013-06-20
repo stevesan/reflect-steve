@@ -329,7 +329,7 @@ private function InitObjects()
 
 	if( profile.HasBeatGame() )
 	{
-        mainText.text = "You have finished the game - congrats!\nTry replaying levels and pressing F in-game";
+        mainText.text = "Congrats, you finished the game!\nTry replaying levels and pressing F";
 	}
 	else
 	{

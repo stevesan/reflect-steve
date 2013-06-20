@@ -632,6 +632,10 @@ function InitPlaying( levId:int )
 
 function DeinitPlayObjects()
 {
+    // in case we're in reflect
+	if( isReflecting )
+		ExitReflectMode();
+
     flapWidget.SetActive(false);
     mouseMgr.SetActive(false);
 
@@ -644,11 +648,6 @@ function DeinitPlayObjects()
 	previewOutline.gameObject.SetActive(false);
 
 	mirrorCount.gameObject.SetActive(false);
-
-    // in case we're in reflect
-
-	if( isReflecting )
-		ExitReflectMode();
 
     if( menu.GetIsActive() )
         menu.EnterHidden();
