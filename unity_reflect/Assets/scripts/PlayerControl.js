@@ -77,8 +77,8 @@ function GetWalkingValue() {
 
 function Reset()
 {
-	rigidbody.velocity = Vector3(0,0,0);
-	rigidbody.useGravity = false;
+	GetComponent.<Rigidbody>().velocity = Vector3(0,0,0);
+	GetComponent.<Rigidbody>().useGravity = false;
     disableGravityCount = 0;
 }
 
@@ -110,12 +110,12 @@ function AddJumpVelocity( relJumpHeight:float, gravityMag:float ) {
 	var accel = Vector3.up * v/Time.deltaTime;
 	//Debug.Log("goal velocity = " + v + " dt = " + Time.deltaTime + " accel = " + accel);
 	// We don't use forces for jumping, because sometimes the time deltas for the next frame are not the same.
-	rigidbody.velocity += Vector3.up*v;
+	GetComponent.<Rigidbody>().velocity += Vector3.up*v;
 }
 
 function OnEnterConveyor( conv:Conveyor ) {
 	disableGravityCount++;
-	rigidbody.velocity = Vector3(0,0,0);
+	GetComponent.<Rigidbody>().velocity = Vector3(0,0,0);
 }
 function OnExitConveyor( conv:Conveyor ) {
 	disableGravityCount--;
@@ -126,7 +126,7 @@ function ApplyGravity()
 	if( disableGravityCount > 0 || debugNeverUseGravity )
 		return;
 
-	rigidbody.AddForce( rigidbody.mass * Vector3(0,-1,0) * normalGravityMag * (scaleGravity ? GetScale():1.0) );
+	GetComponent.<Rigidbody>().AddForce( GetComponent.<Rigidbody>().mass * Vector3(0,-1,0) * normalGravityMag * (scaleGravity ? GetScale():1.0) );
 }
 
 function DoPerFrameIsGroundedQuery()
@@ -136,7 +136,7 @@ function DoPerFrameIsGroundedQuery()
 
 function IsGroundedSweepTest() : boolean
 {
-	var rb = rigidbody;
+	var rb = GetComponent.<Rigidbody>();
 
 	if( debugGroundSweepDist ) {
 		Debug.DrawLine( rb.transform.position, rb.transform.position - (rb.transform.up*groundTestRelDist*GetEdgeLength()), debugColor, debugSecs );
@@ -162,7 +162,7 @@ function IsGroundedSweepTest() : boolean
 
 function IsHittingWallSweepTest( dir:Vector3, debug:boolean ) : boolean
 {
-	var rb = rigidbody;
+	var rb = GetComponent.<Rigidbody>();
 	var hit : RaycastHit;
 
 	if( rb.SweepTest( dir, hit, groundTestRelDist*GetEdgeLength() ) ) {
@@ -206,7 +206,7 @@ function FixedUpdate()
 	//----------------------------------------
 	var walkThrottle = ( inputEnabled ? Input.GetAxisRaw ("Horizontal") : 0 );
 	var eventualGoalSpeed = 0.0;
-	var currSpeed = rigidbody.velocity.x;
+	var currSpeed = GetComponent.<Rigidbody>().velocity.x;
 
 	//----------------------------------------
 	//  Determine goal speed based on input
@@ -278,11 +278,11 @@ function FixedUpdate()
 		var idealAccel = (currGoalSpeed - currSpeed) / Time.deltaTime;
 		var maxAccelMag = GetEdgeLength() * ( isGrounded ? maxWalkRelAccel : maxInAirRelAccel );
 		var accel = Mathf.Clamp( idealAccel, -maxAccelMag, maxAccelMag );
-		rigidbody.AddForce( rigidbody.mass * transform.right * accel );
+		GetComponent.<Rigidbody>().AddForce( GetComponent.<Rigidbody>().mass * transform.right * accel );
 	}
 
 	if( debugXSpeed )
-		Debug.Log('x speed = '+ rigidbody.velocity.x + ' scale = ' + GetScale() );
+		Debug.Log('x speed = '+ GetComponent.<Rigidbody>().velocity.x + ' scale = ' + GetScale() );
 
 	//----------------------------------------
 	// Jumping
@@ -322,7 +322,7 @@ function FixedUpdate()
 			AudioSource.PlayClipAtPoint( landSound, transform.position );
 		}
 	}
-	prevYSpeed = rigidbody.velocity.y;
+	prevYSpeed = GetComponent.<Rigidbody>().velocity.y;
 	debugMinYSpeed = Mathf.Min( prevYSpeed, debugMinYSpeed );
 
 	// keep this at the end

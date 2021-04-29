@@ -76,5 +76,5 @@ function OnTriggerEnter(other : Collider) : void
 
 function OnDestroy()
 {
-    DestroyImmediate(starSprite.renderer.material);
+    DestroyImmediate(starSprite.GetComponent.<Renderer>().material);
 }

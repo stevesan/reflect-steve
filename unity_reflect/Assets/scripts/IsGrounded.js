@@ -12,8 +12,8 @@ private var isGrounded = false;
 function FixedUpdate() : void
 {
 	// Make sure we never sleep so we don't stop getting Stay messages
-	if( rigidbody.IsSleeping() )
-		rigidbody.WakeUp();
+	if( GetComponent.<Rigidbody>().IsSleeping() )
+		GetComponent.<Rigidbody>().WakeUp();
 }
 
 function OnCollisionStay( col : Collision ) : void

@@ -58,15 +58,15 @@ function OnTriggerEnter(other : Collider) : void
 }
 
 function OnEnterConveyor() {
-	if( rigidbody ) {
+	if( GetComponent.<Rigidbody>() ) {
 		disableGravityCount++;
-		rigidbody.useGravity = disableGravityCount <= 0;
+		GetComponent.<Rigidbody>().useGravity = disableGravityCount <= 0;
 	}
 }
 function OnExitConveyor() {
-	if( rigidbody ) {
+	if( GetComponent.<Rigidbody>() ) {
 		disableGravityCount--;
-		rigidbody.useGravity = disableGravityCount <= 0;
+		GetComponent.<Rigidbody>().useGravity = disableGravityCount <= 0;
 	}
 }
 

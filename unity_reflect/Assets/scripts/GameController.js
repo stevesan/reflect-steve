@@ -126,7 +126,7 @@ class RotationSounds
 		while(slice < 0) slice += sources.length;
 		var srcId = slice % sources.length;
 		var pan = Mathf.Cos(rads);
-		sources[srcId].src.pan = pan;
+		sources[srcId].src.panStereo = pan;
 		
 		for( var i = 0; i < sources.length; i++ ) {
 			if( i == srcId ) {
@@ -667,7 +667,7 @@ class CornerFlapWidget extends MouseEventManager.RendererListener
 
     function CornerFlapWidget(_flap:GameObject, _onHover:GameObject)
     {
-        super(_flap.renderer);
+        super(_flap.GetComponent.<Renderer>());
         flap = _flap;
         onHover = _onHover;
     }

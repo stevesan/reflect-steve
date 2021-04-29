@@ -29,7 +29,7 @@ private function Play()
     {
         // New slide
         FadeCurtains.main.Open();
-        guiTexture.texture = slides[i];
+        GetComponent.<GUITexture>().texture = slides[i];
         transform.localScale = Vector3(1,1,1);
         transform.position = origPosition;
         scrollDir = Vector3( Random.value-0.5, Random.value-0.5, Random.value-0.5 ).normalized;
@@ -58,7 +58,7 @@ function CueToShow()
 function Hide()
 {
     Debug.Log("hide called!");
-    guiTexture.texture = null;
+    GetComponent.<GUITexture>().texture = null;
     music.Stop();
 }
 
