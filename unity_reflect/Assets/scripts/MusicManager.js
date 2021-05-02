@@ -13,6 +13,9 @@ private var reverbZoneDist = new SlidingValue();
 private var maxMusicVolume = new SlidingValue();
 private var isMuted = false;
 
+private var startedFirst = false;
+private var firstUpdateTime = -1;
+
 class FadeableSource
 {
 	var attack:float;
@@ -73,8 +76,9 @@ class FadeableSource
         {
 			if( attack <= 0.0 )
                 level = 1.0;
-			else
+			else {
                 level += dt/attack;
+            }
 
 			if( level >= 1.0 )
             {
@@ -143,6 +147,7 @@ static var allReleaseTime = 2.0;
             var src = obj.AddComponent(AudioSource);
             src.clip = normalClip;
             src.loop = true;
+            src.volume = 0.0;
             normal = new FadeableSource(src, allAttackTime, allReleaseTime, allMaxVolume);
         }
 		
@@ -276,10 +281,6 @@ function Start ()
 		newGroup.ReadXML( reader, this.transform );
 		groups.Add(newGroup);
 	}
-	
-	// immediately play group 0
-	groups[0].OnLevelStart();
-	currGroup = 0;
 
     reverbZoneDist.Set(reverb.maxDistance);
     reverbZoneDist.SetSpeed(reverb.maxDistance/0.5);
@@ -290,6 +291,19 @@ function Start ()
 
 function Update ()
 {
+    if(firstUpdateTime < 0) {
+        firstUpdateTime = Time.time;
+    }
+    if(!startedFirst) {
+        // delay to avoid startup hitch in webGL build..
+        if((Time.time - firstUpdateTime) > 4.0) {
+            groups[0].OnLevelStart();
+            currGroup = 0;
+            startedFirst = true;
+        }
+        return;
+    }
+
 	for( var group in groups )
     {
 		group.Update(Time.deltaTime);
